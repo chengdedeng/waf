@@ -19,7 +19,6 @@
         <jvmSettings.agentApplicationName>${project.name}</jvmSettings.agentApplicationName>
     </properties>
     <profiles>
-        <!--JVM的配置注意Java内存墙问题,考虑是后台计算还是实时服务-->
         <!-- dev -->
         <profile>
             <id>dev</id>
@@ -143,18 +142,8 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>20.0</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.data</groupId>-->
-            <!--<artifactId>spring-data-redis</artifactId>-->
-            <!--<version>1.8.1.RELEASE</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>redis.clients</groupId>-->
-            <!--<artifactId>jedis</artifactId>-->
-            <!--<version>2.9.0</version>-->
-        <!--</dependency>-->
     </dependencies>
 
 
@@ -249,6 +238,18 @@
                                     <extraArgument>
                                         -Dpinpoint.applicationName=${jvmSettings.agentApplicationName}
                                     </extraArgument>
+                                    <!--<extraArgument>-Xms2048m</extraArgument>-->
+                                    <!--<extraArgument>-Xmx2048m</extraArgument>-->
+                                    <!--<extraArgument>-Xmn400m</extraArgument>-->
+                                    <!--<extraArgument>-XX:PermSize=128m</extraArgument>-->
+                                    <!--<extraArgument>-XX:MaxPermSize=128m</extraArgument>-->
+                                    <!--<extraArgument>-XX:TargetSurvivorRatio=80</extraArgument>-->
+                                    <!--<extraArgument>-XX:+UseConcMarkSweepGC</extraArgument>-->
+                                    <!--<extraArgument>-XX:+CMSClassUnloadingEnabled</extraArgument>-->
+                                    <!--<extraArgument>-Xloggc:/home/jiagou/log/gc.log</extraArgument>-->
+                                    <!--<extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>-->
+                                    <!--<extraArgument>-XX:+PrintGCDetails</extraArgument>-->
+                                    <!--<extraArgument>-XX:+PrintGCTimeStamps</extraArgument>-->
                                 </extraArguments>
                             </jvmSettings>
                         </daemon>
@@ -285,8 +286,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
         </plugins>

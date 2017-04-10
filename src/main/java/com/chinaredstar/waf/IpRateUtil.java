@@ -3,6 +3,8 @@ package com.chinaredstar.waf;
 import com.chinaredstar.waf.config.IpRateConf;
 
 import org.apache.commons.collections.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.BoundListOperations;
 import org.springframework.data.redis.core.RedisOperations;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class IpRateUtil {
+    private static Logger logger = LoggerFactory.getLogger(IpRateUtil.class);
     private IpRateConf ipRateConfClone;
     private IpRateConf ipRateConf;
     private RedisTemplate redisTemplate;
@@ -53,7 +56,7 @@ public class IpRateUtil {
                 tmp.put(uri, rate);
             }
         }
-        for (HashMap.Entry<String, Long> entry : mapConf.entrySet()) {
+        for (ConcurrentHashMap.Entry<String, Long> entry : mapConf.entrySet()) {
             if (!tmp.containsKey(entry.getKey())) {
                 mapConf.remove(entry.getKey());
             }
@@ -78,7 +81,7 @@ public class IpRateUtil {
 
     private boolean changeRedis(ConcurrentHashMap<String, Long> rate, KeyTime keyTime, String uri, String ip) {
         StringBuilder key = new StringBuilder();
-        ip = ip.replaceAll("\\:", "_");
+        ip = ip.replaceAll(":", "_");
         ip = ip.replaceAll("\\.", "_");
         key.append(uri).append("-").append(keyTime.getKeyPart()).append("-").append(ip);
         BoundListOperations boundListOperations = redisTemplate.boundListOps(key.toString());
@@ -94,7 +97,7 @@ public class IpRateUtil {
         return true;
     }
 
-    public boolean getRateConf(String uri, String ip) {
+    public boolean verify(String hostUri, String ip) {
         if (!ipRateConf.getS().equals(ipRateConfClone.getS())) {
             changeConf(ipRateConf.getS(), sRate);
         }
@@ -107,14 +110,14 @@ public class IpRateUtil {
         if (!ipRateConf.getD().equals(ipRateConfClone.getD())) {
             changeConf(ipRateConf.getD(), dRate);
         }
-        if (sRate.get(uri) != null) {
-            return changeRedis(sRate, KeyTime.S, uri, ip);
-        } else if (mRate.get(uri) != null) {
-            return changeRedis(mRate, KeyTime.M, uri, ip);
-        } else if (hRate.get(uri) != null) {
-            return changeRedis(hRate, KeyTime.H, uri, ip);
-        } else if (dRate.get(uri) != null) {
-            return changeRedis(dRate, KeyTime.D, uri, ip);
+        if (sRate.get(hostUri) != null) {
+            return changeRedis(sRate, KeyTime.S, hostUri, ip);
+        } else if (mRate.get(hostUri) != null) {
+            return changeRedis(mRate, KeyTime.M, hostUri, ip);
+        } else if (hRate.get(hostUri) != null) {
+            return changeRedis(hRate, KeyTime.H, hostUri, ip);
+        } else if (dRate.get(hostUri) != null) {
+            return changeRedis(dRate, KeyTime.D, hostUri, ip);
         } else {
             return true;
         }
