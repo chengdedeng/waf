@@ -46,7 +46,7 @@ public class IpRateUtil {
     }
 
     private void changeConf(String strConf, ConcurrentHashMap<String, Long> mapConf) {
-        HashMap<String, Long> tmp = new HashMap<String, Long>();
+        HashMap<String, Long> tmp = new HashMap<>();
         String[] confs = strConf.split(",");
         for (String conf : confs) {
             if (conf != null && !"".equals(conf)) {

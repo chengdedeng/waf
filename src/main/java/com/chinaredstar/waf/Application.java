@@ -1,8 +1,6 @@
 package com.chinaredstar.waf;
 
 
-import com.chinaredstar.waf.config.IpRateConf;
-
 import org.littleshoot.proxy.ActivityTrackerAdapter;
 import org.littleshoot.proxy.FlowContext;
 import org.littleshoot.proxy.HttpFilters;
@@ -12,9 +10,6 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.littleshoot.proxy.impl.ThreadPoolConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -34,24 +29,21 @@ public class Application {
     private static Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) throws UnknownHostException {
-        ApplicationContext factory = new ClassPathXmlApplicationContext("classpath:spring/applicationContext-*.xml");
-        final IpRateConf ipRateConf = (IpRateConf) factory.getBean("ipRateConf");
-        final RedisTemplate cacheRedisTemplate = (RedisTemplate) factory.getBean("cacheRedisTemplate");
-
-
-        final IpRateUtil ipRateUtil = new IpRateUtil(ipRateConf, cacheRedisTemplate);
+        final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
+                .addFilter(new IpHttpRequestFilter())
+                .addFilter(new IpHttpRequestFilter());
 
         ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
-        threadPoolConfiguration.withAcceptorThreads(5);
-        threadPoolConfiguration.withClientToProxyWorkerThreads(20);
-        threadPoolConfiguration.withProxyToServerWorkerThreads(20);
+        threadPoolConfiguration.withAcceptorThreads(Constant.acceptorThreads);
+        threadPoolConfiguration.withClientToProxyWorkerThreads(Constant.clientToProxyWorkerThreads);
+        threadPoolConfiguration.withProxyToServerWorkerThreads(Constant.proxyToServerWorkerThreads);
 
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(8888);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.serverPort);
         DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress)
 //                        .withMaxChunkSize(10000)
                 .withAllowRequestToOriginServer(true)
-                .withProxyAlias("LittleProxy")
+                .withProxyAlias("WAF")
 //                        .withThrottling(200000, 2000000)
                 .withThreadPoolConfiguration(threadPoolConfiguration)
                 .withServerResolver(new RedStarHostResolver())
@@ -61,7 +53,7 @@ public class Application {
                                                           HttpRequest httpRequest) {
                         InetSocketAddress clientAddress = flowContext.getClientAddress();
                         //将请求源地址塞入header带给过滤器
-                        httpRequest.headers().add("X-Proxy_IP", clientAddress.getAddress().getHostAddress());
+                        httpRequest.headers().add("X-Proxy-IP", clientAddress.getAddress().getHostAddress());
                     }
                 })
                 .withFiltersSource(new HttpFiltersSourceAdapter() {
@@ -77,11 +69,8 @@ public class Application {
                         return new HttpFiltersAdapter(originalRequest) {
                             @Override
                             public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-                                String host = originalRequest.headers().get("Host").replace(":","_");
-                                String uri = originalRequest.getUri();
-                                String xRealIP = originalRequest.headers().get("X-Real-IP");
-                                if (null != xRealIP && !ipRateUtil.verify(host + uri, xRealIP)) {
-//                                if (!ipRateUtil.verify(host + uri, "localhost")) {
+
+                                if (httpRequestFilterChain.doFilter(originalRequest)) {
                                     return create403Response();
                                 }
 
