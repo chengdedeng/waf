@@ -21,12 +21,11 @@ public class RedStarHostResolver implements HostResolver {
     @Override
     public InetSocketAddress resolve(String host, int port)
             throws UnknownHostException {
-        InetAddress addr = InetAddress.getByName(host);
         if (host.equals("waf.mklmall.com")) {
             return new InetSocketAddress("172.16.121.3", 84);
-        }else if(host.equals("localhost")){
+        } else if (host.equals("localhost")) {
             return new InetSocketAddress("172.16.121.3", 84);
         }
-        return new InetSocketAddress(addr, port);
+        return null;
     }
 }

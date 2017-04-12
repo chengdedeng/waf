@@ -18,12 +18,19 @@ public class Constant {
         ApplicationContext factory = new ClassPathXmlApplicationContext("classpath:spring/applicationContext-*.xml");
         IpRateConf ipRateConf = (IpRateConf) factory.getBean("ipRateConf");
         RedisTemplate cacheRedisTemplate = (RedisTemplate) factory.getBean("cacheRedisTemplate");
-        ipRateUtil = new IpRateUtil(ipRateConf, cacheRedisTemplate);
+        IpRateUtil = new IpRateUtil(ipRateConf, cacheRedisTemplate);
     }
 
-    public static IpRateUtil ipRateUtil;
-    public static int acceptorThreads = 5;
-    public static int clientToProxyWorkerThreads = 20;
-    public static int proxyToServerWorkerThreads = 20;
-    public static int serverPort=8888;
+    enum X_Frame_Options {
+        DENY,//表示该页面不允许在 frame 中展示,即便是在相同域名的页面中嵌套也不允许.
+        SAMEORIGIN//表示该页面可以在相同域名页面的 frame 中展示.
+    }
+
+    public static IpRateUtil IpRateUtil;
+    public static int AcceptorThreads = 5;
+    public static int ClientToProxyWorkerThreads = 20;
+    public static int ProxyToServerWorkerThreads = 20;
+    public static int ServerPort = 8888;
+    public static RedStarHostResolver RedStarHostResolver = new RedStarHostResolver();
+    public static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
 }

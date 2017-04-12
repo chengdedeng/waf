@@ -16,8 +16,8 @@ public class IpHttpRequestFilter implements HttpRequestFilter {
         String[] uris = httpRequest.getUri().split("\\?");
         String uri = uris[0];
         String xRealIP = httpRequest.headers().get("X-Real-IP");
-//        if (null != xRealIP && !Constant.ipRateUtil.verify(host + uri, xRealIP)) {
-        if (!Constant.ipRateUtil.verify(host + uri, "localhost")) {
+//        if (null != xRealIP && !Constant.IpRateUtil.verify(host + uri, xRealIP)) {
+        if (!Constant.IpRateUtil.verify(host + uri, "localhost")) {
             return true;
         }
         return false;

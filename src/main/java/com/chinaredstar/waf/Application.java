@@ -30,15 +30,16 @@ public class Application {
 
     public static void main(String[] args) throws UnknownHostException {
         final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
-                .addFilter(new IpHttpRequestFilter())
                 .addFilter(new IpHttpRequestFilter());
+        final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
+                .addFilter(new ClickjackHttpResponseFilter());
 
         ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
-        threadPoolConfiguration.withAcceptorThreads(Constant.acceptorThreads);
-        threadPoolConfiguration.withClientToProxyWorkerThreads(Constant.clientToProxyWorkerThreads);
-        threadPoolConfiguration.withProxyToServerWorkerThreads(Constant.proxyToServerWorkerThreads);
+        threadPoolConfiguration.withAcceptorThreads(Constant.AcceptorThreads);
+        threadPoolConfiguration.withClientToProxyWorkerThreads(Constant.ClientToProxyWorkerThreads);
+        threadPoolConfiguration.withProxyToServerWorkerThreads(Constant.ProxyToServerWorkerThreads);
 
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.serverPort);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.ServerPort);
         DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress)
 //                        .withMaxChunkSize(10000)
@@ -46,7 +47,7 @@ public class Application {
                 .withProxyAlias("WAF")
 //                        .withThrottling(200000, 2000000)
                 .withThreadPoolConfiguration(threadPoolConfiguration)
-                .withServerResolver(new RedStarHostResolver())
+                .withServerResolver(Constant.RedStarHostResolver)
                 .plusActivityTracker(new ActivityTrackerAdapter() {
                     @Override
                     public void requestReceivedFromClient(FlowContext flowContext,
@@ -80,6 +81,33 @@ public class Application {
                                     DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;
                                 }
                                 return null;
+                            }
+
+                            @Override
+                            public HttpResponse proxyToServerRequest(HttpObject httpObject) {
+                                if (httpObject instanceof HttpRequest) {
+                                    HttpRequest httpRequest = (HttpRequest) httpObject;
+                                    String[] hostPort = httpRequest.headers().get("Host").split(":");
+                                    try {
+                                        if (null == Constant.RedStarHostResolver.resolve(hostPort[0], Integer.valueOf(hostPort[1]))) {
+                                            HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
+                                            HttpHeaders.setContentLength(httpResponse, 0);
+                                            return httpResponse;
+
+                                        }
+                                    } catch (UnknownHostException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                return null;
+                            }
+
+                            @Override
+                            public HttpObject proxyToClientResponse(HttpObject httpObject) {
+                                if (httpObject instanceof HttpResponse) {
+                                    httpResponseFilterChain.doFilter((HttpResponse) httpObject);
+                                }
+                                return httpObject;
                             }
                         };
                     }
