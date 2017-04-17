@@ -4,7 +4,6 @@ package com.chinaredstar.waf;
 import org.littleshoot.proxy.ActivityTrackerAdapter;
 import org.littleshoot.proxy.FlowContext;
 import org.littleshoot.proxy.HttpFilters;
-import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.HttpFiltersSourceAdapter;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.littleshoot.proxy.impl.ThreadPoolConfiguration;
@@ -15,25 +14,12 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 
 public class Application {
     private static Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) throws UnknownHostException {
-        final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
-                .addFilter(new IpHttpRequestFilter());
-        final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
-                .addFilter(new ClickjackHttpResponseFilter());
-
         ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
         threadPoolConfiguration.withAcceptorThreads(Constant.AcceptorThreads);
         threadPoolConfiguration.withClientToProxyWorkerThreads(Constant.ClientToProxyWorkerThreads);
@@ -42,7 +28,6 @@ public class Application {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.ServerPort);
         DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress)
-//                        .withMaxChunkSize(10000)
                 .withAllowRequestToOriginServer(true)
                 .withProxyAlias("WAF")
 //                        .withThrottling(200000, 2000000)
@@ -58,66 +43,25 @@ public class Application {
                     }
                 })
                 .withFiltersSource(new HttpFiltersSourceAdapter() {
-                    //如果需要对请求的报文内容进行过滤,需要启用它从而获得FullHttpRequest
+                    //如果需要对请求的报文内容进行过滤,需要启用它从而获得FullHttpRequest,大文件上传的时候得注意这个设置
+                    @Override
+                    public int getMaximumRequestBufferSizeInBytes() {
+                        return 10 * 1024 * 1024;
+                    }
 
-                    /***
-                     @Override public int getMaximumRequestBufferSizeInBytes() {
-                     return 1024 * 1024 * 30;
-                     }
-                     */
+                    //Response设置buffer之后,如果碰见大文件下载,必须要inflater和aggregator handler
+                    @Override
+                    public int getMaximumResponseBufferSizeInBytes() {
+                        return 10 * 1024 * 1024;
+                    }
+
                     @Override
                     public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
-                        return new HttpFiltersAdapter(originalRequest) {
-                            @Override
-                            public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-
-                                if (httpRequestFilterChain.doFilter(originalRequest)) {
-                                    return create403Response();
-                                }
-
-                                if (originalRequest instanceof FullHttpRequest) {
-                                    FullHttpRequest fullHttpRequest = (FullHttpRequest) originalRequest;
-                                } else if (originalRequest instanceof DefaultHttpRequest) {
-                                    DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;
-                                }
-                                return null;
-                            }
-
-                            @Override
-                            public HttpResponse proxyToServerRequest(HttpObject httpObject) {
-                                if (httpObject instanceof HttpRequest) {
-                                    HttpRequest httpRequest = (HttpRequest) httpObject;
-                                    String[] hostPort = httpRequest.headers().get("Host").split(":");
-                                    try {
-                                        if (null == Constant.RedStarHostResolver.resolve(hostPort[0], Integer.valueOf(hostPort[1]))) {
-                                            HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
-                                            HttpHeaders.setContentLength(httpResponse, 0);
-                                            return httpResponse;
-
-                                        }
-                                    } catch (UnknownHostException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                return null;
-                            }
-
-                            @Override
-                            public HttpObject proxyToClientResponse(HttpObject httpObject) {
-                                if (httpObject instanceof HttpResponse) {
-                                    httpResponseFilterChain.doFilter((HttpResponse) httpObject);
-                                }
-                                return httpObject;
-                            }
-                        };
+                        return new RSHttpFilterAdapter(originalRequest, ctx);
                     }
                 })
                 .start();
     }
 
-    private static HttpResponse create403Response() {
-        HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
-        HttpHeaders.setContentLength(httpResponse, 0);
-        return httpResponse;
-    }
+
 }

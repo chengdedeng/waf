@@ -24,7 +24,8 @@ public class RedStarHostResolver implements HostResolver {
         if (host.equals("waf.mklmall.com")) {
             return new InetSocketAddress("172.16.121.3", 84);
         } else if (host.equals("localhost")) {
-            return new InetSocketAddress("172.16.121.3", 84);
+            return new InetSocketAddress("192.168.122.12", 31501);
+//            return new InetSocketAddress("192.168.224.250", 8181);
         }
         return null;
     }

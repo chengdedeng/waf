@@ -33,4 +33,5 @@ public class Constant {
     public static int ServerPort = 8888;
     public static RedStarHostResolver RedStarHostResolver = new RedStarHostResolver();
     public static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
+    public static String hugeFilePattern="\\.iso$|\\.dmg$|\\.mp4$|\\.mp3$|\\.avi$|\\.exe$";
 }
