@@ -27,9 +27,9 @@ import io.netty.handler.codec.http.HttpVersion;
  *
  */
 public class RSHttpFilterAdapter extends HttpFiltersAdapter {
-    final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
+    private final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
             .addFilter(new IpHttpRequestFilter());
-    final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
+    private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
             .addFilter(new ClickjackHttpResponseFilter());
 
     public RSHttpFilterAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
@@ -61,7 +61,6 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
                     HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
                     HttpHeaders.setContentLength(httpResponse, 0);
                     return httpResponse;
-
                 }
             } catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -71,17 +70,23 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     }
 
     @Override
-    public void proxyToServerResolutionSucceeded(String serverHostAndPort,
-                                                 InetSocketAddress resolvedRemoteAddress) {
-    }
-
-    @Override
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
             httpResponseFilterChain.doFilter((HttpResponse) httpObject);
         }
         return httpObject;
     }
+
+    @Override
+    public InetSocketAddress proxyToServerResolutionStarted(
+            String resolvingServerHostAndPort) {
+        return super.proxyToServerResolutionStarted(resolvingServerHostAndPort);
+    }
+
+    @Override
+    public void proxyToServerConnectionFailed() {
+    }
+
 
     @Override
     public void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx) {

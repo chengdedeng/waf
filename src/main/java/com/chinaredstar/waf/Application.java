@@ -29,7 +29,7 @@ public class Application {
         DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress)
                 .withAllowRequestToOriginServer(true)
-                .withProxyAlias("WAF")
+                .withProxyAlias("waf")
 //                        .withThrottling(200000, 2000000)
                 .withThreadPoolConfiguration(threadPoolConfiguration)
                 .withServerResolver(Constant.RedStarHostResolver)
@@ -46,13 +46,13 @@ public class Application {
                     //如果需要对请求的报文内容进行过滤,需要启用它从而获得FullHttpRequest,大文件上传的时候得注意这个设置
                     @Override
                     public int getMaximumRequestBufferSizeInBytes() {
-                        return 10 * 1024 * 1024;
+                        return Constant.MaximumRequestBufferSizeInBytes;
                     }
 
                     //Response设置buffer之后,如果碰见大文件下载,必须要inflater和aggregator handler
                     @Override
                     public int getMaximumResponseBufferSizeInBytes() {
-                        return 10 * 1024 * 1024;
+                        return Constant.MaximumResponseBufferSizeInBytes;
                     }
 
                     @Override
