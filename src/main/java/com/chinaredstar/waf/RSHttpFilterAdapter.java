@@ -7,17 +7,20 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 
 /**
  * @author:杨果
@@ -28,25 +31,47 @@ import io.netty.handler.codec.http.HttpVersion;
  */
 public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     private final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
-            .addFilter(new IpHttpRequestFilter());
+            .addFilter(new IpHttpRequestFilter())
+            .addFilter(new HeaderHttpRequestFilter());
     private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
             .addFilter(new ClickjackHttpResponseFilter());
+
+    private final static ThreadLocal<HttpPostRequestDecoder> httpPostRequestDecoderThreadLocal = new ThreadLocal<>();
 
     public RSHttpFilterAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
     }
 
+
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
+        //黑白名单
+        //URI过滤
+        //参数过滤
+
+
+        if (originalRequest.getMethod().name().equals("POST")) {
+            if (httpPostRequestDecoderThreadLocal.get() == null) {
+                httpPostRequestDecoderThreadLocal.set(new HttpPostRequestDecoder(originalRequest));
+            }
+            if (httpObject instanceof HttpContent) {
+                HttpContent httpContent = (HttpContent) httpObject;
+                HttpContent httpContent1 = httpContent.copy();
+                byte[] bytes = Unpooled.copiedBuffer(httpContent1.content()).array();
+                System.out.println(new String(bytes));
+            }
+            if (httpObject instanceof LastHttpContent) {
+                httpPostRequestDecoderThreadLocal.remove();
+            }
+        } else {
+            DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;
+            String uri = defaultHttpRequest.getUri();
+            String[] part = uri.split("\\?", 2)[1].split("&");
+            System.out.println("---");
+        }
 
         if (httpRequestFilterChain.doFilter(originalRequest)) {
             return create403Response();
-        }
-
-        if (originalRequest instanceof FullHttpRequest) {
-            FullHttpRequest fullHttpRequest = (FullHttpRequest) originalRequest;
-        } else if (originalRequest instanceof DefaultHttpRequest) {
-            DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;
         }
         return null;
     }

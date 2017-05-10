@@ -31,8 +31,8 @@ public class Constant {
     public static int ClientToProxyWorkerThreads = 20;
     public static int ProxyToServerWorkerThreads = 20;
     public static int ServerPort = 8888;
-    public static int MaximumRequestBufferSizeInBytes=10 * 1024 * 1024;
-    public static int MaximumResponseBufferSizeInBytes=10 * 1024 * 1024;
+    public static int MaximumRequestBufferSizeInBytes = 0;
+    public static int MaximumResponseBufferSizeInBytes = 10 * 1024 * 1024;
     public static RedStarHostResolver RedStarHostResolver = com.chinaredstar.waf.RedStarHostResolver.getInstance();
     public static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
     public static String hugeFilePattern = "\\.iso$|\\.dmg$|\\.mp4$|\\.mp3$|\\.avi$|\\.exe$";
