@@ -30,7 +30,6 @@ public class Application {
                 .withAddress(inetSocketAddress)
                 .withAllowRequestToOriginServer(true)
                 .withProxyAlias("waf")
-//                        .withThrottling(200000, 2000000)
                 .withThreadPoolConfiguration(threadPoolConfiguration)
                 .withServerResolver(Constant.RedStarHostResolver)
                 .plusActivityTracker(new ActivityTrackerAdapter() {
@@ -62,6 +61,4 @@ public class Application {
                 })
                 .start();
     }
-
-
 }

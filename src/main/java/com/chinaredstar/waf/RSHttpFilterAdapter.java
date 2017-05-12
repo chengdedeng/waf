@@ -1,11 +1,21 @@
 package com.chinaredstar.waf;
 
+import com.chinaredstar.waf.request.ArgsHttpRequestFilter;
+import com.chinaredstar.waf.request.CookieHttpRequestFilter;
+import com.chinaredstar.waf.request.HttpRequestFilterChain;
+import com.chinaredstar.waf.request.IpHttpRequestFilter;
+import com.chinaredstar.waf.request.UaHttpRequestFilter;
+import com.chinaredstar.waf.request.UrlHttpRequestFilter;
+import com.chinaredstar.waf.request.WIpHttpRequestFilter;
+import com.chinaredstar.waf.response.ClickjackHttpResponseFilter;
+import com.chinaredstar.waf.response.HttpResponseFilterChain;
+
 import org.littleshoot.proxy.HttpFiltersAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
@@ -30,9 +40,14 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
  *
  */
 public class RSHttpFilterAdapter extends HttpFiltersAdapter {
+    private static Logger logger = LoggerFactory.getLogger(RSHttpFilterAdapter.class);
     private final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
+            .addFilter(new WIpHttpRequestFilter())
             .addFilter(new IpHttpRequestFilter())
-            .addFilter(new HeaderHttpRequestFilter());
+            .addFilter(new ArgsHttpRequestFilter())
+            .addFilter(new UrlHttpRequestFilter())
+            .addFilter(new CookieHttpRequestFilter())
+            .addFilter(new UaHttpRequestFilter());
     private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
             .addFilter(new ClickjackHttpResponseFilter());
 
@@ -48,7 +63,6 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
         //黑白名单
         //URI过滤
         //参数过滤
-
 
         if (originalRequest.getMethod().name().equals("POST")) {
             if (httpPostRequestDecoderThreadLocal.get() == null) {
@@ -66,11 +80,9 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
         } else {
             DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;
             String uri = defaultHttpRequest.getUri();
-            String[] part = uri.split("\\?", 2)[1].split("&");
-            System.out.println("---");
         }
 
-        if (httpRequestFilterChain.doFilter(originalRequest)) {
+        if (httpRequestFilterChain.doFilter(originalRequest, ctx)) {
             return create403Response();
         }
         return null;
@@ -82,7 +94,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
             HttpRequest httpRequest = (HttpRequest) httpObject;
             String[] hostPort = httpRequest.headers().get("Host").split(":");
             try {
-                if (null == Constant.RedStarHostResolver.resolve(hostPort[0], Integer.valueOf(hostPort[1]))) {
+                if (null == Constant.RedStarHostResolver.resolve(hostPort[0], hostPort.length == 2 ? Integer.valueOf(hostPort[1]) : 80)) {
                     HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
                     HttpHeaders.setContentLength(httpResponse, 0);
                     return httpResponse;
@@ -115,25 +127,16 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
 
     @Override
     public void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx) {
-        if (isHugeFile(originalRequest.getUri())) {
-            ChannelPipeline pipeline = serverCtx.pipeline();
-            if (pipeline.get("inflater") != null) {
-                pipeline.remove("inflater");
-            }
-            if (pipeline.get("aggregator") != null) {
-                pipeline.remove("aggregator");
-            }
+        ChannelPipeline pipeline = serverCtx.pipeline();
+        if (pipeline.get("inflater") != null) {
+            pipeline.remove("inflater");
+        }
+        if (pipeline.get("aggregator") != null) {
+            pipeline.remove("aggregator");
         }
         super.proxyToServerConnectionSucceeded(serverCtx);
     }
 
-
-    private static boolean isHugeFile(String uri) {
-        String[] tmp = uri.split("\\?");
-        Pattern pattern = Pattern.compile(Constant.hugeFilePattern);
-        Matcher matcher = pattern.matcher(tmp[0]);
-        return matcher.find();
-    }
 
     private static HttpResponse create403Response() {
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);

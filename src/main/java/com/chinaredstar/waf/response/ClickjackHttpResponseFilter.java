@@ -1,4 +1,6 @@
-package com.chinaredstar.waf;
+package com.chinaredstar.waf.response;
+
+import com.chinaredstar.waf.Constant;
 
 import io.netty.handler.codec.http.HttpResponse;
 

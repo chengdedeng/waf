@@ -1,0 +1,28 @@
+package com.chinaredstar.waf.request;
+
+/**
+ * @author:杨果
+ * @date:2017/5/11 下午3:57
+ *
+ * Description:
+ *
+ */
+public enum FilterType {
+    ARGS("args"),
+    COOKIE("cookie"),
+    UA("ua"),
+    URL("url"),
+    POST("post"),
+    IP("ip"),
+    WIP("wip");
+
+    private String fileName;
+
+    FilterType(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+}

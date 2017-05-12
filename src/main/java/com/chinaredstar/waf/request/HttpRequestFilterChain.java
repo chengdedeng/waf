@@ -1,8 +1,9 @@
-package com.chinaredstar.waf;
+package com.chinaredstar.waf.request;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -11,6 +12,7 @@ import io.netty.handler.codec.http.HttpRequest;
  *
  * Description:
  *
+ * 拦截器链
  */
 public class HttpRequestFilterChain {
     public List<HttpRequestFilter> filters = new ArrayList<>();
@@ -20,11 +22,13 @@ public class HttpRequestFilterChain {
         return this;
     }
 
-    public boolean doFilter(HttpRequest httpRequest) {
+    public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
         for (HttpRequestFilter filter : filters) {
-            boolean result = filter.doFilter(httpRequest);
-            if (result) {
+            boolean result = filter.doFilter(httpRequest, channelHandlerContext);
+            if (result && filter.isBlacklist()) {
                 return true;
+            } else if (result && !filter.isBlacklist()) {
+                return false;
             }
         }
         return false;
