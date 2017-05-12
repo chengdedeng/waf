@@ -17,6 +17,7 @@ import io.netty.handler.codec.http.HttpRequest;
  *
  * Description:
  *
+ * IP白名单拦截
  */
 public class WIpHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(WIpHttpRequestFilter.class);
