@@ -34,11 +34,12 @@ public abstract class HttpRequestFilter {
     /**
      * 记录hack日志
      *
+     * @param realIp 用户IP
      * @param logger 日志logger
      * @param type   匹配的类型
-     * @param regex  匹配上的正在表达式
+     * @param cause  被拦截的原因
      */
-    public void hackLog(Logger logger, String type, String regex) {
-        logger.warn("type:{},regex:{}", type, regex);
+    public void hackLog(Logger logger, String realIp, String type, String cause) {
+        logger.warn("type:{},realIp:{},cause:{}", type, realIp, cause);
     }
 }

@@ -1,5 +1,6 @@
 package com.chinaredstar.waf.request;
 
+import com.chinaredstar.waf.Constant;
 import com.chinaredstar.waf.util.ConfUtil;
 
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class UaHttpRequestFilter extends HttpRequestFilter {
             for (Pattern pat : ConfUtil.getPattern(FilterType.UA.name())) {
                 Matcher matcher = pat.matcher(ua);
                 if (matcher.find()) {
-                    hackLog(logger, FilterType.UA.name(), pat.toString());
+                    hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.UA.name(), pat.toString());
                     return true;
                 }
             }

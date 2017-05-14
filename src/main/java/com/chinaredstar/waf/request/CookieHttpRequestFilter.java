@@ -1,5 +1,6 @@
 package com.chinaredstar.waf.request;
 
+import com.chinaredstar.waf.Constant;
 import com.chinaredstar.waf.util.ConfUtil;
 
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
 
     @Override
     public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        logger.debug("filter:{}",this.getClass().getName());
+        logger.debug("filter:{}", this.getClass().getName());
         String cookiesStr = httpRequest.headers().get(FilterType.COOKIE.name());
         if (cookiesStr != null) {
             String[] cookies = cookiesStr.split(";");
@@ -32,7 +33,7 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
                 for (Pattern pat : ConfUtil.getPattern(FilterType.COOKIE.name())) {
                     Matcher matcher = pat.matcher(cookie);
                     if (matcher.find()) {
-                        hackLog(logger, FilterType.COOKIE.name(), pat.toString());
+                        hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.COOKIE.name(), pat.toString());
                         return true;
                     }
                 }

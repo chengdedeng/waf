@@ -1,11 +1,9 @@
 package com.chinaredstar.waf;
 
-import com.chinaredstar.perseus.utils.PropertiesUtil;
+import com.chinaredstar.waf.util.PropertiesUtil;
 import com.chinaredstar.waf.util.WeightedRoundRobinScheduling;
 
 import org.littleshoot.proxy.HostResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -22,7 +20,6 @@ import java.util.Map;
  *
  */
 public class RedStarHostResolver implements HostResolver {
-    private static Logger logger = LoggerFactory.getLogger(RedStarHostResolver.class);
     private static Map<String, WeightedRoundRobinScheduling> serverMap = new HashMap<>();
     private final static RedStarHostResolver redStarHostResolver = new RedStarHostResolver();
 

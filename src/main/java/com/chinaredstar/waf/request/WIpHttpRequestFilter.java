@@ -1,5 +1,6 @@
 package com.chinaredstar.waf.request;
 
+import com.chinaredstar.waf.Constant;
 import com.chinaredstar.waf.util.ConfUtil;
 
 import org.slf4j.Logger;
@@ -29,17 +30,9 @@ public class WIpHttpRequestFilter extends HttpRequestFilter {
 
     @Override
     public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        String xRealIP = httpRequest.headers().get("X-Real-IP");
-        String remoteAddress = channelHandlerContext.channel().remoteAddress().toString();
-        String realIp;
-        if (xRealIP != null) {
-            realIp = xRealIP;
-        } else {
-            realIp = remoteAddress;
-        }
-
+        logger.debug("filter:{}", this.getClass().getName());
         for (Pattern pat : ConfUtil.getPattern(FilterType.WIP.name())) {
-            Matcher matcher = pat.matcher(realIp);
+            Matcher matcher = pat.matcher(Constant.getRealIp(httpRequest, channelHandlerContext));
             if (matcher.find()) {
                 return true;
             }

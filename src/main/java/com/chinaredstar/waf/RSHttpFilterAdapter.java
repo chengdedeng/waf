@@ -1,6 +1,7 @@
 package com.chinaredstar.waf;
 
 import com.chinaredstar.waf.request.ArgsHttpRequestFilter;
+import com.chinaredstar.waf.request.CCHttpRequestFilter;
 import com.chinaredstar.waf.request.CookieHttpRequestFilter;
 import com.chinaredstar.waf.request.HttpRequestFilterChain;
 import com.chinaredstar.waf.request.IpHttpRequestFilter;
@@ -29,8 +30,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
-import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 
 /**
  * @author:杨果
@@ -41,50 +40,60 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
  */
 public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(RSHttpFilterAdapter.class);
-    private final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain()
-            .addFilter(new WIpHttpRequestFilter())
-            .addFilter(new IpHttpRequestFilter())
-            .addFilter(new ArgsHttpRequestFilter())
-            .addFilter(new UrlHttpRequestFilter())
-            .addFilter(new CookieHttpRequestFilter())
-            .addFilter(new UaHttpRequestFilter());
+    private final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain();
     private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
             .addFilter(new ClickjackHttpResponseFilter());
 
-    private final static ThreadLocal<HttpPostRequestDecoder> httpPostRequestDecoderThreadLocal = new ThreadLocal<>();
 
     public RSHttpFilterAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
+        if (Constant.wafConfs.get("waf.ip.whitelist").equals("on")) {
+            httpRequestFilterChain.addFilter(new WIpHttpRequestFilter());
+        }
+        if (Constant.wafConfs.get("waf.ip.blacklist").equals("on")) {
+            httpRequestFilterChain.addFilter(new IpHttpRequestFilter());
+        }
+        if (Constant.wafConfs.get("waf.cc").equals("on")) {
+            httpRequestFilterChain.addFilter(new CCHttpRequestFilter());
+        }
+        if (Constant.wafConfs.get("waf.scanner").equals("on")) {
+        }
+        if (Constant.wafConfs.get("waf.url.whitelist").equals("on")) {
+        }
+        if (Constant.wafConfs.get("waf.ua").equals("on")) {
+            httpRequestFilterChain.addFilter(new UaHttpRequestFilter());
+        }
+        if (Constant.wafConfs.get("waf.url").equals("on")) {
+            httpRequestFilterChain.addFilter(new UrlHttpRequestFilter());
+        }
+        if (Constant.wafConfs.get("waf.args").equals("on")) {
+            httpRequestFilterChain.addFilter(new ArgsHttpRequestFilter());
+        }
+        if (Constant.wafConfs.get("waf.cookie").equals("on")) {
+            httpRequestFilterChain.addFilter(new CookieHttpRequestFilter());
+        }
+        if (Constant.wafConfs.get("waf.post").equals("on")) {
+        }
     }
 
 
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-        //黑白名单
-        //URI过滤
-        //参数过滤
-
+        if (httpRequestFilterChain.doFilter(originalRequest, ctx)) {
+            return create403Response();
+        }
         if (originalRequest.getMethod().name().equals("POST")) {
-            if (httpPostRequestDecoderThreadLocal.get() == null) {
-                httpPostRequestDecoderThreadLocal.set(new HttpPostRequestDecoder(originalRequest));
-            }
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
                 HttpContent httpContent1 = httpContent.copy();
                 byte[] bytes = Unpooled.copiedBuffer(httpContent1.content()).array();
                 System.out.println(new String(bytes));
             }
-            if (httpObject instanceof LastHttpContent) {
-                httpPostRequestDecoderThreadLocal.remove();
-            }
         } else {
             DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;
             String uri = defaultHttpRequest.getUri();
         }
 
-        if (httpRequestFilterChain.doFilter(originalRequest, ctx)) {
-            return create403Response();
-        }
         return null;
     }
 

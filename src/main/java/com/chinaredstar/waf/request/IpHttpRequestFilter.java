@@ -1,5 +1,6 @@
 package com.chinaredstar.waf.request;
 
+import com.chinaredstar.waf.Constant;
 import com.chinaredstar.waf.util.ConfUtil;
 
 import org.slf4j.Logger;
@@ -24,19 +25,13 @@ public class IpHttpRequestFilter extends HttpRequestFilter {
 
     @Override
     public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        String xRealIP = httpRequest.headers().get("X-Real-IP");
-        String remoteAddress = channelHandlerContext.channel().remoteAddress().toString();
-        String realIp;
-        if (xRealIP != null) {
-            realIp = xRealIP;
-        } else {
-            realIp = remoteAddress;
-        }
+        logger.debug("filter:{}", this.getClass().getName());
+        String realIp = Constant.getRealIp(httpRequest, channelHandlerContext);
 
         for (Pattern pat : ConfUtil.getPattern(FilterType.IP.name())) {
             Matcher matcher = pat.matcher(realIp);
             if (matcher.find()) {
-                hackLog(logger, FilterType.IP.name(), pat.toString());
+                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.IP.name(), pat.toString());
                 return true;
             }
         }
