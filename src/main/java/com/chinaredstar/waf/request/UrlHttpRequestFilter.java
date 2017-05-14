@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -24,20 +26,23 @@ public class UrlHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(UrlHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        logger.debug("filter:{}", this.getClass().getName());
-        String url;
-        int index = httpRequest.getUri().indexOf("?");
-        if (index > -1) {
-            url = httpRequest.getUri().substring(0, index);
-        } else {
-            url = httpRequest.getUri();
-        }
-        for (Pattern pat : ConfUtil.getPattern(FilterType.URL.name())) {
-            Matcher matcher = pat.matcher(FilterType.URL.name());
-            if (matcher.find()) {
-                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.URL.name(), pat.toString());
-                return true;
+    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+        if (httpObject instanceof HttpRequest) {
+            logger.debug("filter:{}", this.getClass().getName());
+            HttpRequest httpRequest = (HttpRequest) httpObject;
+            String url;
+            int index = httpRequest.getUri().indexOf("?");
+            if (index > -1) {
+                url = httpRequest.getUri().substring(0, index);
+            } else {
+                url = httpRequest.getUri();
+            }
+            for (Pattern pat : ConfUtil.getPattern(FilterType.URL.name())) {
+                Matcher matcher = pat.matcher(FilterType.URL.name());
+                if (matcher.find()) {
+                    hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.URL.name(), pat.toString());
+                    return true;
+                }
             }
         }
         return false;

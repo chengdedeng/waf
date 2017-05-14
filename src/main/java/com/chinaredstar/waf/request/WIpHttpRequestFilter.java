@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -29,12 +31,15 @@ public class WIpHttpRequestFilter extends HttpRequestFilter {
     }
 
     @Override
-    public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        logger.debug("filter:{}", this.getClass().getName());
-        for (Pattern pat : ConfUtil.getPattern(FilterType.WIP.name())) {
-            Matcher matcher = pat.matcher(Constant.getRealIp(httpRequest, channelHandlerContext));
-            if (matcher.find()) {
-                return true;
+    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+        if (httpObject instanceof HttpRequest) {
+            logger.debug("filter:{}", this.getClass().getName());
+            HttpRequest httpRequest = (HttpRequest) httpObject;
+            for (Pattern pat : ConfUtil.getPattern(FilterType.WIP.name())) {
+                Matcher matcher = pat.matcher(Constant.getRealIp(httpRequest, channelHandlerContext));
+                if (matcher.find()) {
+                    return true;
+                }
             }
         }
         return false;

@@ -40,13 +40,11 @@ import io.netty.handler.codec.http.HttpVersion;
  */
 public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(RSHttpFilterAdapter.class);
-    private final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain();
+    private static final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain();
     private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
             .addFilter(new ClickjackHttpResponseFilter());
 
-
-    public RSHttpFilterAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
-        super(originalRequest, ctx);
+    static {
         if (Constant.wafConfs.get("waf.ip.whitelist").equals("on")) {
             httpRequestFilterChain.addFilter(new WIpHttpRequestFilter());
         }
@@ -77,9 +75,14 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     }
 
 
+    public RSHttpFilterAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
+        super(originalRequest, ctx);
+    }
+
+
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-        if (httpRequestFilterChain.doFilter(originalRequest, ctx)) {
+        if (httpRequestFilterChain.doFilter(httpObject, ctx)) {
             return create403Response();
         }
         if (originalRequest.getMethod().name().equals("POST")) {
@@ -87,7 +90,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
                 HttpContent httpContent = (HttpContent) httpObject;
                 HttpContent httpContent1 = httpContent.copy();
                 byte[] bytes = Unpooled.copiedBuffer(httpContent1.content()).array();
-                System.out.println(new String(bytes));
+//                System.out.println(new String(bytes));
             }
         } else {
             DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;

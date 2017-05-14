@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -24,20 +26,23 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(ArgsHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        logger.debug("filter:{}", this.getClass().getName());
-        int index = httpRequest.getUri().indexOf("?");
-        if (index > -1) {
-            String argsStr = httpRequest.getUri().substring(index + 1);
-            String[] args = argsStr.split("&");
-            for (String arg : args) {
-                String[] kv = arg.split("=");
-                if (kv.length == 2) {
-                    for (Pattern pat : ConfUtil.getPattern(FilterType.ARGS.name())) {
-                        Matcher matcher = pat.matcher(kv[1]);
-                        if (matcher.find()) {
-                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.ARGS.name(), pat.toString());
-                            return true;
+    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+        if (httpObject instanceof HttpRequest) {
+            logger.debug("filter:{}", this.getClass().getName());
+            HttpRequest httpRequest = (HttpRequest) httpObject;
+            int index = httpRequest.getUri().indexOf("?");
+            if (index > -1) {
+                String argsStr = httpRequest.getUri().substring(index + 1);
+                String[] args = argsStr.split("&");
+                for (String arg : args) {
+                    String[] kv = arg.split("=");
+                    if (kv.length == 2) {
+                        for (Pattern pat : ConfUtil.getPattern(FilterType.ARGS.name())) {
+                            Matcher matcher = pat.matcher(kv[1]);
+                            if (matcher.find()) {
+                                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.ARGS.name(), pat.toString());
+                                return true;
+                            }
                         }
                     }
                 }

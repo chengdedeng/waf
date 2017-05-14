@@ -10,6 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -24,17 +26,20 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(CookieHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        logger.debug("filter:{}", this.getClass().getName());
-        String cookiesStr = httpRequest.headers().get(FilterType.COOKIE.name());
-        if (cookiesStr != null) {
-            String[] cookies = cookiesStr.split(";");
-            for (String cookie : cookies) {
-                for (Pattern pat : ConfUtil.getPattern(FilterType.COOKIE.name())) {
-                    Matcher matcher = pat.matcher(cookie);
-                    if (matcher.find()) {
-                        hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.COOKIE.name(), pat.toString());
-                        return true;
+    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+        if (httpObject instanceof HttpRequest) {
+            logger.debug("filter:{}", this.getClass().getName());
+            HttpRequest httpRequest = (HttpRequest) httpObject;
+            String cookiesStr = httpRequest.headers().get(FilterType.COOKIE.name());
+            if (cookiesStr != null) {
+                String[] cookies = cookiesStr.split(";");
+                for (String cookie : cookies) {
+                    for (Pattern pat : ConfUtil.getPattern(FilterType.COOKIE.name())) {
+                        Matcher matcher = pat.matcher(cookie);
+                        if (matcher.find()) {
+                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.COOKIE.name(), pat.toString());
+                            return true;
+                        }
                     }
                 }
             }

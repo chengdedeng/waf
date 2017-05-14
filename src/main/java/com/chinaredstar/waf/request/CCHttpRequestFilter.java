@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.LastHttpContent;
 
 /**
  * @author:杨果
@@ -34,7 +34,7 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
 
 
     public CCHttpRequestFilter() {
-        CacheBuilder cacheBuilder = CacheBuilder.newBuilder()
+        loadingCache = CacheBuilder.newBuilder()
                 .maximumSize(1000)
                 .expireAfterWrite(2, TimeUnit.SECONDS)
                 .removalListener(new RemovalListener() {
@@ -43,33 +43,33 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                         logger.debug("key:{} remove from cache", notification.getKey());
                     }
                 })
-                .recordStats();
-        loadingCache = cacheBuilder.build(new CacheLoader<String, RateLimiter>() {
-            @Override
-            public RateLimiter load(String key) throws Exception {
-                RateLimiter rateLimiter = RateLimiter.create(Integer.parseInt(Constant.wafConfs.get("waf.cc.rate")));
-                logger.debug("RateLimiter for key:{} have been created", key);
-                return rateLimiter;
-            }
-        });
+                .build(new CacheLoader<String, RateLimiter>() {
+                    @Override
+                    public RateLimiter load(String key) throws Exception {
+                        RateLimiter rateLimiter = RateLimiter.create(Integer.parseInt(Constant.wafConfs.get("waf.cc.rate")));
+                        logger.debug("RateLimiter for key:{} have been created", key);
+                        return rateLimiter;
+                    }
+                });
     }
 
     @Override
-    public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        logger.debug("filter:{}", this.getClass().getName());
-        String realIp = Constant.getRealIp(httpRequest, channelHandlerContext);
-        RateLimiter rateLimiter = null;
-        try {
-            rateLimiter = (RateLimiter) loadingCache.get(realIp);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        if (httpRequest instanceof DefaultHttpRequest && !(httpRequest instanceof LastHttpContent)) {
+    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+        if (httpObject instanceof HttpRequest) {
+            logger.debug("filter:{}", this.getClass().getName());
+            String realIp = Constant.getRealIp((DefaultHttpRequest) httpObject, channelHandlerContext);
+            RateLimiter rateLimiter = null;
+            try {
+                rateLimiter = (RateLimiter) loadingCache.get(realIp);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
             if (rateLimiter.tryAcquire()) {
+                tl.set(false);
                 return false;
-//            return true;
             } else {
-                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "cc", Constant.wafConfs.get("waf.cc.rate"));
+                hackLog(logger, Constant.getRealIp((DefaultHttpRequest) httpObject, channelHandlerContext), "cc", Constant.wafConfs.get("waf.cc.rate"));
+                tl.set(true);
                 return true;
             }
         }

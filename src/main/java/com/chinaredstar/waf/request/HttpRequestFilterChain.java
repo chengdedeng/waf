@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -22,9 +23,9 @@ public class HttpRequestFilterChain {
         return this;
     }
 
-    public boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         for (HttpRequestFilter filter : filters) {
-            boolean result = filter.doFilter(httpRequest, channelHandlerContext);
+            boolean result = filter.doFilter(httpObject, channelHandlerContext);
             if (result && filter.isBlacklist()) {
                 return true;
             } else if (result && !filter.isBlacklist()) {

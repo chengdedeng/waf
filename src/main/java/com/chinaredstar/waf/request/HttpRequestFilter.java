@@ -3,7 +3,7 @@ package com.chinaredstar.waf.request;
 import org.slf4j.Logger;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpObject;
 
 /**
  * @author:杨果
@@ -20,7 +20,7 @@ public abstract class HttpRequestFilter {
      * @param httpRequest http请求
      * @return true:正则匹配成功,false:正则匹配失败
      */
-    public abstract boolean doFilter(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext);
+    public abstract boolean doFilter(HttpObject httpRequest, ChannelHandlerContext channelHandlerContext);
 
     /**
      * 是否是黑名单
