@@ -12,6 +12,7 @@ public enum FilterType {
     COOKIE("cookie"),
     UA("ua"),
     URL("url"),
+    WURL("wurl"),
     POST("post"),
     IP("ip"),
     WIP("wip");

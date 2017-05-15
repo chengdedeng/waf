@@ -15,14 +15,18 @@ import io.netty.handler.codec.http.HttpRequest;
 
 /**
  * @author:杨果
- * @date:2017/5/11 下午2:24
+ * @date:2017/5/15 上午9:27
  *
  * Description:
  *
- * URL路径黑名单拦截
  */
-public class UrlHttpRequestFilter extends HttpRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(UrlHttpRequestFilter.class);
+public class WUrlHttpRequestFilter extends HttpRequestFilter {
+    private static final Logger logger = LoggerFactory.getLogger(WUrlHttpRequestFilter.class);
+
+    @Override
+    public boolean isBlacklist() {
+        return false;
+    }
 
     @Override
     public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
@@ -36,10 +40,10 @@ public class UrlHttpRequestFilter extends HttpRequestFilter {
             } else {
                 url = httpRequest.getUri();
             }
-            for (Pattern pat : ConfUtil.getPattern(FilterType.URL.name())) {
+            for (Pattern pat : ConfUtil.getPattern(FilterType.WURL.name())) {
                 Matcher matcher = pat.matcher(url);
                 if (matcher.find()) {
-                    hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.URL.name(), pat.toString());
+                    hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.WURL.name(), pat.toString());
                     return true;
                 }
             }
