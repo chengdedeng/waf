@@ -26,7 +26,7 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(CookieHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;

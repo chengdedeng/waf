@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpRequest;
 
 /**
  * @author:杨果
@@ -17,10 +18,11 @@ public abstract class HttpRequestFilter {
     /**
      * httpRequest拦截逻辑
      *
-     * @param httpRequest http请求
+     * @param originalRequest original request
+     * @param httpObject     http请求
      * @return true:正则匹配成功,false:正则匹配失败
      */
-    public abstract boolean doFilter(HttpObject httpRequest, ChannelHandlerContext channelHandlerContext);
+    public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext);
 
     /**
      * 是否是黑名单

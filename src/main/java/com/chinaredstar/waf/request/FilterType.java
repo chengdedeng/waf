@@ -15,7 +15,8 @@ public enum FilterType {
     WURL("wurl"),
     POST("post"),
     IP("ip"),
-    WIP("wip");
+    WIP("wip"),
+    FILE("file");
 
     private String fileName;
 

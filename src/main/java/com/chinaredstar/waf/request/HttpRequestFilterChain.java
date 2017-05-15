@@ -23,9 +23,9 @@ public class HttpRequestFilterChain {
         return this;
     }
 
-    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         for (HttpRequestFilter filter : filters) {
-            boolean result = filter.doFilter(httpObject, channelHandlerContext);
+            boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext);
             if (result && filter.isBlacklist()) {
                 return true;
             } else if (result && !filter.isBlacklist()) {

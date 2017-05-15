@@ -54,7 +54,7 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
     }
 
     @Override
-    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             String realIp = Constant.getRealIp((DefaultHttpRequest) httpObject, channelHandlerContext);

@@ -25,7 +25,7 @@ public class UrlHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(UrlHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;

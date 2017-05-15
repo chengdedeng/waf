@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 
@@ -26,7 +25,7 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(ArgsHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;

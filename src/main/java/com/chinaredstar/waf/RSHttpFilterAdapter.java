@@ -5,6 +5,7 @@ import com.chinaredstar.waf.request.CCHttpRequestFilter;
 import com.chinaredstar.waf.request.CookieHttpRequestFilter;
 import com.chinaredstar.waf.request.HttpRequestFilterChain;
 import com.chinaredstar.waf.request.IpHttpRequestFilter;
+import com.chinaredstar.waf.request.PostHttpRequestFilter;
 import com.chinaredstar.waf.request.ScannerHttpRequestFilter;
 import com.chinaredstar.waf.request.UaHttpRequestFilter;
 import com.chinaredstar.waf.request.UrlHttpRequestFilter;
@@ -20,12 +21,11 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
-import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpRequest;
-import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -75,6 +75,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
             httpRequestFilterChain.addFilter(new CookieHttpRequestFilter());
         }
         if (Constant.wafConfs.get("waf.post").equals("on")) {
+            httpRequestFilterChain.addFilter(new PostHttpRequestFilter());
         }
     }
 
@@ -86,21 +87,17 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
 
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-        if (httpRequestFilterChain.doFilter(httpObject, ctx)) {
-            return create403Response();
+        if (httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx)) {
+            ChannelFuture future = ctx.writeAndFlush(create403Response());
+            future.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture arg0) throws Exception {
+                    if (arg0.isDone()) {
+                        ctx.close();
+                    }
+                }
+            });
         }
-        if (originalRequest.getMethod().name().equals("POST")) {
-            if (httpObject instanceof HttpContent) {
-                HttpContent httpContent = (HttpContent) httpObject;
-                HttpContent httpContent1 = httpContent.copy();
-                byte[] bytes = Unpooled.copiedBuffer(httpContent1.content()).array();
-//                System.out.println(new String(bytes));
-            }
-        } else {
-            DefaultHttpRequest defaultHttpRequest = (DefaultHttpRequest) originalRequest;
-            String uri = defaultHttpRequest.getUri();
-        }
-
         return null;
     }
 
