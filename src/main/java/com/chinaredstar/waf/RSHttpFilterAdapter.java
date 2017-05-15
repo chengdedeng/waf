@@ -5,6 +5,7 @@ import com.chinaredstar.waf.request.CCHttpRequestFilter;
 import com.chinaredstar.waf.request.CookieHttpRequestFilter;
 import com.chinaredstar.waf.request.HttpRequestFilterChain;
 import com.chinaredstar.waf.request.IpHttpRequestFilter;
+import com.chinaredstar.waf.request.ScannerHttpRequestFilter;
 import com.chinaredstar.waf.request.UaHttpRequestFilter;
 import com.chinaredstar.waf.request.UrlHttpRequestFilter;
 import com.chinaredstar.waf.request.WIpHttpRequestFilter;
@@ -56,6 +57,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
             httpRequestFilterChain.addFilter(new CCHttpRequestFilter());
         }
         if (Constant.wafConfs.get("waf.scanner").equals("on")) {
+            httpRequestFilterChain.addFilter(new ScannerHttpRequestFilter());
         }
         if (Constant.wafConfs.get("waf.url.whitelist").equals("on")) {
             httpRequestFilterChain.addFilter(new WUrlHttpRequestFilter());
