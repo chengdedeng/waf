@@ -15,8 +15,6 @@
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
-        <jvmSettings.agentId>waf-</jvmSettings.agentId>
-        <jvmSettings.agentApplicationName>${project.name}</jvmSettings.agentApplicationName>
     </properties>
     <profiles>
         <!-- dev -->
@@ -229,12 +227,6 @@
                                 <maxMemorySize>${jvmSettings.maxMemorySize}</maxMemorySize>
                                 <extraArguments>
                                     <extraArgument>-server</extraArgument>
-                                    <extraArgument>${jvmSettings.javaagent}</extraArgument>
-                                    <extraArgument>-Dpinpoint.agentId=${jvmSettings.agentId}
-                                    </extraArgument>
-                                    <extraArgument>
-                                        -Dpinpoint.applicationName=${jvmSettings.agentApplicationName}
-                                    </extraArgument>
                                     <!--<extraArgument>-Xms2048m</extraArgument>-->
                                     <!--<extraArgument>-Xmx2048m</extraArgument>-->
                                     <!--<extraArgument>-Xmn400m</extraArgument>-->
