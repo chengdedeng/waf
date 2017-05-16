@@ -25,6 +25,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpObject;
@@ -88,8 +89,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
         if (httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx)) {
-            ChannelFuture future = ctx.writeAndFlush(create403Response());
-            future.addListener(new ChannelFutureListener() {
+            ChannelPromise channelPromise = ctx.newPromise().addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture arg0) throws Exception {
                     if (arg0.isDone()) {
@@ -97,6 +97,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
                     }
                 }
             });
+            ctx.writeAndFlush(create403Response(), channelPromise);
         }
         return null;
     }
@@ -141,6 +142,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     @Override
     public void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx) {
         ChannelPipeline pipeline = serverCtx.pipeline();
+        //当没有修改getMaximumResponseBufferSizeInBytes中buffer默认的大小时,下面两个handler是不存在的
         if (pipeline.get("inflater") != null) {
             pipeline.remove("inflater");
         }
