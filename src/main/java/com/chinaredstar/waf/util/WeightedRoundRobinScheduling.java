@@ -1,10 +1,7 @@
 package com.chinaredstar.waf.util;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author:杨果
@@ -53,7 +50,7 @@ public class WeightedRoundRobinScheduling {
     /**
      * 返回所有服务器中的最大权重
      */
-    public static int getMaxWeightForServers(List<Server> serverList) {
+    private static int getMaxWeightForServers(List<Server> serverList) {
         int w = 0;
         for (int i = 0, len = serverList.size(); i < len - 1; i++) {
             if (w == 0) {
@@ -71,18 +68,22 @@ public class WeightedRoundRobinScheduling {
      * 适合的服务器返回，直到轮询结束，权值返回为0
      */
     public Server getServer() {
-        while (true) {
-            currentIndex = (currentIndex + 1) % serverCount;
-            if (currentIndex == 0) {
-                currentWeight = currentWeight - gcdWeight;
-                if (currentWeight <= 0) {
-                    currentWeight = maxWeight;
-                    if (currentWeight == 0)
-                        return null;
+        if (serverList.size() == 1) {
+            return serverList.get(0);
+        } else {
+            while (true) {
+                currentIndex = (currentIndex + 1) % serverCount;
+                if (currentIndex == 0) {
+                    currentWeight = currentWeight - gcdWeight;
+                    if (currentWeight <= 0) {
+                        currentWeight = maxWeight;
+                        if (currentWeight == 0)
+                            return null;
+                    }
                 }
-            }
-            if (serverList.get(currentIndex).weight >= currentWeight) {
-                return serverList.get(currentIndex);
+                if (serverList.get(currentIndex).weight >= currentWeight) {
+                    return serverList.get(currentIndex);
+                }
             }
         }
     }
@@ -131,38 +132,5 @@ public class WeightedRoundRobinScheduling {
         this.serverCount = serverList.size();
         this.maxWeight = getMaxWeightForServers(serverList);
         this.gcdWeight = getGCDForServers(serverList);
-    }
-
-
-    public static void main(String[] args) {
-        Server s1 = new Server("192.168.0.100", 80, 1);//3
-        Server s2 = new Server("192.168.0.101", 80, 1);//2
-        Server s3 = new Server("192.168.0.102", 80, 1);//6
-        Server s4 = new Server("192.168.0.103", 80, 1);//4
-        Server s5 = new Server("192.168.0.104", 80, 1);//1
-        List<Server> serverList = new ArrayList<>();
-        serverList.add(s1);
-        serverList.add(s2);
-        serverList.add(s3);
-        serverList.add(s4);
-        serverList.add(s5);
-        WeightedRoundRobinScheduling obj = new WeightedRoundRobinScheduling(serverList);
-
-        Map<String, Integer> countResult = new HashMap<>();
-
-        for (int i = 0; i < 100; i++) {
-            Server s = obj.getServer();
-            String log = "ip:" + s.ip + ";weight:" + s.weight;
-            if (countResult.containsKey(log)) {
-                countResult.put(log, countResult.get(log) + 1);
-            } else {
-                countResult.put(log, 1);
-            }
-            System.out.println(log);
-        }
-
-        for (Map.Entry<String, Integer> map : countResult.entrySet()) {
-            System.out.println("服务器 " + map.getKey() + " 请求次数： " + map.getValue());
-        }
     }
 }

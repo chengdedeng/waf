@@ -24,15 +24,20 @@ public class RedStarHostResolver implements HostResolver {
     private final static RedStarHostResolver redStarHostResolver = new RedStarHostResolver();
 
     private RedStarHostResolver() {
-        Map<String, String> servers = PropertiesUtil.getProperty("servers.properties");
+        Map<String, String> servers = PropertiesUtil.getProperty("upstream.properties");
         for (Map.Entry<String, String> entry : servers.entrySet()) {
             String hostInfo = entry.getKey();
             String[] serversInfo = entry.getValue().split(",");
             List<WeightedRoundRobinScheduling.Server> serverList = new ArrayList<>();
             for (String serverInfo : serversInfo) {
                 String[] si = serverInfo.split(":");
-                WeightedRoundRobinScheduling.Server server = new WeightedRoundRobinScheduling.Server(si[0], Integer.valueOf(si[1]), Integer.valueOf(si[2]));
-                serverList.add(server);
+                if (si.length == 2) {
+                    WeightedRoundRobinScheduling.Server server = new WeightedRoundRobinScheduling.Server(si[0], Integer.valueOf(si[1]), 1);
+                    serverList.add(server);
+                } else if (si.length == 3) {
+                    WeightedRoundRobinScheduling.Server server = new WeightedRoundRobinScheduling.Server(si[0], Integer.valueOf(si[1]), Integer.valueOf(si[2]));
+                    serverList.add(server);
+                }
             }
 
             serverMap.put(hostInfo, new WeightedRoundRobinScheduling(serverList));

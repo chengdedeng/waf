@@ -48,6 +48,7 @@ public class Constant {
                     realIp = matcher2.group(2);
                 }
             }
+            httpRequest.headers().add("X-Real-IP", realIp);
         }
         return realIp;
     }

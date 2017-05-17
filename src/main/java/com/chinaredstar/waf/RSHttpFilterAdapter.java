@@ -15,11 +15,12 @@ import com.chinaredstar.waf.response.ClickjackHttpResponseFilter;
 import com.chinaredstar.waf.response.HttpResponseFilterChain;
 
 import org.littleshoot.proxy.HttpFiltersAdapter;
+import org.littleshoot.proxy.impl.ClientToProxyConnection;
+import org.littleshoot.proxy.impl.ProxyToServerConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
+import java.lang.reflect.Field;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -91,31 +92,13 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
         if (httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx)) {
             ChannelPromise channelPromise = ctx.newPromise().addListener(new ChannelFutureListener() {
                 @Override
-                public void operationComplete(ChannelFuture arg0) throws Exception {
-                    if (arg0.isDone()) {
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    if (channelFuture.isDone()) {
                         ctx.close();
                     }
                 }
             });
             ctx.writeAndFlush(create403Response(), channelPromise);
-        }
-        return null;
-    }
-
-    @Override
-    public HttpResponse proxyToServerRequest(HttpObject httpObject) {
-        if (httpObject instanceof HttpRequest) {
-            HttpRequest httpRequest = (HttpRequest) httpObject;
-            String[] hostPort = httpRequest.headers().get("Host").split(":");
-            try {
-                if (null == Constant.RedStarHostResolver.resolve(hostPort[0], hostPort.length == 2 ? Integer.valueOf(hostPort[1]) : 80)) {
-                    HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
-                    HttpHeaders.setContentLength(httpResponse, 0);
-                    return httpResponse;
-                }
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
         }
         return null;
     }
@@ -129,18 +112,23 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     }
 
     @Override
-    public InetSocketAddress proxyToServerResolutionStarted(
-            String resolvingServerHostAndPort) {
-        return super.proxyToServerResolutionStarted(resolvingServerHostAndPort);
-    }
-
-    @Override
     public void proxyToServerConnectionFailed() {
+        ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
+        try {
+            Field field = ClientToProxyConnection.class.getDeclaredField("currentServerConnection");
+            field.setAccessible(true);
+            ProxyToServerConnection proxyToServerConnection = (ProxyToServerConnection) field.get(clientToProxyConnection);
+
+            String serverHostAndPort = proxyToServerConnection.getServerHostAndPort();
+            String remoteHostName = proxyToServerConnection.getRemoteAddress().getAddress().getHostAddress();
+            int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
+        } catch (Exception e) {
+            logger.error("proxy to server connection failed by:{}", e);
+        }
     }
 
-
     @Override
-    public void proxyToServerConnectionSucceeded(ChannelHandlerContext serverCtx) {
+    public void proxyToServerConnectionSucceeded(final ChannelHandlerContext serverCtx) {
         ChannelPipeline pipeline = serverCtx.pipeline();
         //当没有修改getMaximumResponseBufferSizeInBytes中buffer默认的大小时,下面两个handler是不存在的
         if (pipeline.get("inflater") != null) {
@@ -151,7 +139,6 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
         }
         super.proxyToServerConnectionSucceeded(serverCtx);
     }
-
 
     private static HttpResponse create403Response() {
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
