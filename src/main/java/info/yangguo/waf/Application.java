@@ -33,9 +33,9 @@ public class Application {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.ServerPort);
         HttpProxyServerBootstrap httpProxyServerBootstrap = DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress);
-        //透明代理模式,如果透明模式开启,优先走透明模式
         if (!"on".equals(Constant.wafConfs.get("waf.reverse.proxy"))) {
-            logger.debug("透明模式开启");
+            //透明代理模式
+            logger.debug("透明代理模式开启");
             String reverseProxy = Constant.wafConfs.get("waf.reverse.proxy.servers");
             final String[] reProxys = reverseProxy.split(",");
             httpProxyServerBootstrap.withChainProxyManager(new ChainedProxyManager() {
@@ -52,12 +52,14 @@ public class Application {
                     }
                 }
             });
+        } else {
+            //反向代理模式
+            logger.debug("反向代理模式开启");
+            httpProxyServerBootstrap.withServerResolver(RedStarHostResolver.getSingleton());
         }
         httpProxyServerBootstrap.withAllowRequestToOriginServer(true)
                 .withProxyAlias("waf")
                 .withThreadPoolConfiguration(threadPoolConfiguration)
-                //反向代理模式
-                .withServerResolver(Constant.RedStarHostResolver)
                 .plusActivityTracker(new ActivityTrackerAdapter() {
                     @Override
                     public void requestReceivedFromClient(FlowContext flowContext,

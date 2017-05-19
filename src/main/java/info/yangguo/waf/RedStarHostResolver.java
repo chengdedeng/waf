@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -31,11 +31,11 @@ import java.util.TimerTask;
  */
 class RedStarHostResolver implements HostResolver {
     private static Logger logger = LoggerFactory.getLogger(RedStarHostResolver.class);
-    private static Map<String, WeightedRoundRobinScheduling> serverMap = new HashMap<>();
-    private final static RedStarHostResolver redStarHostResolver = new RedStarHostResolver();
-    private final static HttpClient client = HttpClientBuilder.create().build();
+    private volatile static RedStarHostResolver singleton;
+    private Map<String, WeightedRoundRobinScheduling> serverMap = new HashMap<>();
+    private final HttpClient client = HttpClientBuilder.create().build();
 
-    private class ServerCheckTask extends TimerTask {
+    private class ServerCheckTask implements Runnable {
         @Override
         public void run() {
             try {
@@ -46,16 +46,16 @@ class RedStarHostResolver implements HostResolver {
                     for (WeightedRoundRobinScheduling.Server server : weightedRoundRobinScheduling.unhealthilyServers) {
                         HttpGet request = new HttpGet("http://" + server.getIp() + ":" + server.getPort());
                         try {
-                            logger.debug("health check host:{},ip:{},port:{}", entry.getKey(), server.getIp(), server.getPort());
                             httpResponse = (CloseableHttpResponse) client.execute(request);
                             weightedRoundRobinScheduling.healthilyServers.add(weightedRoundRobinScheduling.serversMap.get(server.getIp() + "_" + server.getPort()));
                             delServers.add(server);
-                            logger.info("host:{},ip:{},port:{} is health", entry.getKey(), server.getIp(), server.getPort());
+                            logger.info("domain host->{},ip->{},port->{} is healthy", entry.getKey(), server.getIp(), server.getPort());
                         } catch (ConnectException e1) {
+                            logger.warn("domain host->{},ip->{},port->{} is unhealthy", entry.getKey(), server.getIp(), server.getPort());
                         } catch (Exception e2) {
                             weightedRoundRobinScheduling.healthilyServers.add(weightedRoundRobinScheduling.serversMap.get(server.getIp() + "_" + server.getPort()));
                             delServers.add(server);
-                            logger.info("host:{},ip:{},port:{} is health", server.getIp(), server.getPort());
+                            logger.info("domain host->{},ip->{},port->{} is healthy", server.getIp(), server.getPort());
                         } finally {
                             if (httpResponse != null) {
                                 httpResponse.close();
@@ -67,7 +67,7 @@ class RedStarHostResolver implements HostResolver {
                     }
                 }
             } catch (Exception e) {
-                logger.error("server check task:{}", e);
+                logger.error("server check task->{}", e);
             }
         }
     }
@@ -88,17 +88,21 @@ class RedStarHostResolver implements HostResolver {
                     serverList.add(server);
                 }
             }
-
             serverMap.put(hostInfo, new WeightedRoundRobinScheduling(serverList));
-
-            Timer timer = new Timer();
-            ServerCheckTask task = new ServerCheckTask();
-            timer.schedule(task, Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")));
         }
+        ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(new ServerCheckTask(), Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")), TimeUnit.SECONDS);
     }
 
-    static RedStarHostResolver getInstance() {
-        return redStarHostResolver;
+    public static RedStarHostResolver getSingleton() {
+        if (singleton == null) {
+            synchronized (RedStarHostResolver.class) {
+                if (singleton == null) {
+                    singleton = new RedStarHostResolver();
+                }
+            }
+        }
+        return singleton;
     }
 
 

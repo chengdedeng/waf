@@ -131,22 +131,24 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
 
     @Override
     public void proxyToServerConnectionFailed() {
-        ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
-        try {
-            Field field = ClientToProxyConnection.class.getDeclaredField("currentServerConnection");
-            field.setAccessible(true);
-            ProxyToServerConnection proxyToServerConnection = (ProxyToServerConnection) field.get(clientToProxyConnection);
+        if ("on".equals(Constant.wafConfs.get("waf.reverse.proxy"))) {
+            ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
+            try {
+                Field field = ClientToProxyConnection.class.getDeclaredField("currentServerConnection");
+                field.setAccessible(true);
+                ProxyToServerConnection proxyToServerConnection = (ProxyToServerConnection) field.get(clientToProxyConnection);
 
-            String serverHostAndPort = proxyToServerConnection.getServerHostAndPort().replace(":", "_");
+                String serverHostAndPort = proxyToServerConnection.getServerHostAndPort().replace(":", "_");
 
-            String remoteHostName = proxyToServerConnection.getRemoteAddress().getAddress().getHostAddress();
-            int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
+                String remoteHostName = proxyToServerConnection.getRemoteAddress().getAddress().getHostAddress();
+                int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
 
-            WeightedRoundRobinScheduling weightedRoundRobinScheduling = Constant.RedStarHostResolver.getServers(serverHostAndPort);
-            weightedRoundRobinScheduling.unhealthilyServers.add(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
-            weightedRoundRobinScheduling.healthilyServers.remove(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
-        } catch (Exception e) {
-            logger.error("proxy to server connection failed by:{}", e);
+                WeightedRoundRobinScheduling weightedRoundRobinScheduling = RedStarHostResolver.getSingleton().getServers(serverHostAndPort);
+                weightedRoundRobinScheduling.unhealthilyServers.add(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
+                weightedRoundRobinScheduling.healthilyServers.remove(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
+            } catch (Exception e) {
+                logger.error("proxy to server connection failed by:{}", e);
+            }
         }
     }
 

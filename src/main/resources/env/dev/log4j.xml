@@ -10,13 +10,13 @@
     </appender>
 
     <logger name="org">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
     <logger name="com">
-        <level value="debug"/>
+        <level value="info"/>
     </logger>
     <root>
-        <level value="debug"/>
+        <level value="info"/>
         <appender-ref ref="stdout"/>
     </root>
 </log4j:configuration>
