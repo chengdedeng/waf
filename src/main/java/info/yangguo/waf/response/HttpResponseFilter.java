@@ -1,4 +1,4 @@
-package com.chinaredstar.waf.response;
+package info.yangguo.waf.response;
 
 import io.netty.handler.codec.http.HttpResponse;
 

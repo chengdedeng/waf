@@ -1,4 +1,4 @@
-package com.chinaredstar.waf.response;
+package info.yangguo.waf.response;
 
 import java.util.ArrayList;
 import java.util.List;

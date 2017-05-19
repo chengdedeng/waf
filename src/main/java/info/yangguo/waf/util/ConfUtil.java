@@ -1,7 +1,7 @@
-package com.chinaredstar.waf.util;
+package info.yangguo.waf.util;
 
 
-import com.chinaredstar.waf.request.FilterType;
+import info.yangguo.waf.request.FilterType;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;

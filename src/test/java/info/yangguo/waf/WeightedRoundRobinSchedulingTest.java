@@ -1,6 +1,6 @@
 package info.yangguo.waf;
 
-import com.chinaredstar.waf.util.WeightedRoundRobinScheduling;
+import info.yangguo.waf.util.WeightedRoundRobinScheduling;
 
 import org.junit.Test;
 

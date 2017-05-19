@@ -1,7 +1,7 @@
-package com.chinaredstar.waf.request;
+package info.yangguo.waf.request;
 
-import com.chinaredstar.waf.Constant;
-import com.chinaredstar.waf.util.ConfUtil;
+import info.yangguo.waf.Constant;
+import info.yangguo.waf.util.ConfUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

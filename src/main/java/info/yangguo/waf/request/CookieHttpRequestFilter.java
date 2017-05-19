@@ -1,7 +1,7 @@
-package com.chinaredstar.waf.request;
+package info.yangguo.waf.request;
 
-import com.chinaredstar.waf.Constant;
-import com.chinaredstar.waf.util.ConfUtil;
+import info.yangguo.waf.Constant;
+import info.yangguo.waf.util.ConfUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 

@@ -1,4 +1,4 @@
-package com.chinaredstar.waf.request;
+package info.yangguo.waf.request;
 
 /**
  * @author:杨果

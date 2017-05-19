@@ -1,11 +1,10 @@
-package com.chinaredstar.waf.request;
+package info.yangguo.waf.request;
 
-import com.chinaredstar.waf.Constant;
+import info.yangguo.waf.Constant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

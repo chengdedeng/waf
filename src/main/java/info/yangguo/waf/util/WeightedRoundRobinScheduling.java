@@ -1,4 +1,4 @@
-package com.chinaredstar.waf.util;
+package info.yangguo.waf.util;
 
 import java.math.BigInteger;
 import java.util.HashMap;

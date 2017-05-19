@@ -1,7 +1,7 @@
-package com.chinaredstar.waf;
+package info.yangguo.waf;
 
-import com.chinaredstar.waf.util.PropertiesUtil;
-import com.chinaredstar.waf.util.WeightedRoundRobinScheduling;
+import info.yangguo.waf.util.PropertiesUtil;
+import info.yangguo.waf.util.WeightedRoundRobinScheduling;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;

@@ -1,19 +1,19 @@
-package com.chinaredstar.waf;
+package info.yangguo.waf;
 
-import com.chinaredstar.waf.request.ArgsHttpRequestFilter;
-import com.chinaredstar.waf.request.CCHttpRequestFilter;
-import com.chinaredstar.waf.request.CookieHttpRequestFilter;
-import com.chinaredstar.waf.request.HttpRequestFilterChain;
-import com.chinaredstar.waf.request.IpHttpRequestFilter;
-import com.chinaredstar.waf.request.PostHttpRequestFilter;
-import com.chinaredstar.waf.request.ScannerHttpRequestFilter;
-import com.chinaredstar.waf.request.UaHttpRequestFilter;
-import com.chinaredstar.waf.request.UrlHttpRequestFilter;
-import com.chinaredstar.waf.request.WIpHttpRequestFilter;
-import com.chinaredstar.waf.request.WUrlHttpRequestFilter;
-import com.chinaredstar.waf.response.ClickjackHttpResponseFilter;
-import com.chinaredstar.waf.response.HttpResponseFilterChain;
-import com.chinaredstar.waf.util.WeightedRoundRobinScheduling;
+import info.yangguo.waf.request.ArgsHttpRequestFilter;
+import info.yangguo.waf.request.CCHttpRequestFilter;
+import info.yangguo.waf.request.CookieHttpRequestFilter;
+import info.yangguo.waf.request.HttpRequestFilterChain;
+import info.yangguo.waf.request.IpHttpRequestFilter;
+import info.yangguo.waf.request.PostHttpRequestFilter;
+import info.yangguo.waf.request.ScannerHttpRequestFilter;
+import info.yangguo.waf.request.UaHttpRequestFilter;
+import info.yangguo.waf.request.UrlHttpRequestFilter;
+import info.yangguo.waf.request.WIpHttpRequestFilter;
+import info.yangguo.waf.request.WUrlHttpRequestFilter;
+import info.yangguo.waf.response.ClickjackHttpResponseFilter;
+import info.yangguo.waf.response.HttpResponseFilterChain;
+import info.yangguo.waf.util.WeightedRoundRobinScheduling;
 
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.impl.ClientToProxyConnection;

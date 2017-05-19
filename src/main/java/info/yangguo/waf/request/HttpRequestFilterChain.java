@@ -1,4 +1,4 @@
-package com.chinaredstar.waf.request;
+package info.yangguo.waf.request;
 
 import java.util.ArrayList;
 import java.util.List;

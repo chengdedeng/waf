@@ -1,4 +1,4 @@
-package com.chinaredstar.waf;
+package info.yangguo.waf;
 
 
 import org.littleshoot.proxy.ActivityTrackerAdapter;

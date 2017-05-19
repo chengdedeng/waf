@@ -1,4 +1,4 @@
-package com.chinaredstar.waf.util;
+package info.yangguo.waf.util;
 
 import java.io.File;
 import java.io.FileInputStream;

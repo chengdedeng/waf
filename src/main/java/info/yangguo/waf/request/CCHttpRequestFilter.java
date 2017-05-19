@@ -1,4 +1,4 @@
-package com.chinaredstar.waf.request;
+package info.yangguo.waf.request;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -7,7 +7,7 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.util.concurrent.RateLimiter;
 
-import com.chinaredstar.waf.Constant;
+import info.yangguo.waf.Constant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

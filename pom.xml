@@ -201,7 +201,7 @@
                         <daemon>
                             <id>${project.name}</id>
                             <!-- 修改包名 -->
-                            <mainClass>com.chinaredstar.waf.Application</mainClass>
+                            <mainClass>info.yangguo.waf.Application</mainClass>
                             <platforms>
                                 <platform>jsw</platform>
                             </platforms>
