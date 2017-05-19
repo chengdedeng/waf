@@ -36,7 +36,7 @@ public class WeightedRoundRobinSchedulingTest {
 
         for (int i = 0; i < 100; i++) {
             WeightedRoundRobinScheduling.Server s = obj.getServer();
-            String log = "ip:" + s.ip + ";weight:" + s.weight;
+            String log = "ip:" + s.getIp() + ";weight:" + s.getWeight();
             if (countResult.containsKey(log)) {
                 countResult.put(log, countResult.get(log) + 1);
             } else {

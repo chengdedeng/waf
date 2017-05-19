@@ -13,6 +13,7 @@ import com.chinaredstar.waf.request.WIpHttpRequestFilter;
 import com.chinaredstar.waf.request.WUrlHttpRequestFilter;
 import com.chinaredstar.waf.response.ClickjackHttpResponseFilter;
 import com.chinaredstar.waf.response.HttpResponseFilterChain;
+import com.chinaredstar.waf.util.WeightedRoundRobinScheduling;
 
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.impl.ClientToProxyConnection;
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.net.InetSocketAddress;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -104,6 +106,22 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     }
 
     @Override
+    public void proxyToServerResolutionSucceeded(String serverHostAndPort,
+                                                 InetSocketAddress resolvedRemoteAddress) {
+        if (resolvedRemoteAddress == null) {
+            ChannelPromise channelPromise = ctx.newPromise().addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    if (channelFuture.isDone()) {
+                        ctx.close();
+                    }
+                }
+            });
+            ctx.writeAndFlush(create502Response(), channelPromise);
+        }
+    }
+
+    @Override
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
             httpResponseFilterChain.doFilter((HttpResponse) httpObject);
@@ -119,9 +137,14 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
             field.setAccessible(true);
             ProxyToServerConnection proxyToServerConnection = (ProxyToServerConnection) field.get(clientToProxyConnection);
 
-            String serverHostAndPort = proxyToServerConnection.getServerHostAndPort();
+            String serverHostAndPort = proxyToServerConnection.getServerHostAndPort().replace(":", "_");
+
             String remoteHostName = proxyToServerConnection.getRemoteAddress().getAddress().getHostAddress();
             int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
+
+            WeightedRoundRobinScheduling weightedRoundRobinScheduling = Constant.RedStarHostResolver.getServers(serverHostAndPort);
+            weightedRoundRobinScheduling.unhealthilyServers.add(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
+            weightedRoundRobinScheduling.healthilyServers.remove(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
         } catch (Exception e) {
             logger.error("proxy to server connection failed by:{}", e);
         }
@@ -142,6 +165,12 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
 
     private static HttpResponse create403Response() {
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
+        HttpHeaders.setContentLength(httpResponse, 0);
+        return httpResponse;
+    }
+
+    private static HttpResponse create502Response() {
+        HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
         HttpHeaders.setContentLength(httpResponse, 0);
         return httpResponse;
     }

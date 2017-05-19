@@ -1,7 +1,10 @@
 package com.chinaredstar.waf.util;
 
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author:杨果
@@ -16,15 +19,14 @@ import java.util.List;
 public class WeightedRoundRobinScheduling {
     private int currentIndex = -1;// 上一次选择的服务器
     private int currentWeight = 0;// 当前调度的权值
-    private int maxWeight = 0; // 最大权重
-    private int gcdWeight = 0; //所有服务器权重的最大公约数
-    private int serverCount = 0; //服务器数量
-    private List<Server> serverList; //服务器集合
+    public CopyOnWriteArrayList<Server> healthilyServers; //健康服务器集合
+    public CopyOnWriteArrayList<Server> unhealthilyServers = new CopyOnWriteArrayList<>(); //不健康服务器集合
+    public Map<String, Server> serversMap = new HashMap<>();
 
     /**
      * 返回最大公约数
      */
-    private static int gcd(int a, int b) {
+    private int gcd(int a, int b) {
         BigInteger b1 = new BigInteger(String.valueOf(a));
         BigInteger b2 = new BigInteger(String.valueOf(b));
         BigInteger gcd = b1.gcd(b2);
@@ -35,7 +37,7 @@ public class WeightedRoundRobinScheduling {
     /**
      * 返回所有服务器权重的最大公约数
      */
-    private static int getGCDForServers(List<Server> serverList) {
+    private int getGCDForServers(List<Server> serverList) {
         int w = 0;
         for (int i = 0, len = serverList.size(); i < len - 1; i++) {
             if (w == 0) {
@@ -50,7 +52,7 @@ public class WeightedRoundRobinScheduling {
     /**
      * 返回所有服务器中的最大权重
      */
-    private static int getMaxWeightForServers(List<Server> serverList) {
+    private int getMaxWeightForServers(List<Server> serverList) {
         int w = 0;
         for (int i = 0, len = serverList.size(); i < len - 1; i++) {
             if (w == 0) {
@@ -68,30 +70,40 @@ public class WeightedRoundRobinScheduling {
      * 适合的服务器返回，直到轮询结束，权值返回为0
      */
     public Server getServer() {
-        if (serverList.size() == 1) {
-            return serverList.get(0);
+        if (healthilyServers.size() == 0) {
+            return null;
+        } else if (healthilyServers.size() == 1) {
+            return healthilyServers.get(0);
         } else {
             while (true) {
-                currentIndex = (currentIndex + 1) % serverCount;
+                currentIndex = (currentIndex + 1) % healthilyServers.size();
                 if (currentIndex == 0) {
-                    currentWeight = currentWeight - gcdWeight;
+                    currentWeight = currentWeight - getGCDForServers(healthilyServers);
                     if (currentWeight <= 0) {
-                        currentWeight = maxWeight;
+                        currentWeight = getMaxWeightForServers(healthilyServers);
                         if (currentWeight == 0)
                             return null;
                     }
                 }
-                if (serverList.get(currentIndex).weight >= currentWeight) {
-                    return serverList.get(currentIndex);
+                if (healthilyServers.get(currentIndex).weight >= currentWeight) {
+                    return healthilyServers.get(currentIndex);
                 }
             }
         }
     }
 
+    public WeightedRoundRobinScheduling(List<Server> healthilyServers) {
+        this.healthilyServers = new CopyOnWriteArrayList(healthilyServers);
+        for (Server server : healthilyServers) {
+            serversMap.put(server.getIp() + "_" + server.getPort(), server);
+        }
+    }
+
+
     public static class Server {
-        public String ip;
-        public int port;
-        public int weight;
+        String ip;
+        int port;
+        int weight;
 
         public Server(String ip, int port, int weight) {
             super();
@@ -123,14 +135,5 @@ public class WeightedRoundRobinScheduling {
         public void setWeight(int weight) {
             this.weight = weight;
         }
-    }
-
-    public WeightedRoundRobinScheduling(List<Server> serverList) {
-        this.serverList = serverList;
-        this.currentIndex = -1;
-        this.currentWeight = 0;
-        this.serverCount = serverList.size();
-        this.maxWeight = getMaxWeightForServers(serverList);
-        this.gcdWeight = getGCDForServers(serverList);
     }
 }
