@@ -12,4 +12,6 @@ classes/
 disconf/
 log/
 .idea/*
+waf.jks
+waf_cert
 

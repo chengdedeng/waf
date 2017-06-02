@@ -1,6 +1,8 @@
 package info.yangguo.waf;
 
 
+import info.yangguo.waf.util.SelfSignedSslEngineSource2;
+
 import org.littleshoot.proxy.ActivityTrackerAdapter;
 import org.littleshoot.proxy.ChainedProxy;
 import org.littleshoot.proxy.ChainedProxyAdapter;
@@ -36,7 +38,7 @@ public class Application {
         if (!"on".equals(Constant.wafConfs.get("waf.reverse.proxy"))) {
             //透明代理模式
             logger.debug("透明代理模式开启");
-            String reverseProxy = Constant.wafConfs.get("waf.reverse.proxy.servers");
+            String reverseProxy = Constant.wafConfs.get("waf.chain.proxy.servers");
             final String[] reProxys = reverseProxy.split(",");
             httpProxyServerBootstrap.withChainProxyManager(new ChainedProxyManager() {
                 @Override
@@ -56,6 +58,12 @@ public class Application {
             //反向代理模式
             logger.debug("反向代理模式开启");
             httpProxyServerBootstrap.withServerResolver(RedStarHostResolver.getSingleton());
+        }
+        if ("on".equals(Constant.wafConfs.get("waf.tls"))) {
+            httpProxyServerBootstrap
+                    //不需要验证client端证书
+                    .withAuthenticateSslClients(false)
+                    .withSslEngineSource(new SelfSignedSslEngineSource2("waf.jks", true, true));
         }
         httpProxyServerBootstrap.withAllowRequestToOriginServer(true)
                 .withProxyAlias("waf")
