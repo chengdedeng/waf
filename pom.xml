@@ -2,74 +2,33 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>parent</artifactId>
-        <groupId>com.chinaredstar</groupId>
-        <version>1.2.0.RELEASE</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
     <version>1.0-SNAPSHOT</version>
-    <groupId>com.chinaredstar</groupId>
+    <groupId>info.yangguo</groupId>
     <artifactId>waf</artifactId>
 
-
     <properties>
+        <org.springframework>4.2.5.RELEASE</org.springframework>
+        <io.dropwizard.metrics>3.1.2</io.dropwizard.metrics>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
+
     <profiles>
         <!-- dev -->
         <profile>
             <id>dev</id>
             <properties>
                 <env>dev</env>
-                <jvmSettings.initialMemorySize>512</jvmSettings.initialMemorySize>
-                <jvmSettings.maxMemorySize>512</jvmSettings.maxMemorySize>
-                <jvmSettings.javaagent>-server</jvmSettings.javaagent>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-        </profile>
-        <!-- uat -->
-        <profile>
-            <id>uat</id>
-            <properties>
-                <env>uat</env>
-                <jvmSettings.initialMemorySize>512</jvmSettings.initialMemorySize>
-                <jvmSettings.maxMemorySize>512</jvmSettings.maxMemorySize>
-                <jvmSettings.javaagent>-server</jvmSettings.javaagent>
-            </properties>
-        </profile>
-        <!-- uat1 -->
-        <profile>
-            <id>uat1</id>
-            <properties>
-                <env>uat1</env>
-                <jvmSettings.initialMemorySize>512</jvmSettings.initialMemorySize>
-                <jvmSettings.maxMemorySize>512</jvmSettings.maxMemorySize>
-                <jvmSettings.javaagent>-server</jvmSettings.javaagent>
-            </properties>
-        </profile>
-        <!-- stg -->
-        <profile>
-            <id>stg</id>
-            <properties>
-                <env>stg</env>
-                <jvmSettings.initialMemorySize>512</jvmSettings.initialMemorySize>
-                <jvmSettings.maxMemorySize>512</jvmSettings.maxMemorySize>
-                <jvmSettings.javaagent>-server</jvmSettings.javaagent>
-            </properties>
         </profile>
         <!-- prd -->
         <profile>
             <id>prd</id>
             <properties>
                 <env>prd</env>
-                <jvmSettings.initialMemorySize>512</jvmSettings.initialMemorySize>
-                <jvmSettings.maxMemorySize>512</jvmSettings.maxMemorySize>
-                <jvmSettings.javaagent>
-                    -javaagent:/data/app/pinpoint-agent-1.5.2/100/pinpoint-bootstrap-1.5.2.jar
-                </jvmSettings.javaagent>
             </properties>
         </profile>
     </profiles>
@@ -84,44 +43,49 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+            <version>${org.springframework}</version>
         </dependency>
         <!-- log -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.7</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
         </dependency>
         <!-- metrics -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
+            <version>${io.dropwizard.metrics}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-graphite</artifactId>
+            <version>${io.dropwizard.metrics}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-log4j</artifactId>
+            <version>${io.dropwizard.metrics}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
+            <version>${io.dropwizard.metrics}</version>
         </dependency>
         <dependency>
             <groupId>com.ryantenney.metrics</groupId>
             <artifactId>metrics-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
+            <version>3.1.3.1</version>
         </dependency>
         <dependency>
             <groupId>org.owasp.esapi</groupId>
@@ -147,6 +111,13 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5.2</version>
+        </dependency>
+        <!--test-->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -237,23 +208,20 @@
                                 </generatorConfiguration>
                             </generatorConfigurations>
                             <jvmSettings>
-                                <initialMemorySize>${jvmSettings.initialMemorySize}
-                                </initialMemorySize>
-                                <maxMemorySize>${jvmSettings.maxMemorySize}</maxMemorySize>
                                 <extraArguments>
                                     <extraArgument>-server</extraArgument>
-                                    <!--<extraArgument>-Xms2048m</extraArgument>-->
-                                    <!--<extraArgument>-Xmx2048m</extraArgument>-->
-                                    <!--<extraArgument>-Xmn400m</extraArgument>-->
-                                    <!--<extraArgument>-XX:PermSize=128m</extraArgument>-->
-                                    <!--<extraArgument>-XX:MaxPermSize=128m</extraArgument>-->
-                                    <!--<extraArgument>-XX:TargetSurvivorRatio=80</extraArgument>-->
-                                    <!--<extraArgument>-XX:+UseConcMarkSweepGC</extraArgument>-->
-                                    <!--<extraArgument>-XX:+CMSClassUnloadingEnabled</extraArgument>-->
-                                    <!--<extraArgument>-Xloggc:/home/jiagou/log/gc.log</extraArgument>-->
-                                    <!--<extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>-->
-                                    <!--<extraArgument>-XX:+PrintGCDetails</extraArgument>-->
-                                    <!--<extraArgument>-XX:+PrintGCTimeStamps</extraArgument>-->
+                                    <extraArgument>-Xms2048m</extraArgument>
+                                    <extraArgument>-Xmx2048m</extraArgument>
+                                    <extraArgument>-Xmn500m</extraArgument>
+                                    <extraArgument>-XX:PermSize=128m</extraArgument>
+                                    <extraArgument>-XX:MaxPermSize=128m</extraArgument>
+                                    <extraArgument>-XX:TargetSurvivorRatio=80</extraArgument>
+                                    <extraArgument>-XX:+UseConcMarkSweepGC</extraArgument>
+                                    <extraArgument>-XX:+CMSClassUnloadingEnabled</extraArgument>
+                                    <extraArgument>-Xloggc:/tmp/log/gc.log</extraArgument>
+                                    <extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>
+                                    <extraArgument>-XX:+PrintGCDetails</extraArgument>
+                                    <extraArgument>-XX:+PrintGCTimeStamps</extraArgument>
                                 </extraArguments>
                             </jvmSettings>
                         </daemon>
