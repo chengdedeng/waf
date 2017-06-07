@@ -57,7 +57,7 @@ public class Application {
         } else {
             //反向代理模式
             logger.debug("反向代理模式开启");
-            httpProxyServerBootstrap.withServerResolver(RedStarHostResolver.getSingleton());
+            httpProxyServerBootstrap.withServerResolver(HostResolverImpl.getSingleton());
         }
         if ("on".equals(Constant.wafConfs.get("waf.tls"))) {
             httpProxyServerBootstrap
@@ -80,7 +80,7 @@ public class Application {
                 .withFiltersSource(new HttpFiltersSourceAdapter() {
                     @Override
                     public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
-                        return new RSHttpFilterAdapter(originalRequest, ctx);
+                        return new HttpFilterAdapterImpl(originalRequest, ctx);
                     }
                 })
                 .start();

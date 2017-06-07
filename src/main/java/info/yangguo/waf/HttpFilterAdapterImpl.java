@@ -44,8 +44,8 @@ import io.netty.handler.codec.http.HttpVersion;
  * Description:
  *
  */
-public class RSHttpFilterAdapter extends HttpFiltersAdapter {
-    private static Logger logger = LoggerFactory.getLogger(RSHttpFilterAdapter.class);
+public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
+    private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
     private static final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain();
     private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
             .addFilter(new ClickjackHttpResponseFilter());
@@ -84,7 +84,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
     }
 
 
-    public RSHttpFilterAdapter(HttpRequest originalRequest, ChannelHandlerContext ctx) {
+    public HttpFilterAdapterImpl(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
     }
 
@@ -143,7 +143,7 @@ public class RSHttpFilterAdapter extends HttpFiltersAdapter {
                 String remoteHostName = proxyToServerConnection.getRemoteAddress().getAddress().getHostAddress();
                 int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
 
-                WeightedRoundRobinScheduling weightedRoundRobinScheduling = RedStarHostResolver.getSingleton().getServers(serverHostAndPort);
+                WeightedRoundRobinScheduling weightedRoundRobinScheduling = HostResolverImpl.getSingleton().getServers(serverHostAndPort);
                 weightedRoundRobinScheduling.unhealthilyServers.add(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
                 weightedRoundRobinScheduling.healthilyServers.remove(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
             } catch (Exception e) {

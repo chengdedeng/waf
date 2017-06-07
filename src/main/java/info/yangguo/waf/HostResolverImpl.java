@@ -29,9 +29,9 @@ import java.util.concurrent.TimeUnit;
  * Description:
  *
  */
-class RedStarHostResolver implements HostResolver {
-    private static Logger logger = LoggerFactory.getLogger(RedStarHostResolver.class);
-    private volatile static RedStarHostResolver singleton;
+class HostResolverImpl implements HostResolver {
+    private static Logger logger = LoggerFactory.getLogger(HostResolverImpl.class);
+    private volatile static HostResolverImpl singleton;
     private Map<String, WeightedRoundRobinScheduling> serverMap = new HashMap<>();
     private final HttpClient client = HttpClientBuilder.create().build();
 
@@ -72,7 +72,7 @@ class RedStarHostResolver implements HostResolver {
         }
     }
 
-    private RedStarHostResolver() {
+    private HostResolverImpl() {
         Map<String, String> servers = PropertiesUtil.getProperty("upstream.properties");
         for (Map.Entry<String, String> entry : servers.entrySet()) {
             String hostInfo = entry.getKey();
@@ -94,11 +94,11 @@ class RedStarHostResolver implements HostResolver {
         scheduledThreadPoolExecutor.scheduleAtFixedRate(new ServerCheckTask(), Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")), TimeUnit.SECONDS);
     }
 
-    public static RedStarHostResolver getSingleton() {
+    public static HostResolverImpl getSingleton() {
         if (singleton == null) {
-            synchronized (RedStarHostResolver.class) {
+            synchronized (HostResolverImpl.class) {
                 if (singleton == null) {
-                    singleton = new RedStarHostResolver();
+                    singleton = new HostResolverImpl();
                 }
             }
         }
