@@ -35,10 +35,10 @@ public class Application {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.ServerPort);
         HttpProxyServerBootstrap httpProxyServerBootstrap = DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress);
-        if (!"on".equals(Constant.wafConfs.get("waf.reverse.proxy"))) {
+        if (!"on".equals(Constant.wafConfs.get("waf.proxy.lb"))) {
             //透明代理模式
             logger.debug("透明代理模式开启");
-            String reverseProxy = Constant.wafConfs.get("waf.chain.proxy.servers");
+            String reverseProxy = Constant.wafConfs.get("waf.proxy.chain.servers");
             final String[] reProxys = reverseProxy.split(",");
             httpProxyServerBootstrap.withChainProxyManager(new ChainedProxyManager() {
                 @Override

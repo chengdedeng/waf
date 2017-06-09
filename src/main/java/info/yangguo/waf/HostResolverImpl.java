@@ -91,7 +91,7 @@ class HostResolverImpl implements HostResolver {
             serverMap.put(hostInfo, new WeightedRoundRobinScheduling(serverList));
         }
         ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-        scheduledThreadPoolExecutor.scheduleAtFixedRate(new ServerCheckTask(), Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.reverse.proxy.fail_timeout")), TimeUnit.SECONDS);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(new ServerCheckTask(), Integer.parseInt(Constant.wafConfs.get("waf.proxy.lb.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.proxy.lb.fail_timeout")), TimeUnit.SECONDS);
     }
 
     public static HostResolverImpl getSingleton() {

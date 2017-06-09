@@ -131,7 +131,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public void proxyToServerConnectionFailed() {
-        if ("on".equals(Constant.wafConfs.get("waf.reverse.proxy"))) {
+        if ("on".equals(Constant.wafConfs.get("waf.proxy.lb"))) {
             ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
             try {
                 Field field = ClientToProxyConnection.class.getDeclaredField("currentServerConnection");
