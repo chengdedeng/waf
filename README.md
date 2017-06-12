@@ -44,9 +44,9 @@ Nginx的性能是有目共睹的,WAF既然作为一个HTTP Proxy,所以需要跟
 
 2.AB->WAF->Nginx_AS
 
-3.ab -k -c 300 -n 1000000 目标地址(HTTP长链)
+3.ab -k -c 100 -n 1000000 目标地址(HTTP长链)
 
-4.ab -c 300 -n 1000000 目标地址(HTTP短链)
+4.ab -c 100 -n 1000000 目标地址(HTTP短链)
 
 ##### WAF JVM配置:
 ```
@@ -65,6 +65,48 @@ wrapper.java.additional.12=-XX:+PrintGCDetails
 wrapper.java.additional.13=-XX:+PrintGCTimeStamps
 ```
 
+##### WAF参数配置:
+```
+#url路径拦截
+waf.url=on
+#cookie拦截
+waf.cookie=on
+#user agent拦截
+waf.ua=on
+#post body参数拦截
+waf.post=on
+#url参数拦截
+waf.args=on
+#文件拦截
+waf.file=on
+#cc拦截
+waf.cc=off
+#扫描器拦截
+waf.scanner=on
+#每秒rate
+waf.cc.rate=100
+#on表示waf支持loadbalance,需要配置upstream.properties;off表示loadbalance交给下游的proxy,需要配置waf.proxy.chain.servers.
+waf.proxy.lb=on
+#设置重试间隔时间，默认10秒
+waf.proxy.lb.fail_timeout=10
+#waf下游的proxy,多个用","分隔.注意只有前一个不可用,才会用下一个,下游proxy不会负载均衡
+waf.proxy.chain.servers=127.0.0.1:8180
+#是否启用TLS,需要对SelfSignedSslEngineSource2进行部分改造
+waf.tls=off
+#ip白名单
+waf.ip.whitelist=on
+#ip黑名单
+waf.ip.blacklist=on
+#url白名单
+waf.url.whitelist=on
+#接收者线程数
+waf.acceptorThreads=200
+#处理client请求的工作线程数
+waf.clientToProxyWorkerThreads=300
+#处理proxy与后端服务器的工作线程数
+waf.proxyToServerWorkerThreads=300
+```
+
 ##### 服务器(测试机)配置:
 
 ```
@@ -75,9 +117,9 @@ wrapper.java.additional.13=-XX:+PrintGCTimeStamps
 
 测试场景|测试条件|QPS
 -------|-------|-------
-AB->Nginx_AS|HTTP长链|70312
-AB->Nginx_AS|HTTP短链|5317
-AB->Nginx_Proxy->Nginx_AS|HTTP长链|15347
-AB->Nginx_Proxy->Nginx_AS|HTTP短链|14108
-AB->WAF->Nginx_AS|HTTP长链|1588
-AB->WAF->Nginx_AS|HTTP短链|1545
+AB->Nginx_AS|HTTP长链|64815
+AB->Nginx_AS|HTTP短链|6174
+AB->Nginx_Proxy->Nginx_AS|HTTP长链|16924
+AB->Nginx_Proxy->Nginx_AS|HTTP短链|13137
+AB->WAF->Nginx_AS|HTTP长链|5566
+AB->WAF->Nginx_AS|HTTP短链|5559

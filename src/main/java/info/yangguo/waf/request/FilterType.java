@@ -8,15 +8,15 @@ package info.yangguo.waf.request;
  *
  */
 public enum FilterType {
-    ARGS("args"),
-    COOKIE("cookie"),
-    UA("ua"),
-    URL("url"),
-    WURL("wurl"),
-    POST("post"),
-    IP("ip"),
-    WIP("wip"),
-    FILE("file");
+    ARGS("args.txt"),
+    COOKIE("cookie.txt"),
+    UA("ua.txt"),
+    URL("url.txt"),
+    WURL("wurl.txt"),
+    POST("post.txt"),
+    IP("ip.txt"),
+    WIP("wip.txt"),
+    FILE("file.txt");
 
     private String fileName;
 
