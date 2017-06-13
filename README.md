@@ -123,3 +123,8 @@ AB->Nginx_Proxy->Nginx_AS|HTTP长链|16924
 AB->Nginx_Proxy->Nginx_AS|HTTP短链|13137
 AB->WAF->Nginx_AS|HTTP长链|5566
 AB->WAF->Nginx_AS|HTTP短链|5559
+
+
+#### 火焰图:
+
+![flamegrapht.svg](doc/flamegraph.svg)
