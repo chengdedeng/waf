@@ -128,4 +128,3 @@ AB->WAF->Nginx_AS|HTTP短链|5559
 #### 火焰图:
 
 ![](https://cdn.rawgit.com/chengdedeng/waf/master/doc/flamegraph.svg)
-<img src="https://raw.githubusercontent.com/chengdedeng/waf/master/doc/flamegraph.svg"/>
