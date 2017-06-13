@@ -127,4 +127,4 @@ AB->WAF->Nginx_AS|HTTP短链|5559
 
 #### 火焰图:
 
-![flamegrapht.svg](/doc/flamegraph.svg)
+[![](/doc/flamegraph.svg)]
