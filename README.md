@@ -27,8 +27,7 @@ LittleProxy是[LANTERN](https://getlantern.org/)的维护者发起的开源项�
 关于Loadbalance,WAF有两种模式可以供选择,一种基于Proxy Chain,例一种是基于HostResolver.Proxy Chain是把目标机的映射交给
 下游的Proxy,而HostResolver则是WAF自身完成映射.需要特别注意的是,Proxy Chain中如果存在多Proxy是不会负载均衡的,只有前一个不可用时才会用下一个.
 
-**HttpRequestFilterChain** 和 **HttpResponseFilterChain** 责任链,分别对进来和出去的数据尽心拦截分析.Request拦截
-又分为黑白名单两种,Response拦截主要给输出的数据进行安全加固.在Request的拦截规则方面,我参考了[loveshell/ngx_lua_waf](https://github.com/loveshell/ngx_lua_waf).
+**HttpRequestFilterChain** 和 **HttpResponseFilterChain** 责任链,分别对进来和出去的数据尽心拦截分析.Request拦截又分为黑白名单两种,Response拦截主要给输出的数据进行安全加固.在Request的拦截规则方面,我参考了[loveshell/ngx_lua_waf](https://github.com/loveshell/ngx_lua_waf).
 
 ### 性能
 
@@ -125,6 +124,6 @@ AB->WAF->Nginx_AS|HTTP长链|5566
 AB->WAF->Nginx_AS|HTTP短链|5559
 
 
-#### 火焰图:
+#### 火焰图(需要翻墙,由于github不支持火焰图,所以用rawgit转了一下HEAD):
 
 ![](https://cdn.rawgit.com/chengdedeng/waf/e0529bd1/doc/flamegraph.svg)
