@@ -141,6 +141,8 @@ AB->WAF->Nginx_AS|HTTP长链|5566
 AB->WAF->Nginx_AS|HTTP短链|5559
 
 
-#### 火焰图(需要翻墙,由于github不支持火焰图,所以用rawgit转了一下HEAD):
+#### 火焰图:
 
-![](https://cdn.rawgit.com/chengdedeng/waf/e0529bd1/doc/flamegraph.svg)
+github不支持火焰图显示,[点击下载](https://github.com/chengdedeng/waf/blob/master/doc/flamegraph.svg)源文件.
+
+![](/doc/flamegraph.svg)
