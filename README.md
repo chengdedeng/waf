@@ -47,21 +47,26 @@ Nginx的性能是有目共睹的,WAF既然作为一个HTTP Proxy,所以需要跟
 
 4.ab -c 100 -n 1000000 目标地址(HTTP短链)
 
+
+##### JDK版本
+```
+java version "1.8.0_131"
+Java(TM) SE Runtime Environment (build 1.8.0_131-b11)
+Java HotSpot(TM) 64-Bit Server VM (build 25.131-b11, mixed mode)
+```
+
 ##### WAF JVM配置:
 ```
 wrapper.java.additional.1=-server
 wrapper.java.additional.2=-Xms2048m
 wrapper.java.additional.3=-Xmx2048m
-wrapper.java.additional.4=-Xmn500m
-wrapper.java.additional.5=-XX:PermSize=128m
-wrapper.java.additional.6=-XX:MaxPermSize=128m
-wrapper.java.additional.7=-XX:TargetSurvivorRatio=80
-wrapper.java.additional.8=-XX:+UseConcMarkSweepGC
-wrapper.java.additional.9=-XX:+CMSClassUnloadingEnabled
-wrapper.java.additional.10=-Xloggc:/tmp/log/gc.log
-wrapper.java.additional.11=-XX:+HeapDumpOnOutOfMemoryError
-wrapper.java.additional.12=-XX:+PrintGCDetails
-wrapper.java.additional.13=-XX:+PrintGCTimeStamps
+wrapper.java.additional.4=-Xmn800m
+wrapper.java.additional.5=-XX:+UseG1GC
+wrapper.java.additional.6=-Xloggc:/tmp/log/gc.log
+wrapper.java.additional.7=-XX:+HeapDumpOnOutOfMemoryError
+wrapper.java.additional.8=-XX:+PrintGCDetails
+wrapper.java.additional.9=-XX:+PrintGCTimeStamps
+wrapper.java.additional.10=-XX:+PreserveFramePointer
 ```
 
 ##### WAF参数配置:
@@ -106,13 +111,25 @@ waf.clientToProxyWorkerThreads=300
 waf.proxyToServerWorkerThreads=300
 ```
 
-##### 服务器(测试机)配置:
+##### 服务器/虚拟机(测试机)配置:
 
 ```
 4  Intel(R) Xeon(R) CPU E5-2640 v2 @ 2.00GHz
 ```
 
+
 #### 结果:
+
+#### CPU(id基本在10以内)
+
+```
+%Cpu0  : 49.8 us, 33.7 sy,  0.0 ni,  6.1 id,  0.0 wa,  0.0 hi, 10.4 si,  0.0 st
+%Cpu1  : 48.0 us, 33.9 sy,  0.0 ni,  7.4 id,  0.0 wa,  0.0 hi, 10.7 si,  0.0 st
+%Cpu2  : 49.8 us, 33.0 sy,  0.0 ni,  7.4 id,  0.0 wa,  0.0 hi,  9.8 si,  0.0 st
+%Cpu3  : 48.8 us, 31.5 sy,  0.0 ni,  8.5 id,  0.0 wa,  0.0 hi, 11.2 si,  0.0 st
+```
+
+#### QPS
 
 测试场景|测试条件|QPS
 -------|-------|-------

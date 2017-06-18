@@ -213,16 +213,13 @@
                                     <extraArgument>-server</extraArgument>
                                     <extraArgument>-Xms2048m</extraArgument>
                                     <extraArgument>-Xmx2048m</extraArgument>
-                                    <extraArgument>-Xmn500m</extraArgument>
-                                    <extraArgument>-XX:PermSize=128m</extraArgument>
-                                    <extraArgument>-XX:MaxPermSize=128m</extraArgument>
-                                    <extraArgument>-XX:TargetSurvivorRatio=80</extraArgument>
-                                    <extraArgument>-XX:+UseConcMarkSweepGC</extraArgument>
-                                    <extraArgument>-XX:+CMSClassUnloadingEnabled</extraArgument>
+                                    <extraArgument>-Xmn800m</extraArgument>
+                                    <extraArgument>-XX:+UseG1GC</extraArgument>
                                     <extraArgument>-Xloggc:/tmp/log/gc.log</extraArgument>
                                     <extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>
                                     <extraArgument>-XX:+PrintGCDetails</extraArgument>
                                     <extraArgument>-XX:+PrintGCTimeStamps</extraArgument>
+                                    <extraArgument>-XX:+PreserveFramePointer</extraArgument>
                                 </extraArguments>
                             </jvmSettings>
                         </daemon>
