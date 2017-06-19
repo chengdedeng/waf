@@ -145,4 +145,4 @@ AB->WAF->Nginx_AS|HTTP短链|5559
 
 github不支持火焰图显示,[点击下载源文件]((https://github.com/chengdedeng/waf/blob/master/doc/flamegraph.svg)).
 
-![](/doc/flamegraph.png)
+![](https://github.com/chengdedeng/waf/blob/master/doc/framegraph.png)
