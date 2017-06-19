@@ -143,10 +143,6 @@ AB->WAF->Nginx_AS|HTTP短链|5559
 
 #### 火焰图:
 
-<<<<<<< HEAD
-![](https://cdn.rawgit.com/chengdedeng/waf/621bc076/doc/flamegraph.svg)
-=======
-github不支持火焰图显示,[点击下载](https://github.com/chengdedeng/waf/blob/master/doc/flamegraph.svg)源文件.
+github不支持火焰图显示,[点击下载源文件]((https://github.com/chengdedeng/waf/blob/master/doc/flamegraph.svg)).
 
-![](/doc/flamegraph.svg)
->>>>>>> framegraph路径更新
+![](doc/flamegraph.svg)
