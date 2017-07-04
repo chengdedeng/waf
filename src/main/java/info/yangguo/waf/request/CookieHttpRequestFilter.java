@@ -34,7 +34,7 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
                 String[] cookies = cookiesStr.split(";");
                 for (String cookie : cookies) {
                     for (Pattern pat : ConfUtil.getPattern(FilterType.COOKIE.name())) {
-                        Matcher matcher = pat.matcher(cookie);
+                        Matcher matcher = pat.matcher(cookie.toLowerCase());
                         if (matcher.find()) {
                             hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.COOKIE.name(), pat.toString());
                             return true;

@@ -6,6 +6,8 @@ import info.yangguo.waf.util.ConfUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,18 +31,28 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            int index = httpRequest.getUri().indexOf("?");
-            if (index > -1) {
-                String argsStr = httpRequest.getUri().substring(index + 1);
-                String[] args = argsStr.split("&");
-                for (String arg : args) {
-                    String[] kv = arg.split("=");
-                    if (kv.length == 2) {
-                        for (Pattern pat : ConfUtil.getPattern(FilterType.ARGS.name())) {
-                            Matcher matcher = pat.matcher(kv[1]);
-                            if (matcher.find()) {
-                                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.ARGS.name(), pat.toString());
-                                return true;
+            String url = null;
+            try {
+                url = URLDecoder.decode(httpRequest.getUri(), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.warn("URL is inconsistent with the rules.{}", e);
+            }
+            if (url == null) {
+                return true;
+            } else {
+                int index = url.indexOf("?");
+                if (index > -1) {
+                    String argsStr = url.substring(index + 1);
+                    String[] args = argsStr.split("&");
+                    for (String arg : args) {
+                        String[] kv = arg.split("=");
+                        if (kv.length == 2) {
+                            for (Pattern pat : ConfUtil.getPattern(FilterType.ARGS.name())) {
+                                Matcher matcher = pat.matcher(kv[1].toLowerCase());
+                                if (matcher.find()) {
+                                    hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.ARGS.name(), pat.toString());
+                                    return true;
+                                }
                             }
                         }
                     }

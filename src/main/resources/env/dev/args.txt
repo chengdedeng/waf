@@ -12,11 +12,11 @@ base64_decode\(
 (?:etc\/\W*passwd)
 into(\s+)+(?:dump|out)file\s*
 group\s+by.+\(
-xwork.MethodAccessor
+xwork.methodaccessor
 (?:define|eval|file_get_contents|include|require|require_once|shell_exec|phpinfo|system|passthru|preg_\w+|execute|echo|print|print_r|var_dump|(fp)open|alert|showmodaldialog)\(
 xwork\.MethodAccessor
 (gopher|doc|php|glob|file|phar|zlib|ftp|ldap|dict|ogg|data)\:\/
 java\.lang
-\$_(GET|post|cookie|files|session|env|phplib|GLOBALS|SERVER)\[
+\$_(get|post|cookie|files|session|env|phplib|globals|server)\[
 \<(iframe|script|body|img|layer|div|meta|style|base|object|input)
 (onmouseover|onerror|onload)\=
