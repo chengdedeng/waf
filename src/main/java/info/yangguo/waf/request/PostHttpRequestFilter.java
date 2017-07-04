@@ -6,6 +6,8 @@ import info.yangguo.waf.util.ConfUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,23 +35,37 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
                 HttpContent httpContent1 = httpContent.copy();
-                String contentBody = new String(Unpooled.copiedBuffer(httpContent1.content()).array());
-                List<Pattern> postPatternList = ConfUtil.getPattern(FilterType.POST.name());
-                for (Pattern pattern : postPatternList) {
-                    Matcher matcher = pattern.matcher(contentBody.toLowerCase());
-                    if (matcher.find()) {
-                        hackLog(logger, Constant.getRealIp(originalRequest, ctx), FilterType.POST.name(), pattern.toString());
-                        return true;
+                String contentBody = null;
+                if (originalRequest.headers().get("Content-Type").startsWith("multipart/form-data")) {
+                    contentBody = new String(Unpooled.copiedBuffer(httpContent1.content()).array());
+                } else {
+                    try {
+                        contentBody = URLDecoder.decode(new String(Unpooled.copiedBuffer(httpContent1.content()).array()), "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        logger.warn("POST body is inconsistent with the rules.{}", e);
                     }
                 }
-                if (Constant.wafConfs.get("waf.file").equals("on")) {
-                    Matcher fileMatcher = filePattern.matcher(contentBody);
-                    if (fileMatcher.find()) {
-                        String fileExt = fileMatcher.group(3);
-                        for (Pattern pat : ConfUtil.getPattern(FilterType.FILE.name())) {
-                            if (pat.matcher(fileExt).matches()) {
-                                hackLog(logger, Constant.getRealIp(originalRequest, ctx), FilterType.POST.name(), filePattern.toString());
-                                return true;
+
+                if (contentBody == null) {
+                    return true;
+                } else {
+                    List<Pattern> postPatternList = ConfUtil.getPattern(FilterType.POST.name());
+                    for (Pattern pattern : postPatternList) {
+                        Matcher matcher = pattern.matcher(contentBody.toLowerCase());
+                        if (matcher.find()) {
+                            hackLog(logger, Constant.getRealIp(originalRequest, ctx), FilterType.POST.name(), pattern.toString());
+                            return true;
+                        }
+                    }
+                    if (Constant.wafConfs.get("waf.file").equals("on")) {
+                        Matcher fileMatcher = filePattern.matcher(contentBody);
+                        if (fileMatcher.find()) {
+                            String fileExt = fileMatcher.group(3);
+                            for (Pattern pat : ConfUtil.getPattern(FilterType.FILE.name())) {
+                                if (pat.matcher(fileExt).matches()) {
+                                    hackLog(logger, Constant.getRealIp(originalRequest, ctx), FilterType.POST.name(), filePattern.toString());
+                                    return true;
+                                }
                             }
                         }
                     }
