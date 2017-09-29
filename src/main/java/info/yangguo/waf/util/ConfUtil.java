@@ -37,7 +37,7 @@ public class ConfUtil {
                 }
                 confMap.put(filterType.name(), patterns);
             } catch (IOException e) {
-                logger.error("{}配置文件加载失败:{}", filterType.name(), e);
+                logger.error("{}配置文件加载失败", filterType.name(),e);
             }
         }
     }

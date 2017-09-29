@@ -67,7 +67,7 @@ class HostResolverImpl implements HostResolver {
                     }
                 }
             } catch (Exception e) {
-                logger.error("server check task->{}", e);
+                logger.error("server check task is error", e);
             }
         }
     }

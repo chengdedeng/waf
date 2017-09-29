@@ -105,7 +105,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
             }
         } catch (Exception e) {
             ctx.writeAndFlush(create502Response(), channelPromise);
-            logger.error(e.toString());
+            logger.error("client's request failed",e);
         }
         return null;
     }
@@ -152,7 +152,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
                 weightedRoundRobinScheduling.unhealthilyServers.add(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
                 weightedRoundRobinScheduling.healthilyServers.remove(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
             } catch (Exception e) {
-                logger.error("proxy to server connection failed by:{}", e);
+                logger.error("connection of proxy->server is failed", e);
             }
         }
     }
