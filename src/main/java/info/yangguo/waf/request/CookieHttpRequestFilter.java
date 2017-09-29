@@ -29,7 +29,7 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            String cookiesStr = httpRequest.headers().get(FilterType.COOKIE.name());
+            String cookiesStr = Constant.getHeaderValue(originalRequest,"Cookie");
             if (cookiesStr != null) {
                 String[] cookies = cookiesStr.split(";");
                 for (String cookie : cookies) {

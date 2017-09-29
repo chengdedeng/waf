@@ -29,7 +29,7 @@ public class UaHttpRequestFilter extends HttpRequestFilter {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            String ua = httpRequest.headers().get("User-Agent");
+            String ua = Constant.getHeaderValue(originalRequest,"User-Agent");
             if (ua != null) {
                 for (Pattern pat : ConfUtil.getPattern(FilterType.UA.name())) {
                     Matcher matcher = pat.matcher(ua);

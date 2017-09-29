@@ -91,16 +91,21 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-        if (httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx)) {
-            ChannelPromise channelPromise = ctx.newPromise().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (channelFuture.isDone()) {
-                        ctx.close();
-                    }
+        ChannelPromise channelPromise = ctx.newPromise().addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                if (channelFuture.isDone()) {
+                    ctx.close();
                 }
-            });
-            ctx.writeAndFlush(create403Response(), channelPromise);
+            }
+        });
+        try {
+            if (httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx)) {
+                ctx.writeAndFlush(create403Response(), channelPromise);
+            }
+        } catch (Exception e) {
+            ctx.writeAndFlush(create502Response(), channelPromise);
+            logger.error(e.toString());
         }
         return null;
     }

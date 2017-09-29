@@ -52,4 +52,23 @@ public class Constant {
         }
         return realIp;
     }
+
+    /**
+     * RFC7230/RFC7231/RFC7232/RFC7233/RFC7234
+     * Each header field consists of a case-insensitive field name followed
+     * by a colon (":"), optional leading whitespace, the field value, and
+     * optional trailing whitespace.
+     *
+     * @param httpRequest
+     * @param headerName
+     * @return headerValue
+     */
+    public static String getHeaderValue(HttpRequest httpRequest, String headerName) {
+        for (Map.Entry<String, String> header : httpRequest.headers().entries()) {
+            if (header.getKey().toLowerCase().equals(headerName.toLowerCase())) {
+                return header.getValue();
+            }
+        }
+        return null;
+    }
 }

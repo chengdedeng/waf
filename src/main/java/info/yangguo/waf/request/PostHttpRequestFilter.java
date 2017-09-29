@@ -36,7 +36,7 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                 HttpContent httpContent = (HttpContent) httpObject;
                 HttpContent httpContent1 = httpContent.copy();
                 String contentBody = null;
-                if (originalRequest.headers().get("Content-Type").startsWith("multipart/form-data")) {
+                if (Constant.getHeaderValue(originalRequest, "Content-Type") != null && Constant.getHeaderValue(originalRequest, "Content-Type").startsWith("multipart/form-data")) {
                     contentBody = new String(Unpooled.copiedBuffer(httpContent1.content()).array());
                 } else {
                     try {
