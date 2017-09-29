@@ -12,9 +12,8 @@ import io.netty.handler.codec.http.HttpRequest;
 /**
  * @author:杨果
  * @date:2017/4/11 下午1:52
- *
+ * <p>
  * Description:
- *
  */
 public class Constant {
     enum X_Frame_Options {
@@ -33,7 +32,7 @@ public class Constant {
 
 
     public static String getRealIp(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        String xRealIP = httpRequest.headers().get("X-Real-IP");
+        String xRealIP = getHeaderValue(httpRequest, "X-Real-IP");
         String remoteAddress = channelHandlerContext.channel().remoteAddress().toString();
         String realIp = null;
         if (xRealIP != null) {
