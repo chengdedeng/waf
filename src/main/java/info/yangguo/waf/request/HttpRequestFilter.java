@@ -9,9 +9,9 @@ import io.netty.handler.codec.http.HttpRequest;
 /**
  * @author:杨果
  * @date:2017/4/11 上午11:28
- *
+ * <p>
  * Description:
- *
+ * <p>
  * HTTP Request拦截器抽象类
  */
 public abstract class HttpRequestFilter {
@@ -19,7 +19,7 @@ public abstract class HttpRequestFilter {
      * httpRequest拦截逻辑
      *
      * @param originalRequest original request
-     * @param httpObject     http请求
+     * @param httpObject      http请求
      * @return true:正则匹配成功,false:正则匹配失败
      */
     public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext);
@@ -42,6 +42,10 @@ public abstract class HttpRequestFilter {
      * @param cause  被拦截的原因
      */
     public void hackLog(Logger logger, String realIp, String type, String cause) {
-        logger.warn("type:{},realIp:{},cause:{}", type, realIp, cause);
+        if (isBlacklist()) {
+            logger.info("type:{},realIp:{},cause:{}", type, realIp, cause);
+        } else {
+            logger.debug("type:{},realIp:{},cause:{}", type, realIp, cause);
+        }
     }
 }

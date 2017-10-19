@@ -13,26 +13,6 @@
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
-    <profiles>
-        <!-- dev -->
-        <profile>
-            <id>dev</id>
-            <properties>
-                <env>dev</env>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <!-- prd -->
-        <profile>
-            <id>prd</id>
-            <properties>
-                <env>prd</env>
-            </properties>
-        </profile>
-    </profiles>
-
 
     <dependencies>
         <dependency>
@@ -134,19 +114,6 @@
 
 
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <exclude>env/**</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/main/resources/env/${env}</directory>
-                <targetPath>${project.build.outputDirectory}</targetPath>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -169,7 +136,7 @@
                     <repositoryName>lib</repositoryName>
                     <configurationDirectory>conf</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
-                    <configurationSourceDirectory>src/main/resources/env/${env}
+                    <configurationSourceDirectory>src/main/resources
                     </configurationSourceDirectory>
                     <includeConfigurationDirectoryInClasspath>true
                     </includeConfigurationDirectoryInClasspath>

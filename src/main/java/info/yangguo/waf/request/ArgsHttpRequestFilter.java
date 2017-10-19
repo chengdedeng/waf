@@ -2,7 +2,9 @@ package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.util.ConfUtil;
-
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,16 +13,12 @@ import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpRequest;
-
 /**
  * @author:杨果
  * @date:2017/5/11 上午9:45
- *
+ * <p>
  * Description:
- *
+ * <p>
  * URL参数黑名单参数拦截
  */
 public class ArgsHttpRequestFilter extends HttpRequestFilter {
@@ -35,11 +33,9 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
             try {
                 url = URLDecoder.decode(httpRequest.getUri(), "UTF-8");
             } catch (UnsupportedEncodingException e) {
-                logger.warn("URL is inconsistent with the rules.{}", e);
+                logger.warn("URL:{} is inconsistent with the rules.{}", httpRequest.getUri(), e);
             }
-            if (url == null) {
-                return true;
-            } else {
+            if (url != null) {
                 int index = url.indexOf("?");
                 if (index > -1) {
                     String argsStr = url.substring(index + 1);

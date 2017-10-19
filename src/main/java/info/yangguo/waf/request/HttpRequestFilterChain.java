@@ -10,9 +10,9 @@ import io.netty.handler.codec.http.HttpRequest;
 /**
  * @author:杨果
  * @date:2017/4/11 上午11:32
- *
+ * <p>
  * Description:
- *
+ * <p>
  * 拦截器链
  */
 public class HttpRequestFilterChain {
@@ -26,10 +26,8 @@ public class HttpRequestFilterChain {
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         for (HttpRequestFilter filter : filters) {
             boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext);
-            if (result && filter.isBlacklist()) {
-                return true;
-            } else if (result && !filter.isBlacklist()) {
-                return false;
+            if (result) {
+                return filter.isBlacklist();
             }
         }
         return false;

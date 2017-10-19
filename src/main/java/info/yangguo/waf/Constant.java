@@ -1,12 +1,17 @@
 package info.yangguo.waf;
 
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
 import info.yangguo.waf.util.PropertiesUtil;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 
 /**
@@ -32,7 +37,11 @@ public class Constant {
 
 
     public static String getRealIp(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        String xRealIP = getHeaderValue(httpRequest, "X-Real-IP");
+        List<String> headerValues = getHeaderValues(httpRequest, "X-Real-IP");
+        String xRealIP = null;
+        if (headerValues.size() > 0) {
+            xRealIP = headerValues.get(0);
+        }
         String remoteAddress = channelHandlerContext.channel().remoteAddress().toString();
         String realIp = null;
         if (xRealIP != null) {
@@ -58,16 +67,17 @@ public class Constant {
      * by a colon (":"), optional leading whitespace, the field value, and
      * optional trailing whitespace.
      *
-     * @param httpRequest
+     * @param httpMessage
      * @param headerName
      * @return headerValue
      */
-    public static String getHeaderValue(HttpRequest httpRequest, String headerName) {
-        for (Map.Entry<String, String> header : httpRequest.headers().entries()) {
+    public static List<String> getHeaderValues(HttpMessage httpMessage, String headerName) {
+        List<String> list = Lists.newArrayList();
+        for (Map.Entry<String, String> header : httpMessage.headers().entries()) {
             if (header.getKey().toLowerCase().equals(headerName.toLowerCase())) {
-                return header.getValue();
+                list.add(header.getValue());
             }
         }
-        return null;
+        return list;
     }
 }

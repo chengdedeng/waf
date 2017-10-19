@@ -6,6 +6,7 @@ import info.yangguo.waf.util.ConfUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,9 +17,9 @@ import io.netty.handler.codec.http.HttpRequest;
 /**
  * @author:杨果
  * @date:2017/5/11 下午2:39
- *
+ * <p>
  * Description:
- *
+ * <p>
  * User-Agent黑名单拦截
  */
 public class UaHttpRequestFilter extends HttpRequestFilter {
@@ -29,10 +30,10 @@ public class UaHttpRequestFilter extends HttpRequestFilter {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            String ua = Constant.getHeaderValue(originalRequest,"User-Agent");
-            if (ua != null) {
+            List<String> headerValues = Constant.getHeaderValues(originalRequest, "User-Agent");
+            if (headerValues.size() > 0 && headerValues.get(0) != null) {
                 for (Pattern pat : ConfUtil.getPattern(FilterType.UA.name())) {
-                    Matcher matcher = pat.matcher(ua);
+                    Matcher matcher = pat.matcher(headerValues.get(0));
                     if (matcher.find()) {
                         hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.UA.name(), pat.toString());
                         return true;
