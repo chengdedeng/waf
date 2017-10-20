@@ -41,9 +41,10 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                         contentBody = new String(Unpooled.copiedBuffer(httpContent1.content()).array());
                     } else {
                         try {
-                            contentBody = URLDecoder.decode(new String(Unpooled.copiedBuffer(httpContent1.content()).array()), "UTF-8");
-                        } catch (UnsupportedEncodingException e) {
-                            logger.warn("POST body is inconsistent with the rules.{}", e);
+                            String contentStr = new String(Unpooled.copiedBuffer(httpContent1.content()).array()).replaceAll("%", "%25");
+                            contentBody = URLDecoder.decode(contentStr, "UTF-8");
+                        } catch (Exception e) {
+                            logger.warn("URL:{} POST body is inconsistent with the rules", originalRequest.getUri(), e);
                         }
                     }
 

@@ -31,9 +31,10 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
             HttpRequest httpRequest = (HttpRequest) httpObject;
             String url = null;
             try {
-                url = URLDecoder.decode(httpRequest.getUri(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                logger.warn("URL:{} is inconsistent with the rules.{}", httpRequest.getUri(), e);
+                String uri=httpRequest.getUri().replaceAll("%","%25");
+                url = URLDecoder.decode(uri, "UTF-8");
+            } catch (Exception e) {
+                logger.warn("URL:{} is inconsistent with the rules", httpRequest.getUri(), e);
             }
             if (url != null) {
                 int index = url.indexOf("?");
