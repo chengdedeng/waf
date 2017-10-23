@@ -40,9 +40,8 @@ import io.netty.handler.codec.http.HttpVersion;
 /**
  * @author:杨果
  * @date:2017/4/17 下午2:12
- *
+ * <p>
  * Description:
- *
  */
 public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
@@ -105,7 +104,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
             }
         } catch (Exception e) {
             ctx.writeAndFlush(create502Response(), channelPromise);
-            logger.error("client's request failed",e);
+            logger.error("client's request failed", e);
         }
         return null;
     }
@@ -129,7 +128,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     @Override
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
-            httpResponseFilterChain.doFilter((HttpResponse) httpObject);
+            httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject);
         }
         return httpObject;
     }

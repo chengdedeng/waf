@@ -3,14 +3,14 @@ package info.yangguo.waf.response;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 
 /**
  * @author:杨果
  * @date:2017/4/11 下午4:45
- *
+ * <p>
  * Description:
- *
  */
 public class HttpResponseFilterChain {
     public List<HttpResponseFilter> filters = new ArrayList<>();
@@ -20,9 +20,9 @@ public class HttpResponseFilterChain {
         return this;
     }
 
-    public void doFilter(HttpResponse httpResponse) {
+    public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse) {
         for (HttpResponseFilter filter : filters) {
-            filter.doFilter(httpResponse);
+            filter.doFilter(originalRequest, httpResponse);
         }
     }
 }
