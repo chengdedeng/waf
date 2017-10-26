@@ -1,16 +1,6 @@
 package info.yangguo.waf;
 
-import info.yangguo.waf.request.ArgsHttpRequestFilter;
-import info.yangguo.waf.request.CCHttpRequestFilter;
-import info.yangguo.waf.request.CookieHttpRequestFilter;
-import info.yangguo.waf.request.HttpRequestFilterChain;
-import info.yangguo.waf.request.IpHttpRequestFilter;
-import info.yangguo.waf.request.PostHttpRequestFilter;
-import info.yangguo.waf.request.ScannerHttpRequestFilter;
-import info.yangguo.waf.request.UaHttpRequestFilter;
-import info.yangguo.waf.request.UrlHttpRequestFilter;
-import info.yangguo.waf.request.WIpHttpRequestFilter;
-import info.yangguo.waf.request.WUrlHttpRequestFilter;
+import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
 import info.yangguo.waf.response.HttpResponseFilterChain;
 import info.yangguo.waf.util.WeightedRoundRobinScheduling;

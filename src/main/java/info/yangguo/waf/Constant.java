@@ -1,18 +1,13 @@
 package info.yangguo.waf;
 
-import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import info.yangguo.waf.util.PropertiesUtil;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author:杨果
@@ -32,33 +27,10 @@ public class Constant {
     public static int ProxyToServerWorkerThreads = Integer.parseInt(wafConfs.get("waf.proxyToServerWorkerThreads"));
     public static int ServerPort = Integer.parseInt(wafConfs.get("waf.serverPort"));
     public static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
-    private static Pattern ipv4Pattern = Pattern.compile("^(?:/)(((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?))(?::\\d{1,5}$)");
-    private static Pattern ipv6Pattern = Pattern.compile("^(?:/)(\\s*((([0-9A-Fa-f]{1,4}:){7}(([0-9A-Fa-f]{1,4})|:))|(([0-9A-Fa-f]{1,4}:){6}(:|((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})|(:[0-9A-Fa-f]{1,4})))|(([0-9A-Fa-f]{1,4}:){5}((:((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){4}(:[0-9A-Fa-f]{1,4}){0,1}((:((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){3}(:[0-9A-Fa-f]{1,4}){0,2}((:((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:){2}(:[0-9A-Fa-f]{1,4}){0,3}((:((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(([0-9A-Fa-f]{1,4}:)(:[0-9A-Fa-f]{1,4}){0,4}((:((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(:(:[0-9A-Fa-f]{1,4}){0,5}((:((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})?)|((:[0-9A-Fa-f]{1,4}){1,2})))|(((25[0-5]|2[0-4]\\d|[01]?\\d{1,2})(\\.(25[0-5]|2[0-4]\\d|[01]?\\d{1,2})){3})))(%.+)?\\s*)(?::\\d{1,5}$)");
-
 
     public static String getRealIp(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
         List<String> headerValues = getHeaderValues(httpRequest, "X-Real-IP");
-        String xRealIP = null;
-        if (headerValues.size() > 0) {
-            xRealIP = headerValues.get(0);
-        }
-        String remoteAddress = channelHandlerContext.channel().remoteAddress().toString();
-        String realIp = null;
-        if (xRealIP != null) {
-            realIp = xRealIP;
-        } else {
-            Matcher matcher1 = ipv4Pattern.matcher(remoteAddress);
-            if (matcher1.find()) {
-                realIp = matcher1.group(1);
-            } else {
-                Matcher matcher2 = ipv6Pattern.matcher(remoteAddress);
-                if (matcher2.find()) {
-                    realIp = matcher2.group(2);
-                }
-            }
-            httpRequest.headers().add("X-Real-IP", realIp);
-        }
-        return realIp;
+        return headerValues.get(0);
     }
 
     /**

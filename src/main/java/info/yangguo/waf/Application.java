@@ -1,16 +1,11 @@
 package info.yangguo.waf;
 
 
+import info.yangguo.waf.util.NetUtils;
 import info.yangguo.waf.util.SelfSignedSslEngineSource2;
-
-import org.littleshoot.proxy.ActivityTrackerAdapter;
-import org.littleshoot.proxy.ChainedProxy;
-import org.littleshoot.proxy.ChainedProxyAdapter;
-import org.littleshoot.proxy.ChainedProxyManager;
-import org.littleshoot.proxy.FlowContext;
-import org.littleshoot.proxy.HttpFilters;
-import org.littleshoot.proxy.HttpFiltersSourceAdapter;
-import org.littleshoot.proxy.HttpProxyServerBootstrap;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpRequest;
+import org.littleshoot.proxy.*;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.littleshoot.proxy.impl.ThreadPoolConfiguration;
 import org.slf4j.Logger;
@@ -18,10 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Queue;
-
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpRequest;
 
 public class Application {
     private static Logger logger = LoggerFactory.getLogger(Application.class);
@@ -68,15 +61,37 @@ public class Application {
         httpProxyServerBootstrap.withAllowRequestToOriginServer(true)
                 .withProxyAlias("waf")
                 .withThreadPoolConfiguration(threadPoolConfiguration)
+                //XFF设置
                 .plusActivityTracker(new ActivityTrackerAdapter() {
                     @Override
                     public void requestReceivedFromClient(FlowContext flowContext,
                                                           HttpRequest httpRequest) {
-                        InetSocketAddress clientAddress = flowContext.getClientAddress();
-                        //将请求源地址塞入header带给过滤器
-                        httpRequest.headers().add("X-Proxy-IP", clientAddress.getAddress().getHostAddress());
+
+                        String xffKey = "X-Forwarded-For";
+                        StringBuilder xff = new StringBuilder();
+                        List<String> headerValues1 = Constant.getHeaderValues(httpRequest, xffKey);
+                        if (headerValues1.size() > 0 && headerValues1.get(0) != null) {
+                            //逗号面一定要带一个空格
+                            xff.append(headerValues1.get(0)).append(", ");
+                        }
+                        xff.append(NetUtils.getLocalHost());
+                        httpRequest.headers().set(xffKey, xff.toString());
                     }
                 })
+                //X-Real-IP设置
+                .plusActivityTracker(
+                        new ActivityTrackerAdapter() {
+                            @Override
+                            public void requestReceivedFromClient(FlowContext flowContext,
+                                                                  HttpRequest httpRequest) {
+                                List<String> headerValues2 = Constant.getHeaderValues(httpRequest, "X-Real-IP");
+                                if (headerValues2.size() == 0) {
+                                    String remoteAddress = flowContext.getClientAddress().getAddress().getHostAddress();
+                                    httpRequest.headers().add("X-Real-IP", remoteAddress);
+                                }
+                            }
+                        }
+                )
                 .withFiltersSource(new HttpFiltersSourceAdapter() {
                     @Override
                     public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
