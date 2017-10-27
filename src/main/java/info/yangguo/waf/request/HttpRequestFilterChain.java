@@ -6,6 +6,7 @@ import java.util.List;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 /**
  * @author:杨果
@@ -23,13 +24,15 @@ public class HttpRequestFilterChain {
         return this;
     }
 
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
         for (HttpRequestFilter filter : filters) {
             boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext);
-            if (result) {
-                return filter.isBlacklist();
+            if (result && filter.isBlacklist()) {
+                return new ImmutablePair<>(filter.isBlacklist(), filter);
+            } else if (result && !filter.isBlacklist()) {
+                break;
             }
         }
-        return false;
+        return new ImmutablePair<>(false, null);
     }
 }

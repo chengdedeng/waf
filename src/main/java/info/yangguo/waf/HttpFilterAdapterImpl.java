@@ -4,7 +4,9 @@ import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
 import info.yangguo.waf.response.HttpResponseFilterChain;
 import info.yangguo.waf.util.WeightedRoundRobinScheduling;
-
+import io.netty.channel.*;
+import io.netty.handler.codec.http.*;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.impl.ClientToProxyConnection;
 import org.littleshoot.proxy.impl.ProxyToServerConnection;
@@ -13,19 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
-
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.ChannelPromise;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 
 /**
  * @author:杨果
@@ -89,7 +78,8 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
             }
         });
         try {
-            if (httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx)) {
+            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx);
+            if (immutablePair.left) {
                 ctx.writeAndFlush(create403Response(), channelPromise);
             }
         } catch (Exception e) {
