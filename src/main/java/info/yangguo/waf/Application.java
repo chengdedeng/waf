@@ -56,7 +56,7 @@ public class Application {
             httpProxyServerBootstrap
                     //不需要验证client端证书
                     .withAuthenticateSslClients(false)
-                    .withSslEngineSource(new SelfSignedSslEngineSource2("waf.jks", true, true));
+                    .withSslEngineSource(new SelfSignedSslEngineSource2("waf-keystore.jks", true, true,"yangguo","localhost"));
         }
         httpProxyServerBootstrap.withAllowRequestToOriginServer(true)
                 .withProxyAlias("waf")
