@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -21,29 +22,42 @@ import java.util.Arrays;
  * <p>
  * Description:
  */
-public class SelfSignedSslEngineSource2 implements SslEngineSource {
+public class WafSelfSignedSslEngineSource implements SslEngineSource {
     private static final Logger LOG = LoggerFactory
-            .getLogger(SelfSignedSslEngineSource2.class);
+            .getLogger(org.littleshoot.proxy.extras.SelfSignedSslEngineSource.class);
 
-    private static String keyStoreName = "waf-keystore.jks";
     private static final String ALIAS = "waf";
-    private static String PASSWORD = "yangguo";
+    private static final String PASSWORD = "yangguo";
     private static final String PROTOCOL = "TLS";
+    private final File keyStoreFile;
     private final boolean trustAllServers;
     private final boolean sendCerts;
-    private final String cn;
 
     private SSLContext sslContext;
 
-    public SelfSignedSslEngineSource2(String keyStoreName,
-                                      boolean trustAllServers, boolean sendCerts, String password,String cn) {
+    public WafSelfSignedSslEngineSource(String keyStorePath,
+                                     boolean trustAllServers, boolean sendCerts) {
         this.trustAllServers = trustAllServers;
         this.sendCerts = sendCerts;
-        this.keyStoreName = keyStoreName;
-        this.PASSWORD=password;
-        this.cn=cn;
+        this.keyStoreFile = new File(keyStorePath);
         initializeKeyStore();
-        this.initializeSSLContext();
+        initializeSSLContext();
+    }
+
+    public WafSelfSignedSslEngineSource(String keyStorePath) {
+        this(keyStorePath, false, true);
+    }
+
+    public WafSelfSignedSslEngineSource(boolean trustAllServers) {
+        this(trustAllServers, true);
+    }
+
+    public WafSelfSignedSslEngineSource(boolean trustAllServers, boolean sendCerts) {
+        this("waf_keystore.jks", trustAllServers, sendCerts);
+    }
+
+    public WafSelfSignedSslEngineSource() {
+        this(false);
     }
 
     @Override
@@ -61,27 +75,19 @@ public class SelfSignedSslEngineSource2 implements SslEngineSource {
     }
 
     private void initializeKeyStore() {
-        String keyStorePath=this.getClass().getResource("/").getPath()+keyStoreName;
-        String certPath=this.getClass().getResource("/").getPath()+"waf_cert";
-        File keyStoreFile=new File(keyStorePath);
-        if (keyStoreFile.isFile() && keyStoreFile.exists()) {
+        if (keyStoreFile.isFile()) {
             LOG.info("Not deleting keystore");
             return;
         }
 
-        StringBuilder dname=new StringBuilder()
-                .append("CN=").append(cn)
-                .append(", ").append("OU=").append(cn)
-                .append(", ").append("O=").append(cn)
-                .append(", L=SH, ST=SH, C=CN");
         nativeCall("keytool", "-genkey", "-alias", ALIAS, "-keysize",
                 "4096", "-validity", "36500", "-keyalg", "RSA", "-dname",
-                dname.toString(), "-keypass", PASSWORD, "-storepass",
-                PASSWORD, "-keystore", keyStorePath);
+                "CN=waf, OU=waf, O=waf, L=sh, ST=sh, C=cn", "-keypass", PASSWORD, "-storepass",
+                PASSWORD, "-keystore", "waf_keystore.jks");
 
         nativeCall("keytool", "-exportcert", "-alias", ALIAS, "-keystore",
-                keyStorePath, "-storepass", PASSWORD, "-file",
-                certPath);
+                keyStoreFile.getName(), "-storepass", PASSWORD, "-file",
+                "waf_cert");
     }
 
     private void initializeSSLContext() {
@@ -93,9 +99,7 @@ public class SelfSignedSslEngineSource2 implements SslEngineSource {
 
         try {
             final KeyStore ks = KeyStore.getInstance("JKS");
-            // ks.load(new FileInputStream("keystore.jks"),
-            // "changeit".toCharArray());
-            ks.load(this.getClass().getResourceAsStream(keyStoreName), PASSWORD.toCharArray());
+            ks.load(new FileInputStream(keyStoreFile), PASSWORD.toCharArray());
 
             // Set up key manager factory to use our key store
             final KeyManagerFactory kmf =
@@ -111,7 +115,7 @@ public class SelfSignedSslEngineSource2 implements SslEngineSource {
             if (!trustAllServers) {
                 trustManagers = tmf.getTrustManagers();
             } else {
-                trustManagers = new TrustManager[]{new X509TrustManager() {
+                trustManagers = new TrustManager[] { new X509TrustManager() {
                     // TrustManager that trusts all servers
                     @Override
                     public void checkClientTrusted(X509Certificate[] arg0,
@@ -129,7 +133,7 @@ public class SelfSignedSslEngineSource2 implements SslEngineSource {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
-                }};
+                } };
             }
 
             KeyManager[] keyManagers = null;
@@ -166,5 +170,4 @@ public class SelfSignedSslEngineSource2 implements SslEngineSource {
             return "";
         }
     }
-
 }

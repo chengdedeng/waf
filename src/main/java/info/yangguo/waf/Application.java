@@ -2,7 +2,7 @@ package info.yangguo.waf;
 
 
 import info.yangguo.waf.util.NetUtils;
-import info.yangguo.waf.util.SelfSignedSslEngineSource2;
+import info.yangguo.waf.util.WafSelfSignedSslEngineSource;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import org.littleshoot.proxy.*;
@@ -54,9 +54,9 @@ public class Application {
         }
         if ("on".equals(Constant.wafConfs.get("waf.tls"))) {
             httpProxyServerBootstrap
-                    //不需要验证client端证书
+                    //不验证client端证书
                     .withAuthenticateSslClients(false)
-                    .withSslEngineSource(new SelfSignedSslEngineSource2("waf-keystore.jks", true, true,"yangguo","localhost"));
+                    .withSslEngineSource(new WafSelfSignedSslEngineSource());
         }
         httpProxyServerBootstrap.withAllowRequestToOriginServer(true)
                 .withProxyAlias("waf")
