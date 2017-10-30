@@ -1,6 +1,8 @@
 package info.yangguo.waf.util;
 
-import com.google.common.io.ByteStreams;
+import net.lightbody.bmp.mitm.RootCertificateGenerator;
+import net.lightbody.bmp.mitm.keys.ECKeyGenerator;
+import net.lightbody.bmp.mitm.keys.RSAKeyGenerator;
 import org.littleshoot.proxy.SslEngineSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,13 +10,10 @@ import org.slf4j.LoggerFactory;
 import javax.net.ssl.*;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.Security;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
 
 /**
  * @author:杨果
@@ -27,16 +26,27 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
             .getLogger(org.littleshoot.proxy.extras.SelfSignedSslEngineSource.class);
 
     private static final String ALIAS = "waf";
-    private static final String PASSWORD = "yangguo";
+    public static final String PASSWORD = "yangguo";
     private static final String PROTOCOL = "TLS";
-    private final File keyStoreFile;
+    private static String KEYALG = "EC";
+    public final File keyStoreFile;
     private final boolean trustAllServers;
     private final boolean sendCerts;
 
     private SSLContext sslContext;
 
     public WafSelfSignedSslEngineSource(String keyStorePath,
-                                     boolean trustAllServers, boolean sendCerts) {
+                                        boolean trustAllServers, boolean sendCerts, String keyalg) {
+        this.trustAllServers = trustAllServers;
+        this.sendCerts = sendCerts;
+        this.keyStoreFile = new File(keyStorePath);
+        this.KEYALG = keyalg;
+        initializeKeyStore();
+        initializeSSLContext();
+    }
+
+    public WafSelfSignedSslEngineSource(String keyStorePath,
+                                        boolean trustAllServers, boolean sendCerts) {
         this.trustAllServers = trustAllServers;
         this.sendCerts = sendCerts;
         this.keyStoreFile = new File(keyStorePath);
@@ -74,20 +84,22 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
         return sslContext;
     }
 
-    private void initializeKeyStore() {
+    public void initializeKeyStore() {
         if (keyStoreFile.isFile()) {
             LOG.info("Not deleting keystore");
             return;
         }
 
-        nativeCall("keytool", "-genkey", "-alias", ALIAS, "-keysize",
-                "4096", "-validity", "36500", "-keyalg", "RSA", "-dname",
-                "CN=waf, OU=waf, O=waf, L=sh, ST=sh, C=cn", "-keypass", PASSWORD, "-storepass",
-                PASSWORD, "-keystore", "waf_keystore.jks");
+        RootCertificateGenerator.Builder RootCertificateGeneratorBuilder = RootCertificateGenerator.builder();
+        RootCertificateGenerator rootCertificateGenerator;
+        if (KEYALG.equals("RSA")) {
+            rootCertificateGenerator = RootCertificateGeneratorBuilder.keyGenerator(new RSAKeyGenerator()).build();
+        } else {
+            rootCertificateGenerator = RootCertificateGeneratorBuilder.keyGenerator(new ECKeyGenerator()).build();
+        }
 
-        nativeCall("keytool", "-exportcert", "-alias", ALIAS, "-keystore",
-                keyStoreFile.getName(), "-storepass", PASSWORD, "-file",
-                "waf_cert");
+        rootCertificateGenerator.saveRootCertificateAsPemFile(new File("waf_cert"));
+        rootCertificateGenerator.saveRootCertificateAndKey("JKS", keyStoreFile, ALIAS, PASSWORD);
     }
 
     private void initializeSSLContext() {
@@ -115,7 +127,7 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
             if (!trustAllServers) {
                 trustManagers = tmf.getTrustManagers();
             } else {
-                trustManagers = new TrustManager[] { new X509TrustManager() {
+                trustManagers = new TrustManager[]{new X509TrustManager() {
                     // TrustManager that trusts all servers
                     @Override
                     public void checkClientTrusted(X509Certificate[] arg0,
@@ -133,7 +145,7 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
-                } };
+                }};
             }
 
             KeyManager[] keyManagers = null;
@@ -149,25 +161,6 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
         } catch (final Exception e) {
             throw new Error(
                     "Failed to initialize the server-side SSLContext", e);
-        }
-    }
-
-    private String nativeCall(final String... commands) {
-        LOG.info("Running '{}'", Arrays.asList(commands));
-        final ProcessBuilder pb = new ProcessBuilder(commands);
-        try {
-            final Process process = pb.start();
-            final InputStream is = process.getInputStream();
-
-            byte[] data = ByteStreams.toByteArray(is);
-            String dataAsString = new String(data);
-
-            LOG.info("Completed native call: '{}'\nResponse: '" + dataAsString + "'",
-                    Arrays.asList(commands));
-            return dataAsString;
-        } catch (final IOException e) {
-            LOG.error("Error running commands: " + Arrays.asList(commands), e);
-            return "";
         }
     }
 }

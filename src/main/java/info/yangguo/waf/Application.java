@@ -5,6 +5,10 @@ import info.yangguo.waf.util.NetUtils;
 import info.yangguo.waf.util.WafSelfSignedSslEngineSource;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
+import net.lightbody.bmp.mitm.CertificateAndKeySource;
+import net.lightbody.bmp.mitm.KeyStoreFileCertificateSource;
+import net.lightbody.bmp.mitm.keys.ECKeyGenerator;
+import net.lightbody.bmp.mitm.manager.ImpersonatingMitmManager;
 import org.littleshoot.proxy.*;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.littleshoot.proxy.impl.ThreadPoolConfiguration;
@@ -28,9 +32,25 @@ public class Application {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.ServerPort);
         HttpProxyServerBootstrap httpProxyServerBootstrap = DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress);
-        if (!"on".equals(Constant.wafConfs.get("waf.proxy.lb"))) {
+        boolean proxy_chain = "on".equals(Constant.wafConfs.get("waf.proxy.chain"));
+        boolean proxy_lb = "on".equals(Constant.wafConfs.get("waf.proxy.lb"));
+        boolean proxy_tls = "on".equals(Constant.wafConfs.get("waf.tls"));
+        boolean proxy_mitm = "on".equals(Constant.wafConfs.get("waf.mitm"));
+        if (proxy_chain && proxy_lb) {
+            logger.error("waf.proxy.chain和waf.proxy.lb只能开启其中之一");
+            throw new IllegalArgumentException("waf.proxy.chain和waf.proxy.lb只能开启其中之一");
+        }
+        if (proxy_tls && proxy_mitm) {
+            logger.error("waf.tls和waf.proxy.mitm只能开启其中之一");
+            throw new IllegalArgumentException("waf.tls和waf.proxy.mitm只能开启其中之一");
+        }
+        if(proxy_lb && proxy_mitm){
+            logger.error("waf.proxy.lb和waf.proxy.mitm只能开启其中之一");
+            throw new IllegalArgumentException("waf.proxy.lb和waf.proxy.mitm只能开启其中之一");
+        }
+        if (proxy_chain) {
             //透明代理模式
-            logger.debug("透明代理模式开启");
+            logger.info("透明代理模式开启");
             String reverseProxy = Constant.wafConfs.get("waf.proxy.chain.servers");
             final String[] reProxys = reverseProxy.split(",");
             httpProxyServerBootstrap.withChainProxyManager(new ChainedProxyManager() {
@@ -47,16 +67,33 @@ public class Application {
                     }
                 }
             });
-        } else {
+        } else if (proxy_lb) {
             //反向代理模式
-            logger.debug("反向代理模式开启");
+            logger.info("反向代理模式开启");
             httpProxyServerBootstrap.withServerResolver(HostResolverImpl.getSingleton());
         }
-        if ("on".equals(Constant.wafConfs.get("waf.tls"))) {
+        if (proxy_tls) {
+            logger.info("开启TLS支持");
             httpProxyServerBootstrap
                     //不验证client端证书
                     .withAuthenticateSslClients(false)
                     .withSslEngineSource(new WafSelfSignedSslEngineSource());
+        } else if (proxy_mitm) {
+            logger.info("开启中间人拦截支持支持");
+            WafSelfSignedSslEngineSource wafSelfSignedSslEngineSource = new WafSelfSignedSslEngineSource();
+            CertificateAndKeySource certificateAndKeySource;
+            certificateAndKeySource = new KeyStoreFileCertificateSource(
+                    "JKS",
+                    wafSelfSignedSslEngineSource.keyStoreFile,
+                    "waf",
+                    WafSelfSignedSslEngineSource.PASSWORD);
+
+
+            ImpersonatingMitmManager mitmManager = ImpersonatingMitmManager.builder()
+                    .rootCertificateSource(certificateAndKeySource)
+                    .serverKeyGenerator(new ECKeyGenerator())
+                    .build();
+            httpProxyServerBootstrap.withManInTheMiddle(mitmManager);
         }
         httpProxyServerBootstrap.withAllowRequestToOriginServer(true)
                 .withProxyAlias("waf")
