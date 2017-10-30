@@ -164,7 +164,7 @@ github不支持火焰图显示,[点击下载源文件](https://github.com/chengd
 
 
 #### 常见问题
-1. JDK7需要改下JVM配置,否者启动不起来.
+1. JDK8以下不支持PreserveFramePointer,所以JDK8以下可以把这个参数禁用,JVM默认配置如下.
 
 ```
           <jvmSettings>
