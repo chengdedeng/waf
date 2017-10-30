@@ -167,7 +167,7 @@ github不支持火焰图显示,[点击下载源文件](https://github.com/chengd
 1. JDK8以下不支持PreserveFramePointer,所以JDK8以下可以把这个参数禁用,JVM默认配置如下.
 
 ```
-          <jvmSettings>
+            <jvmSettings>
                 <extraArguments>
                     <extraArgument>-server</extraArgument>
                     <extraArgument>-Xms2048m</extraArgument>
