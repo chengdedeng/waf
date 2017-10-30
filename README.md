@@ -92,19 +92,23 @@ waf.args=on
 #文件拦截
 waf.file=on
 #cc拦截
-waf.cc=off
+waf.cc=on
 #扫描器拦截
 waf.scanner=on
 #每秒rate
-waf.cc.rate=100
-#on表示waf支持loadbalance,需要配置upstream.properties;off表示loadbalance交给下游的proxy,需要配置waf.proxy.chain.servers.
-waf.proxy.lb=on
+waf.cc.rate=10000
+#on表示waf支持loadbalance,需要配置upstream.properties,与waf.proxy.chain和waf.mitm互斥
+waf.proxy.lb=off
 #设置重试间隔时间，默认10秒
 waf.proxy.lb.fail_timeout=10
+#是否路由到waf下游的proxy,与waf.proxy.lb互斥
+waf.proxy.chain=off
 #waf下游的proxy,多个用","分隔.注意只有前一个不可用,才会用下一个,下游proxy不会负载均衡
 waf.proxy.chain.servers=127.0.0.1:8180
-#是否启用TLS,需要对SelfSignedSslEngineSource2进行部分改造
+#是否启用TLS,与waf.mitm互斥
 waf.tls=off
+#是否HTTPS开启中间人拦截,与waf.tls和waf.proxy.lb互斥
+waf.mitm=on
 #ip白名单
 waf.ip.whitelist=on
 #ip黑名单
@@ -112,11 +116,13 @@ waf.ip.blacklist=on
 #url白名单
 waf.url.whitelist=on
 #接收者线程数
-waf.acceptorThreads=200
+waf.acceptorThreads=20
 #处理client请求的工作线程数
-waf.clientToProxyWorkerThreads=300
+waf.clientToProxyWorkerThreads=100
 #处理proxy与后端服务器的工作线程数
-waf.proxyToServerWorkerThreads=300
+waf.proxyToServerWorkerThreads=100
+#waf服务器端口
+waf.serverPort=8080
 ```
 
 ##### 服务器/虚拟机(测试机)配置:
