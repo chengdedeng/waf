@@ -6,6 +6,7 @@
 2. 支持TLS反向代理.
 3. 支持透明代理.
 4. 支持非法参数拦截.
+5. KeyGenerator支持RSA和EC
 
 ### Quick Start
 
