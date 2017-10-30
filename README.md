@@ -1,10 +1,16 @@
-> 网上有很多基于Nginx和Apache的软件WAF开源方案,笔者为了学习所以用Java重造了一个轮子.
+> 虽然笔者的初衷是研发一套Java版本的WAF,但是该项目可以作为统一的API Gateway,当然也可以作为HTTP/HTTPS抓包工具使用.
+
+
+### 特性
+1. 支持MITM,可以用来进行HTTPS抓包,非常方便.
+2. 支持TLS反向代理.
+3. 支持透明代理.
 
 ### Quick Start
 
 ##### 编译:
 ```
- mvn package 
+ mvn package
 ```
 
 ##### 运行:
@@ -41,7 +47,7 @@ Nginx的性能是有目共睹的,WAF既然作为一个HTTP Proxy,所以需要跟
 
 
 ##### 测试基准:
-1.AB->Nginx_Proxy->Nginx_AS 
+1.AB->Nginx_Proxy->Nginx_AS
 
 2.AB->WAF->Nginx_AS
 
@@ -148,3 +154,28 @@ AB->WAF->Nginx_AS|HTTP短链|5559
 github不支持火焰图显示,[点击下载源文件](https://github.com/chengdedeng/waf/blob/master/doc/flamegraph.svg).
 
 ![](https://github.com/chengdedeng/waf/blob/master/doc/framegraph.png)
+
+
+#### 常见问题
+1. JDK7需要改下JVM配置,否者启动不起来.
+
+```
+          <jvmSettings>
+                <extraArguments>
+                    <extraArgument>-server</extraArgument>
+                    <extraArgument>-Xms2048m</extraArgument>
+                    <extraArgument>-Xmx2048m</extraArgument>
+                    <extraArgument>-Xmn800m</extraArgument>
+                    <extraArgument>-XX:+UseG1GC</extraArgument>
+                    <extraArgument>-Xloggc:/tmp/log/gc.log</extraArgument>
+                    <extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>
+                    <extraArgument>-XX:+PrintGCDetails</extraArgument>
+                    <extraArgument>-XX:+PrintGCTimeStamps</extraArgument>
+                    <extraArgument>-XX:+PreserveFramePointer</extraArgument>
+                </extraArguments>
+            </jvmSettings>
+```
+
+2. 开启TLS or MITM后,会在项目的目录下生成waf_cert证书,TLS会自动下发证书,MITM需要手动加入证书,信任之后就可以正常工作了.
+3. `waf.proxy.lb`和`waf.proxy.mitm`,`waf.tls`和`waf.proxy.mitm`,`waf.proxy.chain`和`waf.proxy.lb`两两之间只能开启其中之一.
+4. 如果只是HTTP或者HTTPS抓包,可以关闭所有的安全拦截.
