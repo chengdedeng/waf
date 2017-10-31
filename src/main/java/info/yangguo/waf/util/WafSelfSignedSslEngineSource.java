@@ -1,8 +1,10 @@
 package info.yangguo.waf.util;
 
+import net.lightbody.bmp.mitm.CertificateInfo;
 import net.lightbody.bmp.mitm.RootCertificateGenerator;
 import net.lightbody.bmp.mitm.keys.ECKeyGenerator;
 import net.lightbody.bmp.mitm.keys.RSAKeyGenerator;
+import org.joda.time.DateTime;
 import org.littleshoot.proxy.SslEngineSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,12 +92,21 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
             return;
         }
 
-        RootCertificateGenerator.Builder RootCertificateGeneratorBuilder = RootCertificateGenerator.builder();
+        CertificateInfo certificateInfo = new CertificateInfo();
+        certificateInfo.countryCode("CN");
+        certificateInfo.organization("yangguo.info");
+        certificateInfo.email("yangguo@outlook.com");
+        certificateInfo.commonName("WAF Integration Certification Authority");
+        DateTime dateTime = new DateTime();
+        certificateInfo.notBefore(dateTime.minusDays(1).toDate());
+        certificateInfo.notAfter(dateTime.plusYears(1).toDate());
+        RootCertificateGenerator.Builder rootCertificateGeneratorBuilder = RootCertificateGenerator.builder();
+        rootCertificateGeneratorBuilder.certificateInfo(certificateInfo);
         RootCertificateGenerator rootCertificateGenerator;
         if (KEYALG.equals("RSA")) {
-            rootCertificateGenerator = RootCertificateGeneratorBuilder.keyGenerator(new RSAKeyGenerator()).build();
+            rootCertificateGenerator = rootCertificateGeneratorBuilder.keyGenerator(new RSAKeyGenerator()).build();
         } else {
-            rootCertificateGenerator = RootCertificateGeneratorBuilder.keyGenerator(new ECKeyGenerator()).build();
+            rootCertificateGenerator = rootCertificateGeneratorBuilder.keyGenerator(new ECKeyGenerator()).build();
         }
 
         rootCertificateGenerator.saveRootCertificateAsPemFile(new File("waf_cert"));
