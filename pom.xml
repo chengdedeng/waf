@@ -196,7 +196,10 @@
                                     <extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>
                                     <extraArgument>-XX:+PrintGCDetails</extraArgument>
                                     <extraArgument>-XX:+PrintGCTimeStamps</extraArgument>
-                                    <extraArgument>-XX:+PreserveFramePointer</extraArgument>
+                                    <!--火焰图,只支持JDK8-->
+                                    <!--<extraArgument>-XX:+PreserveFramePointer</extraArgument>-->
+                                    <!--测试SSL-->
+                                    <!--<extraArgument>-Djavax.net.debug=ssl</extraArgument>-->
                                 </extraArguments>
                             </jvmSettings>
                         </daemon>
