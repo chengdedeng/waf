@@ -14,3 +14,5 @@ log/
 .idea/*
 *.jks
 waf_cert
+*.pem
+*.p12

@@ -39,7 +39,7 @@ public class ScannerHttpRequestFilter extends HttpRequestFilter {
             boolean xWIPP = httpRequest.headers().contains("X-WIPP");
 
             //Appscan
-            Pattern pattern1 = Pattern.compile("AppScan=");
+            Pattern pattern1 = Pattern.compile("AppScan_fingerprint");
             Matcher matcher1 = pattern1.matcher(httpRequest.getUri());
 
             //Bugscan
