@@ -168,5 +168,3 @@ github不支持火焰图显示,[点击下载源文件](https://github.com/chengd
 1. 开启TLS or MITM后,会在项目的目录下生成waf_cert证书,TLS会自动下发证书,MITM需要手动加入证书,信任之后就可以正常工作了.
 2. `waf.proxy.lb`和`waf.proxy.mitm`,`waf.tls`和`waf.proxy.mitm`,`waf.proxy.chain`和`waf.proxy.lb`两两之间只能开启其中之一.
 3. 如果只是HTTP或者HTTPS抓包,可以关闭所有的安全拦截.
-4. 由于为了加快加解密的速度，waf默认启用了EC.由于Chrome不支持`TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256`,所以JDK7下Chrome会报`ERR_SSL_VERSION_OR_CIPHER_MISMATCH`,
-JDK8下则无此问题,因为协商下来,采用的是`TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256`,当然如果使用RSA则无此问题.想完整了解TLS的握手过程,JVM加上`-Djavax.net.debug=ssl`配置即可.
