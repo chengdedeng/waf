@@ -193,9 +193,9 @@
                             <jvmSettings>
                                 <extraArguments>
                                     <extraArgument>-server</extraArgument>
-                                    <extraArgument>-Xms2048m</extraArgument>
-                                    <extraArgument>-Xmx2048m</extraArgument>
-                                    <extraArgument>-Xmn800m</extraArgument>
+                                    <extraArgument>-Xms128m</extraArgument>
+                                    <extraArgument>-Xmx128m</extraArgument>
+                                    <extraArgument>-Xmn60m</extraArgument>
                                     <extraArgument>-XX:+UseG1GC</extraArgument>
                                     <extraArgument>-Xloggc:/tmp/log/gc.log</extraArgument>
                                     <extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>

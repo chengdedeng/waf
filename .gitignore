@@ -13,6 +13,6 @@ disconf/
 log/
 .idea/*
 *.jks
-waf_cert
+*.crt
 *.pem
 *.p12

@@ -24,52 +24,57 @@ import java.security.cert.X509Certificate;
  * Description:
  */
 public class WafSelfSignedSslEngineSource implements SslEngineSource {
-    private static final Logger LOG = LoggerFactory
+    private static final Logger logger = LoggerFactory
             .getLogger(org.littleshoot.proxy.extras.SelfSignedSslEngineSource.class);
 
     private static final String ALIAS = "waf";
     public static final String PASSWORD = "yangguo";
     private static final String PROTOCOL = "TLS";
+    public static final String crtFileName = "waf.crt";
+    public static final String jksKeyStoreFileName = "waf.jks";
+    public static final String p12KeyStoreFileName = "waf.p12";
     private static String KEYALG = "EC";
-    public final File keyStoreFile;
+    public File keyStoreFile;
     private final boolean trustAllServers;
     private final boolean sendCerts;
-
+    private KeyStoreType keyStoreType;
     private SSLContext sslContext;
 
+    /**
+     * use exist keystore
+     *
+     * @param keyStorePath
+     * @param trustAllServers
+     * @param sendCerts
+     */
     public WafSelfSignedSslEngineSource(String keyStorePath,
-                                        boolean trustAllServers, boolean sendCerts, String keyalg) {
+                                        boolean trustAllServers, boolean sendCerts, KeyStoreType keyStoreType) {
+        JCEUtil.removeCryptographyRestrictions();
         this.trustAllServers = trustAllServers;
         this.sendCerts = sendCerts;
         this.keyStoreFile = new File(keyStorePath);
+        this.keyStoreType = keyStoreType;
+        initializeSSLContext();
+    }
+
+    /**
+     * create keystore
+     *
+     * @param trustAllServers
+     * @param sendCerts
+     */
+    public WafSelfSignedSslEngineSource(boolean trustAllServers, boolean sendCerts, String keyalg) {
+        JCEUtil.removeCryptographyRestrictions();
+        this.trustAllServers = trustAllServers;
+        this.sendCerts = sendCerts;
+        this.keyStoreType = KeyStoreType.JKS;
         this.KEYALG = keyalg;
         initializeKeyStore();
         initializeSSLContext();
     }
 
-    public WafSelfSignedSslEngineSource(String keyStorePath,
-                                        boolean trustAllServers, boolean sendCerts) {
-        this.trustAllServers = trustAllServers;
-        this.sendCerts = sendCerts;
-        this.keyStoreFile = new File(keyStorePath);
-        initializeKeyStore();
-        initializeSSLContext();
-    }
-
-    public WafSelfSignedSslEngineSource(String keyStorePath) {
-        this(keyStorePath, false, true);
-    }
-
-    public WafSelfSignedSslEngineSource(boolean trustAllServers) {
-        this(trustAllServers, true);
-    }
-
-    public WafSelfSignedSslEngineSource(boolean trustAllServers, boolean sendCerts) {
-        this("waf_keystore.jks", trustAllServers, sendCerts);
-    }
-
     public WafSelfSignedSslEngineSource() {
-        this(false);
+        this(false, true, KEYALG);
     }
 
     @Override
@@ -87,8 +92,12 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
     }
 
     public void initializeKeyStore() {
+        File crtFile = new File(crtFileName);
+        File jksFile = new File(jksKeyStoreFileName);
+        File p12File = new File(p12KeyStoreFileName);
+        keyStoreFile = jksFile;
         if (keyStoreFile.isFile()) {
-            LOG.info("Not deleting keystore");
+            logger.info("Not deleting keystore");
             return;
         }
 
@@ -109,8 +118,12 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
             rootCertificateGenerator = rootCertificateGeneratorBuilder.keyGenerator(new ECKeyGenerator()).build();
         }
 
-        rootCertificateGenerator.saveRootCertificateAsPemFile(new File("waf_cert"));
-        rootCertificateGenerator.saveRootCertificateAndKey("JKS", keyStoreFile, ALIAS, PASSWORD);
+        rootCertificateGenerator.saveRootCertificateAsPemFile(crtFile);
+        logger.info("CRT file created success");
+        rootCertificateGenerator.saveRootCertificateAndKey(KeyStoreType.JKS.name(), jksFile, ALIAS, PASSWORD);
+        logger.info("JKS file created success");
+        rootCertificateGenerator.saveRootCertificateAndKey(KeyStoreType.PKCS12.name(), p12File, ALIAS, PASSWORD);
+        logger.info("PKCS12 file created success");
     }
 
     private void initializeSSLContext() {
@@ -121,7 +134,7 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
         }
 
         try {
-            final KeyStore ks = KeyStore.getInstance("JKS");
+            final KeyStore ks = KeyStore.getInstance(keyStoreType.name());
             ks.load(new FileInputStream(keyStoreFile), PASSWORD.toCharArray());
 
             // Set up key manager factory to use our key store
@@ -173,5 +186,9 @@ public class WafSelfSignedSslEngineSource implements SslEngineSource {
             throw new Error(
                     "Failed to initialize the server-side SSLContext", e);
         }
+    }
+
+    public enum KeyStoreType {
+        JKS, PKCS12;
     }
 }
