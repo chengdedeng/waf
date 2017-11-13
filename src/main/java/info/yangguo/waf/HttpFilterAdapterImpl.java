@@ -47,7 +47,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         if (Constant.wafConfs.get("waf.ua").equals("on")) {
             httpRequestFilterChain.addFilter(new UaHttpRequestFilter());
         }
-        if (Constant.wafConfs.get("waf.url").equals("on")) {
+        if (Constant.wafConfs.get("waf.url.blacklist").equals("on")) {
             httpRequestFilterChain.addFilter(new UrlHttpRequestFilter());
         }
         if (Constant.wafConfs.get("waf.args").equals("on")) {
