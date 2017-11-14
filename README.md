@@ -38,7 +38,8 @@ LittleProxy是[LANTERN](https://getlantern.org/)的维护者发起的开源项�
 
 **HttpRequestFilterChain** 和 **HttpResponseFilterChain** 责任链,分别对进来和出去的数据进行拦截分析.Request拦截又分为黑白名单两种,Response拦截主要给输出的数据进行安全加固.在Request的拦截规则方面,我参考了[loveshell/ngx_lua_waf](https://github.com/loveshell/ngx_lua_waf).
 
-更多技术详情请移步个人[blog](http://www.yangguo.info/2017/06/06/Java%E7%89%88WAF%E5%AE%9E%E7%8E%B0/#more)
+更多技术详情请移步个人[Java版WAF技术细节](http://www.yangguo.info/2017/06/06/Java%E7%89%88WAF%E5%AE%9E%E7%8E%B0/#more)
+[HttpProxy研发心得](http://www.yangguo.info/2017/11/13/HttpProxy%E7%A0%94%E5%8F%91%E5%BF%83%E5%BE%97/#more)
 
 ### 性能
 
