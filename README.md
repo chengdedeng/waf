@@ -1,4 +1,4 @@
-> 虽然笔者的初衷是研发一套Java版本的WAF,但是该项目可以作为统一的API Gateway,当然也可以作为HTTP/HTTPS抓包工具使用.
+> 虽然笔者的初衷是研发一套Java版本的WAF,但是该项目可以作为统一的API Gateway,支持TLS/MITM,还支持下游代理为Socks5,对于需要访问国外被封SaaS服务的http请求来说非常方便.
 
 
 ### 特性
