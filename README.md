@@ -2,12 +2,10 @@
 
 
 ### 特性
-1. 支持MITM,可以用来进行HTTPS抓包,非常方便.
-2. 支持TLS反向代理.
-3. 支持透明代理.
-4. 支持非法参数拦截.
-5. KeyGenerator支持RSA和EC.
-6. 支持下游代理为Socks5.
+1. 支持"hijacking" HTTPS connection using "Man in the Middle" style attack.
+2. 支持HTTP proxy, HTTPS through CONNECT.
+3. 支持非法参数拦截.
+4. 支持下游代理为Socks5.
 
 ### Quick Start
 
