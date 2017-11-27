@@ -216,6 +216,8 @@
                                     <!--<extraArgument>-XX:+PreserveFramePointer</extraArgument>-->
                                     <!--测试SSL-->
                                     <!--<extraArgument>-Djavax.net.debug=ssl</extraArgument>-->
+                                    <!--paranoid/simple,生产别用paranoid,只有在定位OOM时启用-->
+                                    <extraArgument>-Dio.netty.leakDetectionLevel=simple</extraArgument>
                                 </extraArguments>
                             </jvmSettings>
                         </daemon>
