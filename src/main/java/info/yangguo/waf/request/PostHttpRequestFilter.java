@@ -2,6 +2,7 @@ package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.util.ConfUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpObject;
@@ -33,10 +34,10 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                 List<String> headerValues = Constant.getHeaderValues(originalRequest, "Content-Type");
                 if (headerValues.size() > 0 && headerValues.get(0) != null) {
                     if (Constant.getHeaderValues(originalRequest, "Content-Type") != null && headerValues.get(0).startsWith("multipart/form-data")) {
-                        contentBody = new String(httpContent.content().array());
+                        contentBody = new String(Unpooled.copiedBuffer(httpContent.content()).array());
                     } else {
                         try {
-                            String contentStr = new String(httpContent.content().array()).replaceAll("%", "%25");
+                            String contentStr = new String(Unpooled.copiedBuffer(httpContent.content()).array()).replaceAll("%", "%25");
                             contentBody = URLDecoder.decode(contentStr, "UTF-8");
                         } catch (Exception e) {
                             logger.warn("URL:{} POST body is inconsistent with the rules", originalRequest.getUri(), e);
