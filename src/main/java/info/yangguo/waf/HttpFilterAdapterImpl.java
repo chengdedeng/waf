@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * @author:杨果
@@ -80,10 +81,10 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         try {
             ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx);
             if (immutablePair.left) {
-                ctx.writeAndFlush(create403Response(), channelPromise);
+                ctx.writeAndFlush(createResponse(HttpResponseStatus.FORBIDDEN, originalRequest), channelPromise);
             }
         } catch (Exception e) {
-            ctx.writeAndFlush(create502Response(), channelPromise);
+            ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest), channelPromise);
             logger.error("client's request failed", e);
         }
         return null;
@@ -101,7 +102,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
                     }
                 }
             });
-            ctx.writeAndFlush(create502Response(), channelPromise);
+            ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest), channelPromise);
         }
     }
 
@@ -149,15 +150,16 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         super.proxyToServerConnectionSucceeded(serverCtx);
     }
 
-    private static HttpResponse create403Response() {
-        HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
-        HttpHeaders.setContentLength(httpResponse, 0);
-        return httpResponse;
-    }
-
-    private static HttpResponse create502Response() {
-        HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
-        HttpHeaders.setContentLength(httpResponse, 0);
+    private static HttpResponse createResponse(HttpResponseStatus httpResponseStatus, HttpRequest originalRequest) {
+        HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus);
+        //support CORS
+        List<String> originHeader = Constant.getHeaderValues(originalRequest, "Origin");
+        if (originHeader.size() > 0) {
+            HttpHeaders httpHeaders = new DefaultHttpHeaders();
+            httpHeaders.set("Access-Control-Allow-Credentials", "true");
+            httpHeaders.set("Access-Control-Allow-Origin", originHeader.get(0));
+            httpResponse.headers().add(httpHeaders);
+        }
         return httpResponse;
     }
 }
