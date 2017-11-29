@@ -29,7 +29,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.16.Final</version>
+            <version>4.1.17.Final</version>
         </dependency>
         <dependency>
             <groupId>net.lightbody.bmp</groupId>
@@ -216,8 +216,11 @@
                                     <!--<extraArgument>-XX:+PreserveFramePointer</extraArgument>-->
                                     <!--测试SSL-->
                                     <!--<extraArgument>-Djavax.net.debug=ssl</extraArgument>-->
-                                    <!--paranoid/simple,生产别用paranoid,只有在定位OOM时启用-->
-                                    <extraArgument>-Dio.netty.leakDetectionLevel=simple</extraArgument>
+                                    <!--定位OOM时启用-->
+                                    <!--<extraArgument>-Dio.netty.leakDetectionLevel=paranoid</extraArgument>-->
+                                    <!--<extraArgument>-Dio.netty.allocator.tinyCacheSize=0</extraArgument>-->
+                                    <!--<extraArgument>-Dio.netty.allocator.smallCacheSize=0</extraArgument>-->
+                                    <!--<extraArgument>-Dio.netty.allocator.normalCacheSize=0</extraArgument>-->
                                 </extraArguments>
                             </jvmSettings>
                         </daemon>
