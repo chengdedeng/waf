@@ -70,39 +70,24 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-        ChannelPromise channelPromise = ctx.newPromise().addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                if (channelFuture.isDone()) {
-                    ctx.close();
-                }
-            }
-        });
+        HttpResponse httpResponse = null;
         try {
             ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx);
             if (immutablePair.left) {
-                ctx.writeAndFlush(createResponse(HttpResponseStatus.FORBIDDEN, originalRequest), channelPromise);
+                httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
             }
         } catch (Exception e) {
-            ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest), channelPromise);
-            logger.error("client's request failed", e);
+            httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
+            logger.error("client's request failed", e.getCause());
         }
-        return null;
+        return httpResponse;
     }
 
     @Override
     public void proxyToServerResolutionSucceeded(String serverHostAndPort,
                                                  InetSocketAddress resolvedRemoteAddress) {
         if (resolvedRemoteAddress == null) {
-            ChannelPromise channelPromise = ctx.newPromise().addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (channelFuture.isDone()) {
-                        ctx.close();
-                    }
-                }
-            });
-            ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest), channelPromise);
+            ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest));
         }
     }
 
@@ -151,15 +136,17 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     }
 
     private static HttpResponse createResponse(HttpResponseStatus httpResponseStatus, HttpRequest originalRequest) {
+        HttpHeaders httpHeaders=new DefaultHttpHeaders();
+        httpHeaders.add("Transfer-Encoding","chunked");
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus);
+
         //support CORS
         List<String> originHeader = Constant.getHeaderValues(originalRequest, "Origin");
         if (originHeader.size() > 0) {
-            HttpHeaders httpHeaders = new DefaultHttpHeaders();
             httpHeaders.set("Access-Control-Allow-Credentials", "true");
             httpHeaders.set("Access-Control-Allow-Origin", originHeader.get(0));
-            httpResponse.headers().add(httpHeaders);
         }
+        httpResponse.headers().add(httpHeaders);
         return httpResponse;
     }
 }
