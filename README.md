@@ -31,7 +31,7 @@ bin/waf { console | start | stop | restart | status | dump }
 ### 架构
 HTTP Proxy选择了基于[Netty](https://netty.io/)研发的[LittleProxy](https://github.com/adamfisk/LittleProxy),
 LittleProxy是[LANTERN](https://getlantern.org/)的维护者发起的开源项目,是一款非常优秀的Java HTTP Proxy.
-关于Loadbalance,WAF有两种模式可以供选择,一种基于Proxy Chain,例一种是基于HostResolver.Proxy Chain是把目标机的映射交给
+关于Loadbalance,WAF有两种模式可以供选择,一种基于Proxy Chain,另一种是基于HostResolver.Proxy Chain是把目标机的映射交给
 下游的Proxy,而HostResolver则是WAF自身完成映射.需要特别注意的是,Proxy Chain中如果存在多Proxy是不会负载均衡的,只有前一个不可用时才会用下一个.
 
 **HttpRequestFilterChain** 和 **HttpResponseFilterChain** 责任链,分别对进来和出去的数据进行拦截分析.Request拦截又分为黑白名单两种,Response拦截主要给输出的数据进行安全加固.在Request的拦截规则方面,我参考了[loveshell/ngx_lua_waf](https://github.com/loveshell/ngx_lua_waf).
