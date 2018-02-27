@@ -212,6 +212,8 @@
                                     <extraArgument>-XX:+HeapDumpOnOutOfMemoryError</extraArgument>
                                     <extraArgument>-XX:+PrintGCDetails</extraArgument>
                                     <extraArgument>-XX:+PrintGCTimeStamps</extraArgument>
+                                    <!--This section provides a tutorial example on how to the '-verbose:class' option on the 'java' command to see when and where classes are loaded into the JVM.-->
+                                    <extraArgument>-verbose:class</extraArgument>
                                     <!--火焰图,只支持JDK8-->
                                     <!--<extraArgument>-XX:+PreserveFramePointer</extraArgument>-->
                                     <!--测试SSL-->
