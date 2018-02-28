@@ -87,7 +87,10 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     public void proxyToServerResolutionSucceeded(String serverHostAndPort,
                                                  InetSocketAddress resolvedRemoteAddress) {
         if (resolvedRemoteAddress == null) {
-            ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest));
+            //在使用 Channel 写数据之前，建议使用 isWritable() 方法来判断一下当前 ChannelOutboundBuffer 里的写缓存水位，防止 OOM 发生。不过实践下来，正常的通信过程不太会 OOM，但当网络环境不好，同时传输报文很大时，确实会出现限流的情况。
+            if (ctx.channel().isWritable()) {
+                ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest));
+            }
         }
     }
 
@@ -136,8 +139,8 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     }
 
     private static HttpResponse createResponse(HttpResponseStatus httpResponseStatus, HttpRequest originalRequest) {
-        HttpHeaders httpHeaders=new DefaultHttpHeaders();
-        httpHeaders.add("Transfer-Encoding","chunked");
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        httpHeaders.add("Transfer-Encoding", "chunked");
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus);
 
         //support CORS
