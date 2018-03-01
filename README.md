@@ -2,6 +2,8 @@
 
 
 ### 特性
+
+[![Join the chat at https://gitter.im/chengdedeng/waf](https://badges.gitter.im/chengdedeng/waf.svg)](https://gitter.im/chengdedeng/waf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 1. 支持"hijacking" HTTPS connection using "Man in the Middle" style attack.
 2. 支持HTTP proxy, HTTPS through CONNECT.
 3. 支持非法参数拦截.
