@@ -1,9 +1,9 @@
+[![Join the chat at https://gitter.im/chengdedeng/waf](https://badges.gitter.im/chengdedeng/waf.svg)](https://gitter.im/chengdedeng/waf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 > 虽然笔者的初衷是研发一套Java版本的WAF,但是该项目可以作为统一的API Gateway,支持TLS/MITM,还支持下游代理为Socks5,对于需要访问国外被封SaaS服务的http请求来说非常方便.
 
 
 ### 特性
-
-[![Join the chat at https://gitter.im/chengdedeng/waf](https://badges.gitter.im/chengdedeng/waf.svg)](https://gitter.im/chengdedeng/waf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 1. 支持"hijacking" HTTPS connection using "Man in the Middle" style attack.
 2. 支持HTTP proxy, HTTPS through CONNECT.
 3. 支持非法参数拦截.
