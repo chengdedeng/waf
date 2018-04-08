@@ -4,16 +4,19 @@ import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
 import info.yangguo.waf.response.HttpResponseFilterChain;
 import info.yangguo.waf.util.WeightedRoundRobinScheduling;
-import io.netty.channel.*;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.*;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.impl.ClientToProxyConnection;
+import org.littleshoot.proxy.impl.ProxyConnection;
 import org.littleshoot.proxy.impl.ProxyToServerConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.util.List;
 
@@ -96,6 +99,20 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
+        ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
+        ProxyConnection proxyConnection = clientToProxyConnection.getProxyToServerConnection();
+        proxyConnection.getChannel().closeFuture().addListener(new GenericFutureListener() {
+            @Override
+            public void operationComplete(Future future) {
+                if (clientToProxyConnection.getChannel().isActive()) {
+                    logger.debug("channel:{} will be closed", clientToProxyConnection.getChannel().remoteAddress().toString());
+                    clientToProxyConnection.getChannel().close();
+                } else {
+                    logger.debug("channel:{} has been closed", clientToProxyConnection.getChannel().remoteAddress().toString());
+                }
+            }
+        });
+
         if (httpObject instanceof HttpResponse) {
             httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject);
         }
@@ -105,11 +122,9 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     @Override
     public void proxyToServerConnectionFailed() {
         if ("on".equals(Constant.wafConfs.get("waf.proxy.lb"))) {
-            ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
             try {
-                Field field = ClientToProxyConnection.class.getDeclaredField("currentServerConnection");
-                field.setAccessible(true);
-                ProxyToServerConnection proxyToServerConnection = (ProxyToServerConnection) field.get(clientToProxyConnection);
+                ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
+                ProxyToServerConnection proxyToServerConnection = clientToProxyConnection.getProxyToServerConnection();
 
                 String serverHostAndPort = proxyToServerConnection.getServerHostAndPort().replace(":", "_");
 

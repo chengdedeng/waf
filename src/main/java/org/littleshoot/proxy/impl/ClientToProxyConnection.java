@@ -744,7 +744,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
      * descending ordering.
      * 
      * Regarding the Javadoc of {@link HttpObjectAggregator} it's needed to have
-     * the {@link HttpResponseEncoder} or {@link io.netty.handler.codec.http.HttpRequestEncoder} before the
+     * the {@link HttpResponseEncoder} or {@link HttpRequestEncoder} before the
      * {@link HttpObjectAggregator} in the {@link ChannelPipeline}.
      * 
      * @param pipeline
@@ -1425,4 +1425,11 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
         }
     }
 
+    /**
+     * 获取ProxyToServerConnection
+     * @return
+     */
+    public ProxyToServerConnection getProxyToServerConnection(){
+        return currentServerConnection;
+    }
 }

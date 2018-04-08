@@ -32,6 +32,7 @@ public class Application {
         InetSocketAddress inetSocketAddress = new InetSocketAddress(Constant.ServerPort);
         HttpProxyServerBootstrap httpProxyServerBootstrap = DefaultHttpProxyServer.bootstrap()
                 .withAddress(inetSocketAddress);
+        httpProxyServerBootstrap.withIdleConnectionTimeout(Constant.IdleConnectionTimeout);
         boolean proxy_chain = "on".equals(Constant.wafConfs.get("waf.chain"));
         boolean proxy_lb = "on".equals(Constant.wafConfs.get("waf.lb"));
         boolean proxy_tls = "on".equals(Constant.wafConfs.get("waf.tls"));

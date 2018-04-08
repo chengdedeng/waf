@@ -26,6 +26,7 @@ public class Constant {
     public static int ClientToProxyWorkerThreads = Integer.parseInt(wafConfs.get("waf.clientToProxyWorkerThreads"));
     public static int ProxyToServerWorkerThreads = Integer.parseInt(wafConfs.get("waf.proxyToServerWorkerThreads"));
     public static int ServerPort = Integer.parseInt(wafConfs.get("waf.serverPort"));
+    public static int IdleConnectionTimeout = Integer.valueOf(wafConfs.get("waf.idleConnectionTimeout"));
     public static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
 
     public static String getRealIp(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
