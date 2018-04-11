@@ -97,6 +97,17 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         }
     }
 
+    /**
+     * <b>Important:</b>：这个只能用在HTTP1.1上
+     * 浏览器->Nginx->Waf->Tomcat，如果Nginx->Waf不是Http1.1，那么Waf->Tomcat之间的链路会自动关闭，而关闭之时，Waf有可能还没有将报文返回给Nginx，所以
+     * Nginx上会有大量的<b>upstream prematurely closed connection while reading upstream</b>异常！这样设计的前提是，waf->server的链接关闭只有两种情况
+     * <p>
+     * 1. idle超时关闭。
+     * <p>
+     * 2. 异常关闭，例如大文件上传超过tomcat中程序允许上传的最大值，并且tomcat未设置maxswallow时，从而导致tomcat发送RST。
+     * <p>
+     * 代理链接的是两个或多个使用相同协议的应用程序，此处的相同非常重要，所以中间最少别随意跟换协议！！
+     */
     @Override
     public void proxyToServerRequestSending() {
         ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
