@@ -170,3 +170,6 @@ github不支持火焰图显示,[点击下载源文件](https://github.com/chengd
 1. 开启TLS or MITM后,会在项目的目录下生成waf_cert证书,TLS会自动下发证书,MITM需要手动加入证书,信任之后就可以正常工作了.
 2. `waf.proxy.lb`和`waf.proxy.mitm`,`waf.tls`和`waf.proxy.mitm`,`waf.proxy.chain`和`waf.proxy.lb`两两之间只能开启其中之一.
 3. 如果只是HTTP或者HTTPS抓包,可以关闭所有的安全拦截.
+4. 如果Gateway前面还有loadbalance，例如Nginx，Nginx->Gateway一定要用HTTP1.1，否者会报`upstream prematurely closed connection while reading upstream`。出现该问题的原因
+可以仔细阅读[HttpFilterAdapterImpl.java](https://github.com/chengdedeng/waf/blob/master/src/main/java/info/yangguo/waf/HttpFilterAdapterImpl.java)中方法
+**proxyToServerRequestSending**的注释。

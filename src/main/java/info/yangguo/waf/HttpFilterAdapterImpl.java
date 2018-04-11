@@ -99,7 +99,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     /**
      * <b>Important:</b>：这个只能用在HTTP1.1上
-     * 浏览器->Nginx->Waf->Tomcat，如果Nginx->Waf不是Http1.1，那么Waf->Tomcat之间的链路会自动关闭，而关闭之时，Waf有可能还没有将报文返回给Nginx，所以
+     * 浏览器->Nginx->Waf->Tomcat，如果Nginx->Waf是Http1.0，那么Waf->Tomcat之间的链路会自动关闭，而关闭之时，Waf有可能还没有将报文返回给Nginx，所以
      * Nginx上会有大量的<b>upstream prematurely closed connection while reading upstream</b>异常！这样设计的前提是，waf->server的链接关闭只有两种情况
      * <p>
      * 1. idle超时关闭。
