@@ -14,16 +14,29 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.littleshoot.proxy.impl.ThreadPoolConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ImportResource;
+import org.springframework.jmx.export.MBeanExporter;
 
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
+@SpringBootApplication
+@ImportResource({"classpath:spring/applicationContext.xml"})
 public class Application {
     private static Logger logger = LoggerFactory.getLogger(Application.class);
 
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+
         ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
         threadPoolConfiguration.withAcceptorThreads(Constant.AcceptorThreads);
         threadPoolConfiguration.withClientToProxyWorkerThreads(Constant.ClientToProxyWorkerThreads);
@@ -46,19 +59,19 @@ public class Application {
             logger.error("waf.tls和waf.mitm只能开启其中之一");
             throw new IllegalArgumentException("waf.tls和waf.mitm只能开启其中之一");
         }
-        if(proxy_lb && proxy_mitm){
+        if (proxy_lb && proxy_mitm) {
             logger.error("waf.lb和waf.mitm只能开启其中之一");
             throw new IllegalArgumentException("waf.lb和waf.mitm只能开启其中之一");
         }
-        if(proxy_lb && proxy_ss){
+        if (proxy_lb && proxy_ss) {
             logger.error("waf.lb和waf.ss只能开启其中之一");
             throw new IllegalArgumentException("waf.lb和waf.mitm只能开启其中之一");
         }
-        if(proxy_mitm && proxy_ss){
+        if (proxy_mitm && proxy_ss) {
             logger.error("waf.mitm和waf.ss只能开启其中之一");
             throw new IllegalArgumentException("waf.lb和waf.mitm只能开启其中之一");
         }
-        if(proxy_chain || proxy_ss){
+        if (proxy_chain || proxy_ss) {
             logger.info("透明代理模式开启");
         }
         if (proxy_chain) {
@@ -148,5 +161,6 @@ public class Application {
                     }
                 })
                 .start();
+
     }
 }
