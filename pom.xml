@@ -15,6 +15,30 @@
     <groupId>info.yangguo</groupId>
     <artifactId>waf</artifactId>
 
+    <profiles>
+        <profile>
+            <id>server1</id>
+            <properties>
+                <env>server1</env>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>server2</id>
+            <properties>
+                <env>server2</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>server3</id>
+            <properties>
+                <env>server3</env>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
@@ -143,10 +167,40 @@
             <artifactId>lombok</artifactId>
             <version>1.16.16</version>
         </dependency>
+        <dependency>
+            <groupId>io.atomix</groupId>
+            <artifactId>atomix</artifactId>
+            <version>2.1.0-beta3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.atomix</groupId>
+            <artifactId>atomix-primary-backup</artifactId>
+            <version>2.1.0-beta3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.atomix</groupId>
+            <artifactId>atomix-raft</artifactId>
+            <version>2.1.0-beta3</version>
+        </dependency>
     </dependencies>
 
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>server1/**</exclude>
+                    <exclude>server2/**</exclude>
+                    <exclude>server3/**</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources/${env}</directory>
+                <targetPath>${project.build.outputDirectory}</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -169,7 +223,7 @@
                     <repositoryName>lib</repositoryName>
                     <configurationDirectory>conf</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
-                    <configurationSourceDirectory>src/main/resources
+                    <configurationSourceDirectory>src/main/resources/${env}
                     </configurationSourceDirectory>
                     <includeConfigurationDirectoryInClasspath>true
                     </includeConfigurationDirectoryInClasspath>
@@ -225,7 +279,7 @@
                                     <extraArgument>-XX:+PrintGCDetails</extraArgument>
                                     <extraArgument>-XX:+PrintGCTimeStamps</extraArgument>
                                     <!--This section provides a tutorial example on how to the '-verbose:class' option on the 'java' command to see when and where classes are loaded into the JVM.-->
-                                    <extraArgument>-verbose:class</extraArgument>
+                                    <!--<extraArgument>-verbose:class</extraArgument>-->
                                     <!--火焰图,只支持JDK8-->
                                     <!--<extraArgument>-XX:+PreserveFramePointer</extraArgument>-->
                                     <!--测试SSL-->

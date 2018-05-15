@@ -16,3 +16,4 @@ log/
 *.crt
 *.pem
 *.p12
+standlone/*
