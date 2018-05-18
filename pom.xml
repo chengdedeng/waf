@@ -81,6 +81,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>4.2.3.RELEASE</version>
+        </dependency>
+        <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>2.8.0</version>
@@ -270,8 +275,8 @@
                             <jvmSettings>
                                 <extraArguments>
                                     <extraArgument>-server</extraArgument>
-                                    <extraArgument>-Xms128m</extraArgument>
-                                    <extraArgument>-Xmx128m</extraArgument>
+                                    <extraArgument>-Xms256m</extraArgument>
+                                    <extraArgument>-Xmx256m</extraArgument>
                                     <extraArgument>-Xmn60m</extraArgument>
                                     <extraArgument>-XX:+UseG1GC</extraArgument>
                                     <extraArgument>-Xloggc:/tmp/log/gc.log</extraArgument>

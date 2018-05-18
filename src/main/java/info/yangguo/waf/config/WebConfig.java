@@ -2,7 +2,6 @@ package info.yangguo.waf.config;
 
 import io.atomix.cluster.Node;
 import io.atomix.core.Atomix;
-import io.atomix.core.map.ConsistentMap;
 import io.atomix.protocols.backup.partition.PrimaryBackupPartitionGroup;
 import io.atomix.protocols.raft.partition.RaftPartitionGroup;
 import org.apache.commons.io.FileUtils;
@@ -16,17 +15,23 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.servlet.Filter;
 import java.io.File;
 import java.util.stream.Collectors;
 
 @Configuration
+@EnableSwagger2
 public class WebConfig extends WebMvcConfigurerAdapter {
     @Autowired
     private ClusterProperties clusterProperties;
-    @Autowired
-    private Atomix atomix;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -58,7 +63,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return new StandardServletMultipartResolver();
     }
 
-    @Bean
+    @Bean("atomix")
     public Atomix getAtomix() {
         Atomix.Builder builder = Atomix.builder();
         clusterProperties.getNode().stream().forEach(clusterNode -> {
@@ -100,11 +105,24 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public ConsistentMap<String, String> getConsistentMap() {
-        ConsistentMap<String, String> consistentMap = atomix.<String, String>consistentMapBuilder("WAF-CONFIG")
-                .build();
-        return consistentMap;
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.any())
+                .paths(PathSelectors.regex("/api/.*"))//此处配置需注意，需要暴露什么配置什么
+                .build()
+                .apiInfo(apiInfo());
+    }
 
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+                .title("TITLE")
+                .description("DESCRIPTION")
+                .version("VERSION")
+                .termsOfServiceUrl("https://github.com/chengdedeng/waf")
+                .license("Apache License 2.0")
+                .licenseUrl("https://en.wikipedia.org/wiki/Apache_License")
+                .build();
     }
 
     @Override

@@ -1,7 +1,8 @@
 package info.yangguo.waf;
 
-import info.yangguo.waf.request.*;
-import info.yangguo.waf.response.ClickjackHttpResponseFilter;
+import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.request.HttpRequestFilter;
+import info.yangguo.waf.request.HttpRequestFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
 import info.yangguo.waf.util.WeightedRoundRobinScheduling;
 import io.netty.channel.ChannelHandlerContext;
@@ -29,53 +30,18 @@ import java.util.List;
 public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
     private static final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain();
-    private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
-            .addFilter(new ClickjackHttpResponseFilter());
-
-    static {
-        if (Constant.wafConfs.get("waf.ip.whitelist").equals("on")) {
-            httpRequestFilterChain.addFilter(new WIpHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.ip.blacklist").equals("on")) {
-            httpRequestFilterChain.addFilter(new IpHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.cc").equals("on")) {
-            httpRequestFilterChain.addFilter(new CCHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.scanner").equals("on")) {
-            httpRequestFilterChain.addFilter(new ScannerHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.url.whitelist").equals("on")) {
-            httpRequestFilterChain.addFilter(new WUrlHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.ua").equals("on")) {
-            httpRequestFilterChain.addFilter(new UaHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.url.blacklist").equals("on")) {
-            httpRequestFilterChain.addFilter(new UrlHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.args").equals("on")) {
-            httpRequestFilterChain.addFilter(new ArgsHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.cookie").equals("on")) {
-            httpRequestFilterChain.addFilter(new CookieHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.post").equals("on")) {
-            httpRequestFilterChain.addFilter(new PostHttpRequestFilter());
-        }
-    }
+    private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain();
 
 
     public HttpFilterAdapterImpl(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
     }
 
-
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
         HttpResponse httpResponse = null;
         try {
-            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx);
+            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx, ContextHolder.getConfigs());
             if (immutablePair.left) {
                 httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
             }
@@ -130,7 +96,11 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     @Override
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
-            httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject);
+            try {
+                httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getConfigs());
+            } catch (Exception e) {
+                logger.error("response filter failed", e.getCause());
+            }
         }
         return httpObject;
     }

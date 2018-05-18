@@ -62,7 +62,6 @@ public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(UnauthorizedException.class)
     public Result handleServletRequestUnauthorizedException(UnauthorizedException e) {
-        LOGGER.error(ExceptionUtils.getFullStackTrace(e));
         Result result = new Result();
         result.setCode(HttpStatus.UNAUTHORIZED.value());
         result.setValue("请登录");

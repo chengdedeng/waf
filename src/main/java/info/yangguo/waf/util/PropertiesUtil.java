@@ -11,9 +11,8 @@ import java.util.Properties;
 /**
  * @author:杨果
  * @date:2017/5/12 上午11:09
- *
+ * <p>
  * Description:
- *
  */
 public class PropertiesUtil {
     public static Map<String, String> getProperty(String filePath) {

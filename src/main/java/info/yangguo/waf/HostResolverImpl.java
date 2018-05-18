@@ -2,7 +2,6 @@ package info.yangguo.waf;
 
 import info.yangguo.waf.util.PropertiesUtil;
 import info.yangguo.waf.util.WeightedRoundRobinScheduling;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -25,9 +24,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author:杨果
  * @date:2017/3/31 下午7:28
- *
+ * <p>
  * Description:
- *
  */
 class HostResolverImpl implements HostResolver {
     private static Logger logger = LoggerFactory.getLogger(HostResolverImpl.class);

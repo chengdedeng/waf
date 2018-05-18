@@ -12,17 +12,13 @@ import org.slf4j.LoggerFactory;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * @author:杨果
- * @date:2017/5/15 下午2:33
- * <p>
- * Description:
- */
-public class PostHttpRequestFilter extends HttpRequestFilter {
+public class FileHttpRequestFilter extends HttpRequestFilter {
     private static Logger logger = LoggerFactory.getLogger(PostHttpRequestFilter.class);
+    private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, Map<String, Boolean> regexs) {
@@ -44,13 +40,16 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                     }
 
                     if (contentBody != null) {
-                        for (Map.Entry<String, Boolean> regex : regexs.entrySet()) {
-                            if (regex.getValue()) {
-                                Pattern pattern = Pattern.compile(regex.getKey());
-                                Matcher matcher = pattern.matcher(contentBody.toLowerCase());
-                                if (matcher.find()) {
-                                    hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", regex.getKey());
-                                    return true;
+                        Matcher fileMatcher = filePattern.matcher(contentBody);
+                        if (fileMatcher.find()) {
+                            String fileExt = fileMatcher.group(3);
+                            for (Map.Entry<String, Boolean> regex : regexs.entrySet()) {
+                                if (regex.getValue()) {
+                                    Pattern pattern = Pattern.compile(regex.getKey());
+                                    if (pattern.matcher(fileExt).matches()) {
+                                        hackLog(logger, Constant.getRealIp(originalRequest, ctx), "File", regex.getKey());
+                                        return true;
+                                    }
                                 }
                             }
                         }

@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * Date: 2017/10/25
  * Time: 下午4:38
  * Description:
- *
+ * <p>
  * network utils
  */
 public class NetUtils {
@@ -74,6 +74,7 @@ public class NetUtils {
         logger.error("Could not get local host ip address, will use 127.0.0.1 instead.");
         return localAddress;
     }
+
     /**
      * 遍历本地网卡，返回第一个合理的IP。
      *
