@@ -91,13 +91,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         Atomix atomix = builder
                 .withClusterName("WAF")
                 .withDataDirectory(new File(metadataDir + "/data"))
-                .addPartitionGroup(PrimaryBackupPartitionGroup.builder("data")
-                        .withNumPartitions(3)
-                        .build())
-                .addPartitionGroup(RaftPartitionGroup.builder("core")
-                        .withDataDirectory(new File(metadataDir + "/data/core"))
+                .addPartitionGroup(RaftPartitionGroup.builder("RaftPartitionGroup")
+                        .withDataDirectory(new File(metadataDir + "data/core"))
                         .withPartitionSize(3)
-                        .withNumPartitions(3)
+                        .withNumPartitions(1)
                         .build())
                 .build();
         atomix.start().join();
