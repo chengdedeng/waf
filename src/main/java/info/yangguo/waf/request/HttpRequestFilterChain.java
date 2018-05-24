@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author:杨果
@@ -40,8 +39,8 @@ public class HttpRequestFilterChain {
     public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ConsistentMap<String, Map> configs) {
         for (HttpRequestFilter filter : filters) {
             Map<String, Object> config = configs.asJavaMap().get(filter.getClass().getName());
-            if ((boolean)config.get("isStart")) {
-                boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, (Map<String,Boolean>) config.get("pattern"));
+            if ((boolean) config.get("isStart")) {
+                boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, (Map<String, Boolean>) config.get("pattern"));
                 if (result && filter.isBlacklist()) {
                     return new ImmutablePair<>(filter.isBlacklist(), filter);
                 } else if (result && !filter.isBlacklist()) {
