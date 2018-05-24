@@ -29,7 +29,7 @@ public class ContextHolder implements ApplicationContextAware {
             synchronized (ContextHolder.class) {
                 if (sessions == null) {
                     Atomix atomix = (Atomix) applicationContext.getBean("atomix");
-                    ConsistentMap<String, Map> sessions = atomix.<String, Map>consistentMapBuilder("WAF-SESSION").withCacheEnabled()
+                    sessions = atomix.<String, Map>consistentMapBuilder("WAF-SESSION").withCacheEnabled()
                             .build();
                     return sessions;
                 }

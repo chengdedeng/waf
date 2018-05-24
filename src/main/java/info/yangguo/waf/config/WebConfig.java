@@ -2,7 +2,6 @@ package info.yangguo.waf.config;
 
 import io.atomix.cluster.Node;
 import io.atomix.core.Atomix;
-import io.atomix.protocols.backup.partition.PrimaryBackupPartitionGroup;
 import io.atomix.protocols.raft.partition.RaftPartitionGroup;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +91,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                 .withClusterName("WAF")
                 .withDataDirectory(new File(metadataDir + "/data"))
                 .addPartitionGroup(RaftPartitionGroup.builder("RaftPartitionGroup")
-                        .withDataDirectory(new File(metadataDir + "data/core"))
+                        .withDataDirectory(new File(metadataDir + "/data/core"))
                         .withPartitionSize(3)
                         .withNumPartitions(1)
                         .build())
