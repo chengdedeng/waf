@@ -1,11 +1,12 @@
 package info.yangguo.waf.request;
 
+import info.yangguo.waf.model.RequestConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 
-import java.util.Map;
+import java.util.Set;
 
 /**
  * @author:杨果
@@ -23,7 +24,7 @@ public abstract class HttpRequestFilter {
      * @param httpObject      http请求
      * @return true:正则匹配成功,false:正则匹配失败
      */
-    public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, Map<String, Boolean> regex);
+    public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, Set<RequestConfig.Rule> rules);
 
     /**
      * 是否是黑名单

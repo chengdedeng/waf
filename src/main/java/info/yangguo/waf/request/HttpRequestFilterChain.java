@@ -1,5 +1,7 @@
 package info.yangguo.waf.request;
 
+import info.yangguo.waf.model.Config;
+import info.yangguo.waf.model.RequestConfig;
 import io.atomix.core.map.ConsistentMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
@@ -8,7 +10,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author:杨果
@@ -36,11 +37,11 @@ public class HttpRequestFilterChain {
         filters.add(new FileHttpRequestFilter());
     }
 
-    public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ConsistentMap<String, Map> configs) {
+    public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ConsistentMap<String, Config> configs) {
         for (HttpRequestFilter filter : filters) {
-            Map<String, Object> config = configs.asJavaMap().get(filter.getClass().getName());
-            if ((boolean) config.get("isStart")) {
-                boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, (Map<String, Boolean>) config.get("pattern"));
+            RequestConfig config = (RequestConfig) configs.asJavaMap().get(filter.getClass().getName());
+            if (config.getIsStart()) {
+                boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getRules());
                 if (result && filter.isBlacklist()) {
                     return new ImmutablePair<>(filter.isBlacklist(), filter);
                 } else if (result && !filter.isBlacklist()) {

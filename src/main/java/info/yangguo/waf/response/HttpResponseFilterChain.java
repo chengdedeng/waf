@@ -1,12 +1,12 @@
 package info.yangguo.waf.response;
 
+import info.yangguo.waf.model.Config;
 import io.atomix.core.map.ConsistentMap;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author:杨果
@@ -21,10 +21,10 @@ public class HttpResponseFilterChain {
         filters.add(new ClickjackHttpResponseFilter());
     }
 
-    public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse, ConsistentMap<String, Map> configs) {
+    public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse, ConsistentMap<String, Config> configs) {
         for (HttpResponseFilter filter : filters) {
-            Map<String, Object> config = configs.asJavaMap().get(filter.getClass().getName());
-            if ((boolean) config.get("isStart")) {
+            Config config = configs.asJavaMap().get(filter.getClass().getName());
+            if (config.getIsStart()) {
                 filter.doFilter(originalRequest, httpResponse);
             }
         }

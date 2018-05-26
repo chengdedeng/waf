@@ -1,6 +1,7 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.model.RequestConfig;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URLDecoder;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +26,7 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
     private static Logger logger = LoggerFactory.getLogger(PostHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, Map<String, Boolean> regexs) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, Set<RequestConfig.Rule> rules) {
         if (originalRequest.getMethod().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
@@ -44,12 +45,12 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                     }
 
                     if (contentBody != null) {
-                        for (Map.Entry<String, Boolean> regex : regexs.entrySet()) {
-                            if (regex.getValue()) {
-                                Pattern pattern = Pattern.compile(regex.getKey());
+                        for (RequestConfig.Rule rule : rules) {
+                            if (rule.getIsStart()) {
+                                Pattern pattern = Pattern.compile(rule.getRegex());
                                 Matcher matcher = pattern.matcher(contentBody.toLowerCase());
                                 if (matcher.find()) {
-                                    hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", regex.getKey());
+                                    hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", rule.getRegex());
                                     return true;
                                 }
                             }
