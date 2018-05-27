@@ -88,6 +88,7 @@ public class ExceptionHandlerAdvice {
             }
             response.setHeader("Access-Control-Allow-Origin", origin);
             response.setHeader("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
         }
     }
 }
