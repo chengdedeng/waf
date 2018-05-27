@@ -44,7 +44,7 @@ public class UserController {
         session.put("email", user.getEmail());
         session.put("loginTime", new Date().getTime());
         ContextHolder.getSessions().put(token, session, Duration.ofHours(1));
-        response.setHeader("Set-Cookie", "WAFTOKEN=" + token + "; Path=/; HttpOnly");
+        response.setHeader("Set-Cookie", "WAFTOKEN=" + token + "; Path=/");
         return result;
     }
 
