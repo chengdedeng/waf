@@ -1,10 +1,5 @@
 package info.yangguo.waf.config;
 
-import io.atomix.cluster.Node;
-import io.atomix.core.Atomix;
-import io.atomix.protocols.raft.partition.RaftPartitionGroup;
-import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -23,15 +18,10 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import javax.servlet.Filter;
-import java.io.File;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableSwagger2
 public class WebConfig extends WebMvcConfigurerAdapter {
-    @Autowired
-    private ClusterProperties clusterProperties;
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -60,44 +50,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     @Bean
     public StandardServletMultipartResolver getStandardServletMultipartResolver() {
         return new StandardServletMultipartResolver();
-    }
-
-    @Bean("atomix")
-    public Atomix getAtomix() {
-        Atomix.Builder builder = Atomix.builder();
-        clusterProperties.getNode().stream().forEach(clusterNode -> {
-            if (clusterNode.getId().equals(clusterProperties.getId())) {
-                builder
-                        .withLocalNode(Node.builder(clusterNode.getId())
-                                .withType(Node.Type.CORE)
-                                .withAddress(clusterNode.getIp(), clusterNode.getSocket_port())
-                                .build());
-            }
-        });
-
-        builder.withNodes(clusterProperties.getNode().stream().map(clusterNode -> {
-            return Node
-                    .builder(clusterNode.getId())
-                    .withType(Node.Type.CORE)
-                    .withAddress(clusterNode.getIp(), clusterNode.getSocket_port()).build();
-        }).collect(Collectors.toList()));
-        String metadataDir = null;
-        if (clusterProperties.getMetadataDir().startsWith("/")) {
-            metadataDir = clusterProperties.getMetadataDir() + "/" + clusterProperties.getId();
-        } else {
-            metadataDir = FileUtils.getUserDirectoryPath() + "/" + clusterProperties.getMetadataDir() + "/" + clusterProperties.getId();
-        }
-        Atomix atomix = builder
-                .withClusterName("WAF")
-                .withDataDirectory(new File(metadataDir + "/data"))
-                .addPartitionGroup(RaftPartitionGroup.builder("RaftPartitionGroup")
-                        .withDataDirectory(new File(metadataDir + "/data/core"))
-                        .withPartitionSize(3)
-                        .withNumPartitions(1)
-                        .build())
-                .build();
-        atomix.start().join();
-        return atomix;
     }
 
     @Bean

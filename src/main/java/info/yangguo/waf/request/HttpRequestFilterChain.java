@@ -2,7 +2,6 @@ package info.yangguo.waf.request;
 
 import info.yangguo.waf.model.Config;
 import info.yangguo.waf.model.RequestConfig;
-import io.atomix.core.map.ConsistentMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -10,6 +9,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author:杨果
@@ -37,9 +37,9 @@ public class HttpRequestFilterChain {
         filters.add(new FileHttpRequestFilter());
     }
 
-    public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ConsistentMap<String, Config> configs) {
+    public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, Map<String, RequestConfig> configs) {
         for (HttpRequestFilter filter : filters) {
-            RequestConfig config = (RequestConfig) configs.asJavaMap().get(filter.getClass().getName());
+            RequestConfig config = (RequestConfig) configs.get(filter.getClass().getName());
             if (config.getIsStart()) {
                 boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getRules());
                 if (result && filter.isBlacklist()) {

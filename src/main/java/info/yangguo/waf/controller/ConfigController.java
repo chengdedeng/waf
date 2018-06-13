@@ -1,8 +1,9 @@
 package info.yangguo.waf.controller;
 
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.*;
-import io.atomix.utils.time.Versioned;
+import info.yangguo.waf.model.RequestConfigDto;
+import info.yangguo.waf.model.ResponseConfigDto;
+import info.yangguo.waf.model.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -17,38 +18,33 @@ public class ConfigController {
 
     @ApiOperation(value = "获取配置")
     @ResponseBody
-    @GetMapping(value = "")
+    @GetMapping(value = "{type}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     required = false, dataType = "string", paramType = "cookie")
     })
-    public Result getConfig(@RequestParam(required = false) String filterName) {
+    public Result getConfigs(@PathVariable(value = "type") String type) {
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
-        if (filterName == null) {
-            result.setValue(ContextHolder.getConfigs().asJavaMap().keySet());
+        if ("request".equals(type)) {
+            result.setValue(ContextHolder.getClusterService().getRequestConfigs());
+        } else if ("response".equals(type)) {
+            result.setValue(ContextHolder.getClusterService().getResponseConfigs());
         } else {
-            result.setValue(ContextHolder.getConfigs().asJavaMap().get(filterName));
+            result.setCode(HttpStatus.BAD_REQUEST.value());
         }
         return result;
     }
 
+
     @ApiOperation(value = "设置RequestFilter")
     @ResponseBody
-    @PostMapping(value = "request")
+    @PutMapping(value = "request")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     required = false, dataType = "string", paramType = "cookie")
     })
     public Result setRequestConfig(@RequestBody RequestConfigDto requestConfigDto) {
-        Versioned<Config> versioned = ContextHolder.getConfigs().get(requestConfigDto.getFilterName());
-        RequestConfig allConfig = (RequestConfig) versioned.value();
-        allConfig.setIsStart(requestConfigDto.getConfig().getIsStart());
-        requestConfigDto.getConfig().getRules().stream().forEach(rule -> {
-            allConfig.getRules().remove(rule);
-            allConfig.getRules().add(rule);
-        });
-        ContextHolder.getConfigs().replace(requestConfigDto.getFilterName(), versioned.version(), allConfig);
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
         return result;
@@ -61,13 +57,7 @@ public class ConfigController {
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     required = false, dataType = "string", paramType = "cookie")
     })
-    public Result delRequestConfig(@RequestBody RequestConfigDto requestConfigDto) {
-        Versioned<Config> versioned = ContextHolder.getConfigs().get(requestConfigDto.getFilterName());
-        RequestConfig allConfig = (RequestConfig) versioned.value();
-        requestConfigDto.getConfig().getRules().stream().forEach(rule -> {
-            allConfig.getRules().remove(rule);
-        });
-        ContextHolder.getConfigs().replace(requestConfigDto.getFilterName(), versioned.version(), allConfig);
+    public Result deleteRequestConfig(@RequestBody RequestConfigDto requestConfigDto) {
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
         return result;
@@ -75,16 +65,12 @@ public class ConfigController {
 
     @ApiOperation(value = "设置ResponseFilter")
     @ResponseBody
-    @PostMapping(value = "response")
+    @PutMapping(value = "response")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     required = false, dataType = "string", paramType = "cookie")
     })
-    public Result setResponseConfig(@RequestBody ResponseConfigDto responseResponseConfigDto) {
-        Versioned<Config> versioned = ContextHolder.getConfigs().get(responseResponseConfigDto.getFilterName());
-        Config allConfig = versioned.value();
-        allConfig.setIsStart(responseResponseConfigDto.getConfig().getIsStart());
-        ContextHolder.getConfigs().replace(responseResponseConfigDto.getFilterName(), versioned.version(), allConfig);
+    public Result setResponseConfig(@RequestBody ResponseConfigDto responseConfigDto) {
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
         return result;

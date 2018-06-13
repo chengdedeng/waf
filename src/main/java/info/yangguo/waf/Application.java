@@ -1,6 +1,8 @@
 package info.yangguo.waf;
 
 
+import info.yangguo.waf.config.ClusterService;
+import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.util.NetUtils;
 import info.yangguo.waf.util.WafSelfSignedSslEngineSource;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,8 +21,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.ServiceLoader;
 
 @SpringBootApplication
 @ImportResource({"classpath:spring/applicationContext.xml"})
@@ -29,6 +33,18 @@ public class Application {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+
+        ServiceLoader<ClusterService> serviceLoader = ServiceLoader.load(ClusterService.class);
+        Iterator<ClusterService> iterator = serviceLoader.iterator();
+        if (iterator.hasNext()) {
+            ClusterService clusterService = iterator.next();
+            ContextHolder.setClusterService(clusterService);
+            logger.info("ClusterService SPI:{}", clusterService.getClass().getName());
+        } else {
+            logger.error("请指定ClusterService SPI实现类");
+            System.exit(1);
+        }
+
 
         ThreadPoolConfiguration threadPoolConfiguration = new ThreadPoolConfiguration();
         threadPoolConfiguration.withAcceptorThreads(Constant.AcceptorThreads);

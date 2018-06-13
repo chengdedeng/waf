@@ -15,7 +15,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("WAFTOKEN".equals(cookie.getName()) && ContextHolder.getSessions().asJavaMap().containsKey(cookie.getValue())) {
+                if ("WAFTOKEN".equals(cookie.getName()) && ContextHolder.getClusterService().getSession(cookie.getValue()) != null) {
                     return true;
                 }
             }
