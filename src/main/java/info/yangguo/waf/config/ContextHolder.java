@@ -1,5 +1,6 @@
 package info.yangguo.waf.config;
 
+import info.yangguo.waf.service.ClusterService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

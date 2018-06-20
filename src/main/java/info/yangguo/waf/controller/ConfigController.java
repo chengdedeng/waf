@@ -1,6 +1,7 @@
 package info.yangguo.waf.controller;
 
 import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.model.ConfigType;
 import info.yangguo.waf.model.RequestConfigDto;
 import info.yangguo.waf.model.ResponseConfigDto;
 import info.yangguo.waf.model.Result;
@@ -23,12 +24,12 @@ public class ConfigController {
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     required = false, dataType = "string", paramType = "cookie")
     })
-    public Result getConfigs(@PathVariable(value = "type") String type) {
+    public Result getConfigs(@PathVariable(value = "type") ConfigType type) {
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
-        if ("request".equals(type)) {
+        if (ConfigType.request.equals(type)) {
             result.setValue(ContextHolder.getClusterService().getRequestConfigs());
-        } else if ("response".equals(type)) {
+        } else if (ConfigType.response.equals(type)) {
             result.setValue(ContextHolder.getClusterService().getResponseConfigs());
         } else {
             result.setCode(HttpStatus.BAD_REQUEST.value());

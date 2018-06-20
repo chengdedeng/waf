@@ -1,10 +1,11 @@
-package info.yangguo.waf.config;
+package info.yangguo.waf.service;
 
+import info.yangguo.waf.config.ClusterProperties;
+import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.Config;
 import info.yangguo.waf.model.RequestConfig;
 import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
-import info.yangguo.waf.util.JsonUtil;
 import io.atomix.cluster.Node;
 import io.atomix.core.Atomix;
 import io.atomix.core.map.ConsistentMap;
@@ -15,19 +16,17 @@ import io.atomix.utils.serializer.Serializer;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AtomixClusterService implements ClusterService {
     private Atomix atomix;
-    private static volatile ConsistentMap<String, Map> sessions;
-    private static volatile ConsistentMap<String, RequestConfig> requestConfigs;
-    private static volatile ConsistentMap<String, Config> responseConfigs;
+    private static ConsistentMap<String, RequestConfig> requestConfigs;
+    private static ConsistentMap<String, Config> responseConfigs;
 
     public AtomixClusterService() {
-        ClusterProperties clusterProperties = (ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties");
+        ClusterProperties.AtomixProperty clusterProperties = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getAtomix();
         Atomix.Builder builder = Atomix.builder();
         clusterProperties.getNode().stream().forEach(clusterNode -> {
             if (clusterNode.getId().equals(clusterProperties.getId())) {
@@ -62,9 +61,6 @@ public class AtomixClusterService implements ClusterService {
                 .build();
         atomix.start().join();
 
-        sessions = atomix.<String, Map>consistentMapBuilder("WAF-SESSION").withCacheEnabled()
-                .build();
-
         KryoNamespace.Builder kryoBuilder = KryoNamespace.builder()
                 .register(KryoNamespaces.BASIC)
                 .register(Config.class)
@@ -72,12 +68,12 @@ public class AtomixClusterService implements ClusterService {
                 .register(RequestConfig.class);
 
         requestConfigs = atomix
-                .<String, RequestConfig>consistentMapBuilder("WAF-CONFIG")
+                .<String, RequestConfig>consistentMapBuilder("WAF-CONFIG-REQUEST")
                 .withSerializer(Serializer.using(kryoBuilder.build()))
                 .withCacheEnabled()
                 .build();
         responseConfigs = atomix
-                .<String, Config>consistentMapBuilder("WAF-CONFIG")
+                .<String, Config>consistentMapBuilder("WAF-CONFIG-RESPONSE")
                 .withSerializer(Serializer.using(kryoBuilder.build()))
                 .withCacheEnabled()
                 .build();
@@ -101,22 +97,6 @@ public class AtomixClusterService implements ClusterService {
         requestConfigs.putIfAbsent(WUrlHttpRequestFilter.class.getName(), requestConfig);
 
         responseConfigs.putIfAbsent(ClickjackHttpResponseFilter.class.getName(), responseConfig);
-    }
-
-
-    @Override
-    public String getSession(String sessionId) {
-        return JsonUtil.toJson(sessions.get(sessionId).value(), true);
-    }
-
-    @Override
-    public void setSession(String sessionId, String sessionValue, Duration ttl) {
-        sessions.put(sessionId, (Map) JsonUtil.fromJson(sessionValue, Map.class), ttl);
-    }
-
-    @Override
-    public void deleteSession(String sessionId) {
-        sessions.remove(sessionId);
     }
 
     @Override

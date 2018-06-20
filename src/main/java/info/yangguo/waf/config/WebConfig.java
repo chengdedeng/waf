@@ -1,5 +1,6 @@
 package info.yangguo.waf.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -22,6 +23,9 @@ import javax.servlet.Filter;
 @Configuration
 @EnableSwagger2
 public class WebConfig extends WebMvcConfigurerAdapter {
+    @Autowired
+    private LoginInterceptor loginInterceptor;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -75,6 +79,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/api/**").excludePathPatterns("/api/user/**");
+        registry.addInterceptor(loginInterceptor).addPathPatterns("/api/**").excludePathPatterns("/api/user/**");
     }
 }

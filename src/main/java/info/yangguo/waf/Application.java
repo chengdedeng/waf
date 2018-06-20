@@ -1,8 +1,8 @@
 package info.yangguo.waf;
 
 
-import info.yangguo.waf.config.ClusterService;
 import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.service.ClusterService;
 import info.yangguo.waf.util.NetUtils;
 import info.yangguo.waf.util.WafSelfSignedSslEngineSource;
 import io.netty.channel.ChannelHandlerContext;

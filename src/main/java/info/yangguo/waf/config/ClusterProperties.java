@@ -27,9 +27,19 @@ import java.util.List;
 @ConfigurationProperties(prefix = "waf")
 @Data
 public class ClusterProperties {
-    private String id;
-    private String metadataDir;
-    private List<ClusterNode> node;
+    private AtomixProperty atomix;
+    private ZkProperty zk;
+    @Data
+    public static class AtomixProperty {
+        private String id;
+        private String metadataDir;
+        private List<ClusterNode> node;
+
+    }
+    @Data
+    public static class ZkProperty {
+        private String connectionString;
+    }
 
     @Data
     public static class ClusterNode {

@@ -1,36 +1,11 @@
-package info.yangguo.waf.config;
+package info.yangguo.waf.service;
 
 import info.yangguo.waf.model.Config;
 import info.yangguo.waf.model.RequestConfig;
 
-import java.time.Duration;
 import java.util.Map;
 
 public interface ClusterService {
-    /**
-     * 获取session
-     *
-     * @param sessionId
-     * @return
-     */
-    String getSession(String sessionId);
-
-    /**
-     * 设置session
-     *
-     * @param sessionId
-     * @param sessionValue
-     * @param ttl
-     */
-    void setSession(String sessionId, String sessionValue, Duration ttl);
-
-    /**
-     * 清空session
-     *
-     * @param sessionId
-     */
-    void deleteSession(String sessionId);
-
     /**
      * 获取request filter配置信息
      *
