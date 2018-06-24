@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,7 +27,7 @@ public class UserController {
     @ApiOperation(value = "登录")
     @ResponseBody
     @PostMapping(value = "login")
-    public Result login(HttpServletResponse response, @RequestBody User user) {
+    public Result login(HttpServletResponse response, @RequestBody @Validated User user) {
         Result result = new Result();
         if (adminProperties.email.equals(user.getEmail()) && adminProperties.password.equals(user.getPassword())) {
             result.setCode(HttpStatus.OK.value());

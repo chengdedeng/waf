@@ -7,6 +7,7 @@ import info.yangguo.waf.model.RequestConfig;
 import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
 import info.yangguo.waf.util.JsonUtil;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.ChildData;
@@ -19,9 +20,11 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ZkClusterService implements ClusterService {
-    private static Logger logger = LoggerFactory.getLogger(ZkClusterService.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(ZkClusterService.class);
     private static final String separator = "/";
     private static final String requestPath = "/waf/config/request";
     private static final String responsePath = "/waf/config/response";
@@ -48,11 +51,11 @@ public class ZkClusterService implements ClusterService {
 
 
         client.getUnhandledErrorListenable().addListener((message, e) -> {
-            logger.error("zookeeper error:{}", message);
+            LOGGER.error("zookeeper error:{}", message);
             e.printStackTrace();
         });
         client.getConnectionStateListenable().addListener((c, newState) -> {
-            logger.info("zookeeper state:{}", newState);
+            LOGGER.info("zookeeper state:{}", newState);
         });
         client.start();
 
@@ -82,7 +85,29 @@ public class ZkClusterService implements ClusterService {
         Map<String, RequestConfig> requestConfigMap = new HashMap<>();
         List<ChildData> childDataList = requestConfigs.getCurrentData();
         childDataList.stream().forEach(childData -> {
-            requestConfigMap.put(childData.getPath(), (RequestConfig) JsonUtil.fromJson(new String(childData.getData()), RequestConfig.class));
+            RequestConfig requestConfig = new RequestConfig();
+            requestConfig.setIsStart((Boolean) JsonUtil.fromJson(new String(childData.getData()), Boolean.class));
+
+            try {
+                Set<RequestConfig.Rule> rules = client.getChildren().forPath(childData.getPath()).stream().map(regex -> {
+                    try {
+                        RequestConfig.Rule rule = new RequestConfig.Rule();
+                        String value = new String(client.getData().forPath(childData.getPath() + separator + regex));
+                        rule.setRegex(regex);
+                        rule.setIsStart(new Boolean(Boolean.valueOf(value).booleanValue()));
+                        return rule;
+                    } catch (Exception e) {
+                        LOGGER.warn(ExceptionUtils.getFullStackTrace(e));
+                    }
+                    return null;
+                }).collect(Collectors.toSet());
+                //不能读取的rule节点会自动掉
+                rules.remove(null);
+                requestConfig.setRules(rules);
+            } catch (Exception e) {
+                LOGGER.warn(ExceptionUtils.getFullStackTrace(e));
+            }
+            requestConfigMap.put(childData.getPath().replaceAll(requestPath + separator, ""), requestConfig);
         });
         return requestConfigMap;
     }
@@ -121,21 +146,16 @@ public class ZkClusterService implements ClusterService {
 
     @Override
     public Map<String, Config> getResponseConfigs() {
-        Map<String, Config> configs = new HashMap<>();
-        try {
-            client.getChildren().forPath(responsePath).stream().forEach(path -> {
-                Config config = new Config();
-                try {
-                    config.setIsStart(Boolean.valueOf(new String(client.getData().forPath(responsePath + separator + path))));
-                } catch (Exception e) {
-                    logger.warn("get responseConfig have exception:{}", e.getMessage());
-                }
-                configs.put(path, config);
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return configs;
+        Map<String, Config> responseConfigMap = new HashMap<>();
+
+        List<ChildData> childDataList = responseConfigs.getCurrentData();
+        childDataList.stream().forEach(childData -> {
+            Config responseConfig = new Config();
+            responseConfig.setIsStart((Boolean) JsonUtil.fromJson(new String(childData.getData()), Boolean.class));
+
+            responseConfigMap.put(childData.getPath().replaceAll(responsePath + separator, ""), responseConfig);
+        });
+        return responseConfigMap;
     }
 
     @Override

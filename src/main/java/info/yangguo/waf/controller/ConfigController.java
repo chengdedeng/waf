@@ -1,15 +1,13 @@
 package info.yangguo.waf.controller;
 
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.ConfigType;
-import info.yangguo.waf.model.RequestConfigDto;
-import info.yangguo.waf.model.ResponseConfigDto;
-import info.yangguo.waf.model.Result;
+import info.yangguo.waf.model.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,7 +20,7 @@ public class ConfigController {
     @GetMapping(value = "{type}")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
-                    required = false, dataType = "string", paramType = "cookie")
+                    dataType = "string", paramType = "cookie")
     })
     public Result getConfigs(@PathVariable(value = "type") ConfigType type) {
         Result result = new Result();
@@ -43,11 +41,18 @@ public class ConfigController {
     @PutMapping(value = "request")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
-                    required = false, dataType = "string", paramType = "cookie")
+                    dataType = "string", paramType = "cookie")
     })
-    public Result setRequestConfig(@RequestBody RequestConfigDto requestConfigDto) {
+    public Result setRequestConfig(@RequestBody @Validated RequestConfigDto requestConfigDto) {
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
+        RequestConfig config = requestConfigDto.getConfig();
+        if (config.getIsStart() != null)
+            ContextHolder.getClusterService().setRequestSwitch(requestConfigDto.getFilterName(), config.getIsStart());
+        if (config.getRules() != null)
+            config.getRules().stream().forEach(rule -> {
+                ContextHolder.getClusterService().setRequestRule(requestConfigDto.getFilterName(), rule.getRegex(), rule.getIsStart());
+            });
         return result;
     }
 
@@ -56,11 +61,16 @@ public class ConfigController {
     @DeleteMapping(value = "request")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
-                    required = false, dataType = "string", paramType = "cookie")
+                    dataType = "string", paramType = "cookie")
     })
-    public Result deleteRequestConfig(@RequestBody RequestConfigDto requestConfigDto) {
+    public Result deleteRequestConfig(@RequestBody @Validated RequestConfigDto requestConfigDto) {
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
+
+        requestConfigDto.getConfig().getRules().stream().forEach(rule -> {
+            ContextHolder.getClusterService().deleteRequestRule(requestConfigDto.getFilterName(), rule.getRegex());
+        });
+
         return result;
     }
 
@@ -69,11 +79,12 @@ public class ConfigController {
     @PutMapping(value = "response")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
-                    required = false, dataType = "string", paramType = "cookie")
+                    dataType = "string", paramType = "cookie")
     })
-    public Result setResponseConfig(@RequestBody ResponseConfigDto responseConfigDto) {
+    public Result setResponseConfig(@RequestBody @Validated ResponseConfigDto responseConfigDto) {
         Result result = new Result();
         result.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().setResponseSwitch(responseConfigDto.getFilterName(), responseConfigDto.getConfig().getIsStart());
         return result;
     }
 }

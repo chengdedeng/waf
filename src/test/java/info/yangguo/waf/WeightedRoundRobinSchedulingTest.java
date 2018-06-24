@@ -1,7 +1,6 @@
 package info.yangguo.waf;
 
 import info.yangguo.waf.util.WeightedRoundRobinScheduling;
-
 import org.junit.Test;
 
 import java.util.ArrayList;

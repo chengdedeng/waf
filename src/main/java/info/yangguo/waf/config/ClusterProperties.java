@@ -29,6 +29,7 @@ import java.util.List;
 public class ClusterProperties {
     private AtomixProperty atomix;
     private ZkProperty zk;
+
     @Data
     public static class AtomixProperty {
         private String id;
@@ -36,6 +37,7 @@ public class ClusterProperties {
         private List<ClusterNode> node;
 
     }
+
     @Data
     public static class ZkProperty {
         private String connectionString;
