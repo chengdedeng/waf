@@ -6,32 +6,30 @@ import info.yangguo.waf.model.Config;
 import info.yangguo.waf.model.RequestConfig;
 import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
-import info.yangguo.waf.util.JsonUtil;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import info.yangguo.waf.response.HttpResponseFilter;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.ChildData;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.*;
 
 public class ZkClusterService implements ClusterService {
     private static Logger LOGGER = LoggerFactory.getLogger(ZkClusterService.class);
     private static final String separator = "/";
     private static final String requestPath = "/waf/config/request";
     private static final String responsePath = "/waf/config/response";
+    private static final String ENC = "UTF-8";
 
     private static CuratorFramework client;
-    private static PathChildrenCache requestConfigs;
-    private static PathChildrenCache responseConfigs;
+    TreeCache requestTreeCache;
+    TreeCache responseTreeCache;
 
     public ZkClusterService() throws Exception {
         ClusterProperties.ZkProperty zkProperty = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getZk();
@@ -59,55 +57,60 @@ public class ZkClusterService implements ClusterService {
         });
         client.start();
 
-        requestConfigs = new PathChildrenCache(client, requestPath, true);
-        requestConfigs.start();
-        responseConfigs = new PathChildrenCache(client, responsePath, true);
-        responseConfigs.start();
+        LOGGER.info("************************");
+        Arrays.stream(new Class[]{
+                ArgsHttpRequestFilter.class,
+                CCHttpRequestFilter.class,
+                CookieHttpRequestFilter.class,
+                IpHttpRequestFilter.class,
+                PostHttpRequestFilter.class,
+                FileHttpRequestFilter.class,
+                ScannerHttpRequestFilter.class,
+                UaHttpRequestFilter.class,
+                UrlHttpRequestFilter.class,
+                WIpHttpRequestFilter.class,
+                WUrlHttpRequestFilter.class,
+                ClickjackHttpResponseFilter.class
+        }).forEach(filterClass -> {
+            initFilter(filterClass);
+        });
+        LOGGER.info("************************");
 
 
-        createNode(requestPath + separator + ArgsHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + CCHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + CookieHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + IpHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + PostHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + FileHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + ScannerHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + UaHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + UrlHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + WIpHttpRequestFilter.class.getName(), "false".getBytes());
-        createNode(requestPath + separator + WUrlHttpRequestFilter.class.getName(), "false".getBytes());
-
-        createNode(responsePath + separator + ClickjackHttpResponseFilter.class.getName(), "false".getBytes());
+        requestTreeCache = TreeCache.newBuilder(client, requestPath).setCacheData(true).build();
+        requestTreeCache.start();
+        responseTreeCache = TreeCache.newBuilder(client, responsePath).setCacheData(true).build();
+        responseTreeCache.start();
     }
 
     @Override
     public Map<String, RequestConfig> getRequestConfigs() {
         Map<String, RequestConfig> requestConfigMap = new HashMap<>();
-        List<ChildData> childDataList = requestConfigs.getCurrentData();
-        childDataList.stream().forEach(childData -> {
-            RequestConfig requestConfig = new RequestConfig();
-            requestConfig.setIsStart((Boolean) JsonUtil.fromJson(new String(childData.getData()), Boolean.class));
+        requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry1 -> {
+            String filterName = entry1.getKey();
+            String filterPath = entry1.getValue().getPath();
+            Boolean filterIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
 
-            try {
-                Set<RequestConfig.Rule> rules = client.getChildren().forPath(childData.getPath()).stream().map(regex -> {
-                    try {
-                        RequestConfig.Rule rule = new RequestConfig.Rule();
-                        String value = new String(client.getData().forPath(childData.getPath() + separator + regex));
-                        rule.setRegex(regex);
-                        rule.setIsStart(new Boolean(Boolean.valueOf(value).booleanValue()));
-                        return rule;
-                    } catch (Exception e) {
-                        LOGGER.warn(ExceptionUtils.getFullStackTrace(e));
-                    }
-                    return null;
-                }).collect(Collectors.toSet());
-                //不能读取的rule节点会自动掉
-                rules.remove(null);
-                requestConfig.setRules(rules);
-            } catch (Exception e) {
-                LOGGER.warn(ExceptionUtils.getFullStackTrace(e));
-            }
-            requestConfigMap.put(childData.getPath().replaceAll(requestPath + separator, ""), requestConfig);
+            Set<RequestConfig.Rule> rules = new HashSet<>();
+            requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry2 -> {
+                String ruleRegex = null;
+                try {
+                    ruleRegex = URLDecoder.decode(entry2.getKey(), ENC);
+                } catch (UnsupportedEncodingException e) {
+                    LOGGER.error("Decode regex:[{}] ", entry2.getKey());
+                }
+                Boolean ruleIsStart = Boolean.valueOf(new String(entry2.getValue().getData()));
+                RequestConfig.Rule rule = new RequestConfig.Rule();
+                rule.setRegex(ruleRegex);
+                rule.setIsStart(ruleIsStart);
+                rules.add(rule);
+            });
+
+            RequestConfig requestConfig = new RequestConfig();
+            requestConfig.setIsStart(filterIsStart);
+            requestConfig.setRules(rules);
+
+            requestConfigMap.put(filterName, requestConfig);
         });
         return requestConfigMap;
     }
@@ -115,20 +118,12 @@ public class ZkClusterService implements ClusterService {
     @Override
     public void setRequestSwitch(String filterName, Boolean isStart) {
         try {
-            client.setData().forPath(requestPath + separator + filterName, String.valueOf(isStart).getBytes());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void setRequestRule(String filterName, String rule, Boolean isStart) {
-        String rulePath = requestPath + separator + filterName + separator + rule;
-        try {
-            if (client.checkExists().forPath(rulePath) == null) {
-                client.create().forPath(rulePath, String.valueOf(isStart).getBytes());
+            String path = requestPath + separator + filterName;
+            if (client.checkExists().forPath(path) != null) {
+                client.setData().forPath(path, String.valueOf(isStart).getBytes());
+                LOGGER.info("Path[{}]|Data[{}] has been set.", path, isStart);
             } else {
-                client.setData().forPath(rulePath, String.valueOf(isStart).getBytes());
+                LOGGER.warn("Path[{}] not exist.", path);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -136,9 +131,31 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void deleteRequestRule(String filterName, String rule) {
+    public void setRequestRule(String filterName, String regex, Boolean isStart) {
         try {
-            client.delete().forPath(requestPath + separator + filterName + separator + rule);
+            String rulePath = requestPath + separator + filterName + separator + URLEncoder.encode(regex, ENC);
+            if (client.checkExists().forPath(rulePath) == null) {
+                client.create().forPath(rulePath, String.valueOf(isStart).getBytes());
+                LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been created.", regex, rulePath, isStart);
+            } else {
+                client.setData().forPath(rulePath, String.valueOf(isStart).getBytes());
+                LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been set.", regex, rulePath, isStart);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteRequestRule(String filterName, String regex) {
+        try {
+            String rulePath = requestPath + separator + filterName + separator + URLEncoder.encode(regex, ENC);
+            if (client.checkExists().forPath(rulePath) != null) {
+                client.delete().forPath(rulePath);
+                LOGGER.info("Regex[{}]|Path[{}] has been deleted.", regex, rulePath);
+            } else {
+                LOGGER.warn("Regex[{}]|Path[{}] not exist.", regex, rulePath);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -147,13 +164,14 @@ public class ZkClusterService implements ClusterService {
     @Override
     public Map<String, Config> getResponseConfigs() {
         Map<String, Config> responseConfigMap = new HashMap<>();
+        responseTreeCache.getCurrentChildren(responsePath).entrySet().stream().forEach(entry -> {
+            String filterName = entry.getKey();
+            Boolean filterIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
 
-        List<ChildData> childDataList = responseConfigs.getCurrentData();
-        childDataList.stream().forEach(childData -> {
-            Config responseConfig = new Config();
-            responseConfig.setIsStart((Boolean) JsonUtil.fromJson(new String(childData.getData()), Boolean.class));
+            Config config = new Config();
+            config.setIsStart(filterIsStart);
 
-            responseConfigMap.put(childData.getPath().replaceAll(responsePath + separator, ""), responseConfig);
+            responseConfigMap.put(filterName, config);
         });
         return responseConfigMap;
     }
@@ -161,18 +179,34 @@ public class ZkClusterService implements ClusterService {
     @Override
     public void setResponseSwitch(String filterName, Boolean isStart) {
         try {
-            client.setData().forPath(responsePath + separator + filterName, String.valueOf(isStart).getBytes());
+            String path = responsePath + separator + filterName;
+            if (client.checkExists().forPath(path) != null) {
+                client.setData().forPath(path, String.valueOf(isStart).getBytes());
+                LOGGER.info("Path[{}]|Data[{}] has been set.", path, isStart);
+            } else {
+                LOGGER.warn("Path[{}] not exist.", path);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void createNode(String path, byte[] data) throws Exception {
-        if (client.checkExists().forPath(path) == null) {
-            if (data != null)
-                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data);
-            else
-                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path);
+    private void initFilter(Class filterClass) {
+        String path;
+        if (HttpRequestFilter.class.isAssignableFrom(filterClass)) {
+            path = requestPath + separator + filterClass.getName();
+        } else if (HttpResponseFilter.class.isAssignableFrom(filterClass)) {
+            path = responsePath + separator + filterClass.getName();
+        } else {
+            throw new RuntimeException("Filter class:[" + filterClass.getName() + "] has error when to initialize filter.");
+        }
+        try {
+            if (client.checkExists().forPath(path) == null) {
+                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, "false".getBytes());
+                LOGGER.info("Path[{}]|Data[{}] has been initialized",path,false);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
