@@ -119,10 +119,10 @@ class HostResolverImpl implements HostResolver {
             if (server != null) {
                 return new InetSocketAddress(server.getIp(), server.getPort());
             } else {
-                return null;
+                throw new UnknownHostException(key+" have not healthy server.");
             }
         } else {
-            return null;
+            throw new UnknownHostException(key);
         }
     }
 }

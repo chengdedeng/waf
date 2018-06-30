@@ -10,6 +10,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.littleshoot.proxy.*;
 
@@ -291,7 +292,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
                 serverConnectionsByHostAndPort.put(serverHostAndPort,
                         currentServerConnection);
             } catch (UnknownHostException uhe) {
-                LOG.info("Bad Host {}", httpRequest.getUri());
+                LOG.info("Bad host for uri:[{}],exception message:[{}]", httpRequest.getUri(), ExceptionUtils.getMessage(uhe));
                 boolean keepAlive = writeBadGateway(httpRequest);
                 resumeReading();
                 if (keepAlive) {
