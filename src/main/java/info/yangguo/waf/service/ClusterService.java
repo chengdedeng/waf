@@ -14,14 +14,6 @@ public interface ClusterService {
     Map<String, RequestConfig> getRequestConfigs();
 
     /**
-     * 获取指定request filter的配置信息
-     *
-     * @param requestFileterClass
-     * @return
-     */
-    RequestConfig getRequestConfig(Class requestFileterClass);
-
-    /**
      * 设置request filter开关
      *
      * @param filterName
@@ -52,14 +44,6 @@ public interface ClusterService {
      * @return
      */
     Map<String, Config> getResponseConfigs();
-
-    /**
-     * 获取指定response filter的配置信息
-     *
-     * @param responseFilterClass
-     * @return
-     */
-    Config getResponseConfig(Class responseFilterClass);
 
     /**
      * 设置response filter开关

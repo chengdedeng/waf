@@ -105,11 +105,6 @@ public class AtomixClusterService implements ClusterService {
     }
 
     @Override
-    public RequestConfig getRequestConfig(Class requestFileterClass) {
-        return getRequestConfigs().get(requestFileterClass.getName());
-    }
-
-    @Override
     public void setRequestSwitch(String filterName, Boolean isStart) {
         RequestConfig requestConfig = requestConfigs.get(filterName).value();
         requestConfig.setIsStart(isStart);
@@ -149,10 +144,6 @@ public class AtomixClusterService implements ClusterService {
         return responseConfigs.asJavaMap();
     }
 
-    @Override
-    public Config getResponseConfig(Class responseFilterClass) {
-        return getRequestConfigs().get(responseFilterClass.getName());
-    }
 
     @Override
     public void setResponseSwitch(String filterName, Boolean isStart) {

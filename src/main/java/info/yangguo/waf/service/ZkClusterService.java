@@ -30,6 +30,8 @@ public class ZkClusterService implements ClusterService {
     private static CuratorFramework client;
     TreeCache requestTreeCache;
     TreeCache responseTreeCache;
+    Map<String, RequestConfig> requestConfigMap = new HashMap<>();
+    Map<String, Config> responseConfigMap = new HashMap<>();
 
     public ZkClusterService() throws Exception {
         ClusterProperties.ZkProperty zkProperty = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getZk();
@@ -79,51 +81,53 @@ public class ZkClusterService implements ClusterService {
 
         requestTreeCache = TreeCache.newBuilder(client, requestPath).setCacheData(true).build();
         requestTreeCache.start();
+        requestTreeCache.getListenable().addListener((client, event) -> {
+            requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry1 -> {
+                String filterName = entry1.getKey();
+                String filterPath = entry1.getValue().getPath();
+                boolean filterIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
+
+                Set<RequestConfig.Rule> rules = new HashSet<>();
+                requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry2 -> {
+                    String ruleRegex = null;
+                    try {
+                        ruleRegex = URLDecoder.decode(entry2.getKey(), ENC);
+                    } catch (UnsupportedEncodingException e) {
+                        LOGGER.error("Decode regex:[{}] ", entry2.getKey());
+                    }
+                    Boolean ruleIsStart = Boolean.valueOf(new String(entry2.getValue().getData()));
+                    RequestConfig.Rule rule = new RequestConfig.Rule();
+                    rule.setRegex(ruleRegex);
+                    rule.setIsStart(ruleIsStart);
+                    rules.add(rule);
+                });
+
+                RequestConfig requestConfig = new RequestConfig();
+                requestConfig.setIsStart(filterIsStart);
+                requestConfig.setRules(rules);
+
+                requestConfigMap.put(filterName, requestConfig);
+            });
+        });
+
         responseTreeCache = TreeCache.newBuilder(client, responsePath).setCacheData(true).build();
         responseTreeCache.start();
+        responseTreeCache.getListenable().addListener((client, event) -> {
+            responseTreeCache.getCurrentChildren(responsePath).entrySet().stream().forEach(entry -> {
+                String filterName = entry.getKey();
+                Boolean filterIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
+
+                Config config = new Config();
+                config.setIsStart(filterIsStart);
+
+                responseConfigMap.put(filterName, config);
+            });
+        });
     }
 
     @Override
     public Map<String, RequestConfig> getRequestConfigs() {
-        Map<String, RequestConfig> requestConfigMap = new HashMap<>();
-        requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry -> {
-            String filterName = entry.getKey();
-            String filterPath = entry.getValue().getPath();
-
-            RequestConfig requestConfig = getRequestConfig(filterPath);
-
-            requestConfigMap.put(filterName, requestConfig);
-        });
         return requestConfigMap;
-    }
-
-    @Override
-    public RequestConfig getRequestConfig(Class requestFileterClass) {
-        String filterPath = requestPath + separator + requestFileterClass.getName();
-        return getRequestConfig(filterPath);
-    }
-
-    private RequestConfig getRequestConfig(String filterPath) {
-        boolean filterIsStart = Boolean.valueOf(new String(requestTreeCache.getCurrentData(filterPath).getData()));
-        Set<RequestConfig.Rule> rules = new HashSet<>();
-        requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry -> {
-            String ruleRegex = null;
-            try {
-                ruleRegex = URLDecoder.decode(entry.getKey(), ENC);
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("Decode regex:[{}] ", entry.getKey());
-            }
-            Boolean ruleIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
-            RequestConfig.Rule rule = new RequestConfig.Rule();
-            rule.setRegex(ruleRegex);
-            rule.setIsStart(ruleIsStart);
-            rules.add(rule);
-        });
-
-        RequestConfig requestConfig = new RequestConfig();
-        requestConfig.setIsStart(filterIsStart);
-        requestConfig.setRules(rules);
-        return requestConfig;
     }
 
     @Override
@@ -174,26 +178,7 @@ public class ZkClusterService implements ClusterService {
 
     @Override
     public Map<String, Config> getResponseConfigs() {
-        Map<String, Config> responseConfigMap = new HashMap<>();
-        responseTreeCache.getCurrentChildren(responsePath).entrySet().stream().forEach(entry -> {
-            String filterName = entry.getKey();
-            Boolean filterIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
-
-            Config config = new Config();
-            config.setIsStart(filterIsStart);
-
-            responseConfigMap.put(filterName, config);
-        });
         return responseConfigMap;
-    }
-
-    @Override
-    public Config getResponseConfig(Class responseFilterClass) {
-        String filterPath = responsePath + separator + responseFilterClass.getName();
-        boolean isStart = Boolean.valueOf(new String(responseTreeCache.getCurrentData(filterPath).getData()));
-        Config config = new Config();
-        config.setIsStart(isStart);
-        return config;
     }
 
     @Override

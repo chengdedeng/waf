@@ -24,7 +24,7 @@ public class HttpResponseFilterChain {
 
     public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse, ClusterService clusterService) {
         for (HttpResponseFilter filter : filters) {
-            Config config = clusterService.getResponseConfig(filter.getClass());
+            Config config = clusterService.getResponseConfigs().get(filter.getClass().getName());
             if (config.getIsStart()) {
                 filter.doFilter(originalRequest, httpResponse);
             }
