@@ -1,6 +1,7 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.service.ClusterService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -36,9 +37,9 @@ public class HttpRequestFilterChain {
         filters.add(new FileHttpRequestFilter());
     }
 
-    public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, Map<String, RequestConfig> configs) {
+    public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ClusterService clusterService) {
         for (HttpRequestFilter filter : filters) {
-            RequestConfig config = (RequestConfig) configs.get(filter.getClass().getName());
+            RequestConfig config = clusterService.getRequestConfig(filter.getClass());
             if (config.getIsStart()) {
                 boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getRules());
                 if (result && filter.isBlacklist()) {

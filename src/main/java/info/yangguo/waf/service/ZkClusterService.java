@@ -86,33 +86,44 @@ public class ZkClusterService implements ClusterService {
     @Override
     public Map<String, RequestConfig> getRequestConfigs() {
         Map<String, RequestConfig> requestConfigMap = new HashMap<>();
-        requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry1 -> {
-            String filterName = entry1.getKey();
-            String filterPath = entry1.getValue().getPath();
-            Boolean filterIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
+        requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry -> {
+            String filterName = entry.getKey();
+            String filterPath = entry.getValue().getPath();
 
-            Set<RequestConfig.Rule> rules = new HashSet<>();
-            requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry2 -> {
-                String ruleRegex = null;
-                try {
-                    ruleRegex = URLDecoder.decode(entry2.getKey(), ENC);
-                } catch (UnsupportedEncodingException e) {
-                    LOGGER.error("Decode regex:[{}] ", entry2.getKey());
-                }
-                Boolean ruleIsStart = Boolean.valueOf(new String(entry2.getValue().getData()));
-                RequestConfig.Rule rule = new RequestConfig.Rule();
-                rule.setRegex(ruleRegex);
-                rule.setIsStart(ruleIsStart);
-                rules.add(rule);
-            });
-
-            RequestConfig requestConfig = new RequestConfig();
-            requestConfig.setIsStart(filterIsStart);
-            requestConfig.setRules(rules);
+            RequestConfig requestConfig = getRequestConfig(filterPath);
 
             requestConfigMap.put(filterName, requestConfig);
         });
         return requestConfigMap;
+    }
+
+    @Override
+    public RequestConfig getRequestConfig(Class requestFileterClass) {
+        String filterPath = requestPath + separator + requestFileterClass.getName();
+        return getRequestConfig(filterPath);
+    }
+
+    private RequestConfig getRequestConfig(String filterPath) {
+        boolean filterIsStart = Boolean.valueOf(new String(requestTreeCache.getCurrentData(filterPath).getData()));
+        Set<RequestConfig.Rule> rules = new HashSet<>();
+        requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry -> {
+            String ruleRegex = null;
+            try {
+                ruleRegex = URLDecoder.decode(entry.getKey(), ENC);
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("Decode regex:[{}] ", entry.getKey());
+            }
+            Boolean ruleIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
+            RequestConfig.Rule rule = new RequestConfig.Rule();
+            rule.setRegex(ruleRegex);
+            rule.setIsStart(ruleIsStart);
+            rules.add(rule);
+        });
+
+        RequestConfig requestConfig = new RequestConfig();
+        requestConfig.setIsStart(filterIsStart);
+        requestConfig.setRules(rules);
+        return requestConfig;
     }
 
     @Override
@@ -177,6 +188,15 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
+    public Config getResponseConfig(Class responseFilterClass) {
+        String filterPath = responsePath + separator + responseFilterClass.getName();
+        boolean isStart = Boolean.valueOf(new String(responseTreeCache.getCurrentData(filterPath).getData()));
+        Config config = new Config();
+        config.setIsStart(isStart);
+        return config;
+    }
+
+    @Override
     public void setResponseSwitch(String filterName, Boolean isStart) {
         try {
             String path = responsePath + separator + filterName;
@@ -203,7 +223,7 @@ public class ZkClusterService implements ClusterService {
         try {
             if (client.checkExists().forPath(path) == null) {
                 client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, "false".getBytes());
-                LOGGER.info("Path[{}]|Data[{}] has been initialized",path,false);
+                LOGGER.info("Path[{}]|Data[{}] has been initialized", path, false);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

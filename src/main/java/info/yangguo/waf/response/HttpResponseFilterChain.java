@@ -1,6 +1,7 @@
 package info.yangguo.waf.response;
 
 import info.yangguo.waf.model.Config;
+import info.yangguo.waf.service.ClusterService;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 
@@ -21,9 +22,9 @@ public class HttpResponseFilterChain {
         filters.add(new ClickjackHttpResponseFilter());
     }
 
-    public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse, Map<String, Config> configs) {
+    public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse, ClusterService clusterService) {
         for (HttpResponseFilter filter : filters) {
-            Config config = configs.get(filter.getClass().getName());
+            Config config = clusterService.getResponseConfig(filter.getClass());
             if (config.getIsStart()) {
                 filter.doFilter(originalRequest, httpResponse);
             }

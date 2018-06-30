@@ -41,7 +41,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
         HttpResponse httpResponse = null;
         try {
-            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService().getRequestConfigs());
+            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
             if (immutablePair.left) {
                 httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
             }
@@ -97,7 +97,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
             try {
-                httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService().getResponseConfigs());
+                httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
             } catch (Exception e) {
                 logger.error("response filter failed", e.getCause());
             }
