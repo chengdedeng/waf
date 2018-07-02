@@ -2,8 +2,10 @@ package info.yangguo.waf.service;
 
 import info.yangguo.waf.model.Config;
 import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface ClusterService {
     /**
@@ -52,4 +54,29 @@ public interface ClusterService {
      * @param isStart
      */
     void setResponseSwitch(String filterName, Boolean isStart);
+
+    /**
+     * 获取upstream server配置
+     *
+     * @return
+     */
+    Map<String, WeightedRoundRobinScheduling> getUpstreamConfig();
+
+    /**
+     * 设置host开关
+     *
+     * @param hostOptional
+     * @param isStartOptional
+     */
+    void setUpstream(Optional<String> hostOptional, Optional<Boolean> isStartOptional);
+
+    /**
+     * 设置指定host中server的开关
+     *
+     * @param hostOptional
+     * @param ipOptional
+     * @param portOptional
+     * @param isStartOptional
+     */
+    void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional);
 }

@@ -1,4 +1,7 @@
-package info.yangguo.waf.util;
+package info.yangguo.waf.model;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -14,14 +17,18 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>
  * 权重轮询调度算法(WeightedRound-RobinScheduling)-Java实现
  */
-
-
 public class WeightedRoundRobinScheduling {
+    @Getter
+    @Setter
+    private Boolean isStart;//host对应的upstream是否开启
     private int currentIndex = -1;// 上一次选择的服务器
     private int currentWeight = 0;// 当前调度的权值
-    public CopyOnWriteArrayList<Server> healthilyServers; //健康服务器集合
-    public CopyOnWriteArrayList<Server> unhealthilyServers = new CopyOnWriteArrayList<>(); //不健康服务器集合
-    public Map<String, Server> serversMap = new HashMap<>();
+    @Getter
+    private CopyOnWriteArrayList<Server> healthilyServers = new CopyOnWriteArrayList(); //健康服务器集合
+    @Getter
+    private CopyOnWriteArrayList<Server> unhealthilyServers = new CopyOnWriteArrayList<>(); //不健康服务器集合
+    @Getter
+    private Map<String, Server> serversMap = new HashMap<>();
 
     /**
      * 返回最大公约数
@@ -41,9 +48,9 @@ public class WeightedRoundRobinScheduling {
         int w = 0;
         for (int i = 0, len = serverList.size(); i < len - 1; i++) {
             if (w == 0) {
-                w = gcd(serverList.get(i).weight, serverList.get(i + 1).weight);
+                w = gcd(serverList.get(i).serverConfig.getWeight(), serverList.get(i + 1).getServerConfig().getWeight());
             } else {
-                w = gcd(w, serverList.get(i + 1).weight);
+                w = gcd(w, serverList.get(i + 1).getServerConfig().getWeight());
             }
         }
         return w;
@@ -56,9 +63,9 @@ public class WeightedRoundRobinScheduling {
         int w = 0;
         for (int i = 0, len = serverList.size(); i < len - 1; i++) {
             if (w == 0) {
-                w = Math.max(serverList.get(i).weight, serverList.get(i + 1).weight);
+                w = Math.max(serverList.get(i).getServerConfig().getWeight(), serverList.get(i + 1).getServerConfig().getWeight());
             } else {
-                w = Math.max(w, serverList.get(i + 1).weight);
+                w = Math.max(w, serverList.get(i + 1).getServerConfig().getWeight());
             }
         }
         return w;
@@ -85,55 +92,23 @@ public class WeightedRoundRobinScheduling {
                             return null;
                     }
                 }
-                if (healthilyServers.get(currentIndex).weight >= currentWeight) {
+                if (healthilyServers.get(currentIndex).getServerConfig().getWeight() >= currentWeight) {
                     return healthilyServers.get(currentIndex);
                 }
             }
         }
     }
 
-    public WeightedRoundRobinScheduling(List<Server> healthilyServers) {
-        this.healthilyServers = new CopyOnWriteArrayList(healthilyServers);
-        for (Server server : healthilyServers) {
+    public WeightedRoundRobinScheduling(List<Server> servers, boolean isStart) {
+        this.isStart = isStart;
+        if (isStart) {
+            servers.stream().forEach(server -> {
+                if (server.getServerConfig().getIsStart())
+                    healthilyServers.add(server);
+            });
+        }
+        servers.stream().forEach(server -> {
             serversMap.put(server.getIp() + "_" + server.getPort(), server);
-        }
-    }
-
-
-    public static class Server {
-        String ip;
-        int port;
-        int weight;
-
-        public Server(String ip, int port, int weight) {
-            super();
-            this.ip = ip;
-            this.port = port;
-            this.weight = weight;
-        }
-
-        public String getIp() {
-            return ip;
-        }
-
-        public void setIp(String ip) {
-            this.ip = ip;
-        }
-
-        public int getPort() {
-            return port;
-        }
-
-        public void setPort(int port) {
-            this.port = port;
-        }
-
-        public int getWeight() {
-            return weight;
-        }
-
-        public void setWeight(int weight) {
-            this.weight = weight;
-        }
+        });
     }
 }

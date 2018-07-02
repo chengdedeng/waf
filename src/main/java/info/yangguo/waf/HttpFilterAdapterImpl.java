@@ -4,7 +4,7 @@ import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.request.HttpRequestFilter;
 import info.yangguo.waf.request.HttpRequestFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
-import info.yangguo.waf.util.WeightedRoundRobinScheduling;
+import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.*;
@@ -107,7 +107,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public void proxyToServerConnectionFailed() {
-        if ("on".equals(Constant.wafConfs.get("waf.proxy.lb"))) {
+        if ("on".equals(Constant.wafConfs.get("waf.lb"))) {
             try {
                 ClientToProxyConnection clientToProxyConnection = (ClientToProxyConnection) ctx.handler();
                 ProxyToServerConnection proxyToServerConnection = clientToProxyConnection.getProxyToServerConnection();
@@ -117,9 +117,9 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
                 String remoteHostName = proxyToServerConnection.getRemoteAddress().getAddress().getHostAddress();
                 int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
 
-                WeightedRoundRobinScheduling weightedRoundRobinScheduling = HostResolverImpl.getSingleton().getServers(serverHostAndPort);
-                weightedRoundRobinScheduling.unhealthilyServers.add(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
-                weightedRoundRobinScheduling.healthilyServers.remove(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
+                WeightedRoundRobinScheduling weightedRoundRobinScheduling = ContextHolder.getClusterService().getUpstreamConfig().get(serverHostAndPort);
+                weightedRoundRobinScheduling.getUnhealthilyServers().add(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
+                weightedRoundRobinScheduling.getHealthilyServers().remove(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
             } catch (Exception e) {
                 logger.error("connection of proxy->server is failed", e);
             }

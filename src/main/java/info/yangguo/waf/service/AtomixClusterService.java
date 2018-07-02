@@ -6,6 +6,7 @@ import info.yangguo.waf.model.Config;
 import info.yangguo.waf.model.RequestConfig;
 import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
+import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import io.atomix.cluster.Node;
 import io.atomix.core.Atomix;
 import io.atomix.core.map.ConsistentMap;
@@ -18,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class AtomixClusterService implements ClusterService {
@@ -151,4 +153,20 @@ public class AtomixClusterService implements ClusterService {
         config.setIsStart(isStart);
         responseConfigs.put(filterName, config);
     }
+
+    @Override
+    public Map<String, WeightedRoundRobinScheduling> getUpstreamConfig() {
+        return null;
+    }
+
+    @Override
+    public void setUpstream(Optional<String> hostOptional, Optional<Boolean> isStartOptional) {
+
+    }
+
+    @Override
+    public void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional) {
+
+    }
+
 }

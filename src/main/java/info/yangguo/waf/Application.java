@@ -2,6 +2,8 @@ package info.yangguo.waf;
 
 
 import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.model.Server;
+import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import info.yangguo.waf.service.ClusterService;
 import info.yangguo.waf.util.NetUtils;
 import info.yangguo.waf.util.WafSelfSignedSslEngineSource;
@@ -11,6 +13,10 @@ import net.lightbody.bmp.mitm.CertificateAndKeySource;
 import net.lightbody.bmp.mitm.KeyStoreFileCertificateSource;
 import net.lightbody.bmp.mitm.keys.ECKeyGenerator;
 import net.lightbody.bmp.mitm.manager.ImpersonatingMitmManager;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.littleshoot.proxy.*;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.littleshoot.proxy.impl.ThreadPoolConfiguration;
@@ -21,10 +27,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
 import java.net.InetSocketAddress;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Queue;
-import java.util.ServiceLoader;
+import java.util.*;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 @ImportResource({"classpath:spring/applicationContext.xml"})
@@ -104,7 +109,7 @@ public class Application {
         } else if (proxy_lb) {
             //反向代理模式
             logger.info("反向代理模式开启");
-            httpProxyServerBootstrap.withServerResolver(HostResolverImpl.getSingleton());
+            httpProxyServerBootstrap.withServerResolver(new HostResolverImpl());
         }
         if (proxy_tls) {
             logger.info("开启TLS支持");
@@ -171,5 +176,46 @@ public class Application {
                 })
                 .start();
 
+
+        ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
+        scheduledThreadPoolExecutor.scheduleAtFixedRate(new ServerCheckTask(), Integer.parseInt(Constant.wafConfs.get("waf.lb.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.lb.fail_timeout")), TimeUnit.SECONDS);
+
+    }
+
+    private static class ServerCheckTask implements Runnable {
+        private final HttpClient client = HttpClientBuilder.create().build();
+
+        @Override
+        public void run() {
+            logger.info("..........upstream server check..........");
+            try {
+                for (Map.Entry<String, WeightedRoundRobinScheduling> entry : ContextHolder.getClusterService().getUpstreamConfig().entrySet()) {
+                    WeightedRoundRobinScheduling weightedRoundRobinScheduling = entry.getValue();
+                    List<Server> delServers = new ArrayList<>();
+                    CloseableHttpResponse httpResponse = null;
+                    for (Server server : weightedRoundRobinScheduling.getUnhealthilyServers()) {
+                        HttpGet request = new HttpGet("http://" + server.getIp() + ":" + server.getPort());
+                        try {
+                            httpResponse = (CloseableHttpResponse) client.execute(request);
+                            logger.warn("statuscode:{}",httpResponse.getStatusLine().getStatusCode());
+                            weightedRoundRobinScheduling.getHealthilyServers().add(weightedRoundRobinScheduling.getServersMap().get(server.getIp() + "_" + server.getPort()));
+                            delServers.add(server);
+                            logger.info("Domain host->{},ip->{},port->{} is healthy.", entry.getKey(), server.getIp(), server.getPort());
+                        } catch (Exception e1) {
+                            logger.warn("Domain host->{},ip->{},port->{} is unhealthy.", entry.getKey(), server.getIp(), server.getPort());
+                        } finally {
+                            if (httpResponse != null) {
+                                httpResponse.close();
+                            }
+                        }
+                    }
+                    if (delServers.size() > 0) {
+                        weightedRoundRobinScheduling.getUnhealthilyServers().removeAll(delServers);
+                    }
+                }
+            } catch (Exception e) {
+                logger.error("Server check task is error.", e);
+            }
+        }
     }
 }

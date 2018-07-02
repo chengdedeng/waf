@@ -1,15 +1,17 @@
 package info.yangguo.waf.service;
 
+import com.google.common.collect.Lists;
 import info.yangguo.waf.config.ClusterProperties;
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.Config;
-import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.model.*;
 import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
 import info.yangguo.waf.response.HttpResponseFilter;
+import info.yangguo.waf.util.JsonUtil;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeCacheEvent;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.slf4j.Logger;
@@ -19,19 +21,20 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class ZkClusterService implements ClusterService {
     private static Logger LOGGER = LoggerFactory.getLogger(ZkClusterService.class);
     private static final String separator = "/";
     private static final String requestPath = "/waf/config/request";
     private static final String responsePath = "/waf/config/response";
+    private static final String upstreamPath = "/waf/config/upstream";
     private static final String ENC = "UTF-8";
 
     private static CuratorFramework client;
-    TreeCache requestTreeCache;
-    TreeCache responseTreeCache;
     Map<String, RequestConfig> requestConfigMap = new HashMap<>();
     Map<String, Config> responseConfigMap = new HashMap<>();
+    Map<String, WeightedRoundRobinScheduling> upstreamServerMap = new HashMap<>();
 
     public ZkClusterService() throws Exception {
         ClusterProperties.ZkProperty zkProperty = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getZk();
@@ -59,7 +62,6 @@ public class ZkClusterService implements ClusterService {
         });
         client.start();
 
-        LOGGER.info("************************");
         Arrays.stream(new Class[]{
                 ArgsHttpRequestFilter.class,
                 CCHttpRequestFilter.class,
@@ -76,52 +78,97 @@ public class ZkClusterService implements ClusterService {
         }).forEach(filterClass -> {
             initFilter(filterClass);
         });
-        LOGGER.info("************************");
 
 
-        requestTreeCache = TreeCache.newBuilder(client, requestPath).setCacheData(true).build();
+        TreeCache requestTreeCache = TreeCache.newBuilder(client, requestPath).setCacheData(true).build();
         requestTreeCache.start();
         requestTreeCache.getListenable().addListener((client, event) -> {
-            requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry1 -> {
-                String filterName = entry1.getKey();
-                String filterPath = entry1.getValue().getPath();
-                boolean filterIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
+            if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
+                    || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry1 -> {
+                    String filterName = entry1.getKey();
+                    String filterPath = entry1.getValue().getPath();
+                    boolean filterIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
 
-                Set<RequestConfig.Rule> rules = new HashSet<>();
-                requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry2 -> {
-                    String ruleRegex = null;
-                    try {
-                        ruleRegex = URLDecoder.decode(entry2.getKey(), ENC);
-                    } catch (UnsupportedEncodingException e) {
-                        LOGGER.error("Decode regex:[{}] ", entry2.getKey());
-                    }
-                    Boolean ruleIsStart = Boolean.valueOf(new String(entry2.getValue().getData()));
-                    RequestConfig.Rule rule = new RequestConfig.Rule();
-                    rule.setRegex(ruleRegex);
-                    rule.setIsStart(ruleIsStart);
-                    rules.add(rule);
+                    Set<RequestConfig.Rule> rules = new HashSet<>();
+                    requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry2 -> {
+                        String ruleRegex = null;
+                        try {
+                            ruleRegex = URLDecoder.decode(entry2.getKey(), ENC);
+                        } catch (UnsupportedEncodingException e) {
+                            LOGGER.error("Decode regex:[{}] ", entry2.getKey());
+                        }
+                        Boolean ruleIsStart = Boolean.valueOf(new String(entry2.getValue().getData()));
+                        RequestConfig.Rule rule = new RequestConfig.Rule();
+                        rule.setRegex(ruleRegex);
+                        rule.setIsStart(ruleIsStart);
+                        rules.add(rule);
+                    });
+
+                    RequestConfig requestConfig = new RequestConfig();
+                    requestConfig.setIsStart(filterIsStart);
+                    requestConfig.setRules(rules);
+
+                    requestConfigMap.put(filterName, requestConfig);
                 });
-
-                RequestConfig requestConfig = new RequestConfig();
-                requestConfig.setIsStart(filterIsStart);
-                requestConfig.setRules(rules);
-
-                requestConfigMap.put(filterName, requestConfig);
-            });
+            }
         });
 
-        responseTreeCache = TreeCache.newBuilder(client, responsePath).setCacheData(true).build();
+        TreeCache responseTreeCache = TreeCache.newBuilder(client, responsePath).setCacheData(true).build();
         responseTreeCache.start();
         responseTreeCache.getListenable().addListener((client, event) -> {
-            responseTreeCache.getCurrentChildren(responsePath).entrySet().stream().forEach(entry -> {
-                String filterName = entry.getKey();
-                Boolean filterIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
+            if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
+                    || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                responseTreeCache.getCurrentChildren(responsePath).entrySet().stream().forEach(entry -> {
+                    String filterName = entry.getKey();
+                    Boolean filterIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
 
-                Config config = new Config();
-                config.setIsStart(filterIsStart);
+                    Config config = new Config();
+                    config.setIsStart(filterIsStart);
 
-                responseConfigMap.put(filterName, config);
-            });
+                    responseConfigMap.put(filterName, config);
+                });
+            }
+        });
+
+        if (client.checkExists().forPath(upstreamPath) == null) {
+            client.create().forPath(upstreamPath);
+        }
+        TreeCache upstreamTreeCache = TreeCache.newBuilder(client, upstreamPath).setCacheData(true).build();
+        upstreamTreeCache.start();
+        upstreamTreeCache.getListenable().addListener((client, event) -> {
+            if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
+                    || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                upstreamTreeCache.getCurrentChildren(upstreamPath).entrySet().stream().forEach(entry1 -> {
+                    String host = entry1.getKey();
+                    String hostPath = entry1.getValue().getPath();
+                    Boolean hostIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
+
+                    List<Server> servers = Lists.newArrayList();
+                    upstreamTreeCache.getCurrentChildren(hostPath).entrySet().stream().forEach(entry2 -> {
+                        String[] serverInfo = entry2.getKey().split(":");
+                        String ip = serverInfo[0];
+                        int port = Integer.parseInt(serverInfo[1]);
+                        ServerConfig serverConfig = (ServerConfig) JsonUtil.fromJson(new String(entry2.getValue().getData()), ServerConfig.class);
+
+                        Server server = Server.builder()
+                                .ip(ip)
+                                .port(port)
+                                .serverConfig(serverConfig)
+                                .build();
+                        servers.add(server);
+                    });
+
+                    WeightedRoundRobinScheduling weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(servers, hostIsStart);
+                    upstreamServerMap.put(host, weightedRoundRobinScheduling);
+                });
+            }
         });
     }
 
@@ -148,13 +195,18 @@ public class ZkClusterService implements ClusterService {
     @Override
     public void setRequestRule(String filterName, String regex, Boolean isStart) {
         try {
-            String rulePath = requestPath + separator + filterName + separator + URLEncoder.encode(regex, ENC);
-            if (client.checkExists().forPath(rulePath) == null) {
-                client.create().forPath(rulePath, String.valueOf(isStart).getBytes());
-                LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been created.", regex, rulePath, isStart);
+            String filterPath = requestPath + separator + filterName;
+            if (client.checkExists().forPath(filterPath) == null) {
+                LOGGER.warn("Path[{}] not exist.", filterPath);
             } else {
-                client.setData().forPath(rulePath, String.valueOf(isStart).getBytes());
-                LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been set.", regex, rulePath, isStart);
+                String rulePath = filterPath + separator + URLEncoder.encode(regex, ENC);
+                if (client.checkExists().forPath(rulePath) == null) {
+                    client.create().forPath(rulePath, String.valueOf(isStart).getBytes());
+                    LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been created.", regex, rulePath, isStart);
+                } else {
+                    client.setData().forPath(rulePath, String.valueOf(isStart).getBytes());
+                    LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been set.", regex, rulePath, isStart);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -190,6 +242,76 @@ public class ZkClusterService implements ClusterService {
                 LOGGER.info("Path[{}]|Data[{}] has been set.", path, isStart);
             } else {
                 LOGGER.warn("Path[{}] not exist.", path);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Map<String, WeightedRoundRobinScheduling> getUpstreamConfig() {
+        return upstreamServerMap;
+    }
+
+    @Override
+    public void setUpstream(Optional<String> hostOptional, Optional<Boolean> isStartOptional) {
+        try {
+            if (hostOptional.isPresent() && isStartOptional.isPresent()) {
+                String path = upstreamPath + separator + hostOptional.get();
+                if (client.checkExists().forPath(path) != null) {
+                    client.setData().forPath(path, String.valueOf(isStartOptional.get()).getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, isStartOptional.get());
+                } else {
+                    client.create().forPath(path, String.valueOf(isStartOptional.get()).getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, isStartOptional.get());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional) {
+        try {
+            if (hostOptional.isPresent() && ipOptional.isPresent() && portOptional.isPresent()) {
+                String hostPath = upstreamPath + separator + hostOptional.get();
+                if (client.checkExists().forPath(hostPath) == null) {
+                    LOGGER.warn("Path[{}] not exist.", hostPath);
+                } else {
+                    String serverPath = hostPath + separator + ipOptional.get() + ":" + portOptional.get();
+                    if (client.checkExists().forPath(serverPath) != null) {
+                        ServerConfig serverConfig = (ServerConfig) JsonUtil.fromJson(new String(client.getData().forPath(serverPath)), ServerConfig.class);
+                        isStartOptional.ifPresent(new Consumer<Boolean>() {
+                            @Override
+                            public void accept(Boolean t) {
+                                serverConfig.setIsStart(t);
+                            }
+                        });
+                        weightOptional.ifPresent(new Consumer<Integer>() {
+                            @Override
+                            public void accept(Integer t) {
+                                serverConfig.setWeight(t);
+                            }
+                        });
+
+                        String data = JsonUtil.toJson(serverConfig, false);
+                        client.setData().forPath(serverPath, data.getBytes());
+                        LOGGER.info("Path[{}]|Data[{}] has been set.", serverPath, data);
+                    } else {
+                        ServerConfig serverConfig = new ServerConfig();
+                        serverConfig.setIsStart(isStartOptional.get());
+                        serverConfig.setWeight(weightOptional.get());
+                        String data = JsonUtil.toJson(serverConfig, false);
+                        if (isStartOptional.isPresent() && weightOptional.isPresent()) {
+                            client.create().forPath(serverPath, data.getBytes());
+                            LOGGER.info("Path[{}]|Data[{}] has been created.", serverPath, data);
+                        } else {
+                            LOGGER.warn("Path[{}]|Data[{}] is incomplete.", serverPath, data);
+                        }
+
+                    }
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
