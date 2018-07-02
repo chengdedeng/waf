@@ -1,6 +1,7 @@
 package info.yangguo.waf.service;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import info.yangguo.waf.config.ClusterProperties;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.*;
@@ -22,6 +23,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ZkClusterService implements ClusterService {
     private static Logger LOGGER = LoggerFactory.getLogger(ZkClusterService.class);
@@ -145,6 +147,7 @@ public class ZkClusterService implements ClusterService {
                     || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
                     || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
                     || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                Set<String> hosts = Sets.newHashSet();
                 upstreamTreeCache.getCurrentChildren(upstreamPath).entrySet().stream().forEach(entry1 -> {
                     String host = entry1.getKey();
                     String hostPath = entry1.getValue().getPath();
@@ -167,6 +170,12 @@ public class ZkClusterService implements ClusterService {
 
                     WeightedRoundRobinScheduling weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(servers, hostIsStart);
                     upstreamServerMap.put(host, weightedRoundRobinScheduling);
+                    hosts.add(host);
+                });
+                //将已经删除的节点从upstreamServerMap中剔除掉
+                upstreamServerMap.keySet().stream().collect(Collectors.toList()).stream().forEach(key -> {
+                    if (!hosts.contains(key))
+                        upstreamServerMap.remove(key);
                 });
             }
         });
@@ -315,6 +324,43 @@ public class ZkClusterService implements ClusterService {
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteUpstream(Optional<String> hostOptional) {
+        hostOptional.ifPresent(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                String hostPath = upstreamPath + separator + hostOptional.get();
+                try {
+                    if (client.checkExists().forPath(hostPath) != null) {
+                        client.delete().deletingChildrenIfNeeded().forPath(hostPath);
+                        LOGGER.info("Path[{}] has been deleted.", hostPath);
+                    } else {
+                        LOGGER.warn("Path[{}] not exist.", hostPath);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void deleteUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional) {
+        if (hostOptional.isPresent() && ipOptional.isPresent() && portOptional.isPresent()) {
+            String serverPath = upstreamPath + separator + hostOptional.get() + separator + ipOptional.get() + ":" + portOptional.get();
+            try {
+                if (client.checkExists().forPath(serverPath) != null) {
+                    client.delete().forPath(serverPath);
+                    LOGGER.info("Path[{}] has been deleted.", serverPath);
+                } else {
+                    LOGGER.warn("Path[{}] not exist.", serverPath);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

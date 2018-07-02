@@ -156,17 +156,27 @@ public class AtomixClusterService implements ClusterService {
 
     @Override
     public Map<String, WeightedRoundRobinScheduling> getUpstreamConfig() {
+        //todo
         return null;
     }
 
     @Override
     public void setUpstream(Optional<String> hostOptional, Optional<Boolean> isStartOptional) {
-
+        //todo
     }
 
     @Override
     public void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional) {
-
+        //todo
     }
 
+    @Override
+    public void deleteUpstream(Optional<String> hostOptional) {
+        //todo
+    }
+
+    @Override
+    public void deleteUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional) {
+        //todo
+    }
 }

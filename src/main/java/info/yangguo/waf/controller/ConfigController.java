@@ -180,4 +180,38 @@ public class ConfigController {
 
         return result;
     }
+
+    @ApiOperation(value = "删除Upstream")
+    @ResponseBody
+    @DeleteMapping(value = "upstream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public Result deleteUpstream(@RequestBody @Validated UpstreamDto upstreamDto) {
+        Result result = new Result();
+        result.setCode(HttpStatus.OK.value());
+
+        ContextHolder.getClusterService().deleteUpstream(Optional.of(upstreamDto.getHost()));
+
+        return result;
+    }
+
+    @ApiOperation(value = "删除Upstream Server")
+    @ResponseBody
+    @DeleteMapping(value = "upstream/server")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public Result deleteUpstreamServer(@RequestBody @Validated UpstreamDto upstreamDto) {
+        Result result = new Result();
+        result.setCode(HttpStatus.OK.value());
+
+        upstreamDto.getServers().stream().forEach(serverDto -> {
+            ContextHolder.getClusterService().deleteUpstreamServer(Optional.of(upstreamDto.getHost()), Optional.of(serverDto.getIp()), Optional.of(serverDto.getPort()));
+        });
+
+        return result;
+    }
 }

@@ -79,4 +79,20 @@ public interface ClusterService {
      * @param isStartOptional
      */
     void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional);
+
+    /**
+     * 删除host
+     *
+     * @param hostOptional
+     */
+    void deleteUpstream(Optional<String> hostOptional);
+
+    /**
+     * 删除host的server
+     *
+     * @param hostOptional
+     * @param ipOptional
+     * @param portOptional
+     */
+    void deleteUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional);
 }
