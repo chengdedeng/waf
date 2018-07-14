@@ -490,7 +490,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
     void timedOut(ProxyToServerConnection serverConnection) {
         if (currentServerConnection == serverConnection && this.lastReadTime > currentServerConnection.lastReadTime) {
             // the idle timeout fired on the active server connection. send a timeout response to the client.
-            LOG.warn("ServerConfig timed out: {}", currentServerConnection);
+            LOG.warn("Server timed out: {}", currentServerConnection);
             currentFilters.serverToProxyResponseTimedOut();
             writeGatewayTimeout(currentRequest);
         }
@@ -1119,7 +1119,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
      * <p>
      * HTTP/1.1 proxies MUST parse the Connection header field before a message
      * is forwarded and, for each connection-token in this field, remove any
-     * header field(s) from the message with the same filterName as the
+     * header field(s) from the message with the same name as the
      * connection-token.
      *
      * @param headers The headers to modify
