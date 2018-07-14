@@ -1,8 +1,8 @@
 package info.yangguo.waf.controller;
 
 import info.yangguo.waf.config.AdminProperties;
-import info.yangguo.waf.model.Result;
-import info.yangguo.waf.model.User;
+import info.yangguo.waf.dto.ResultDto;
+import info.yangguo.waf.dto.UserDto;
 import info.yangguo.waf.service.JwtTokenService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,17 +27,17 @@ public class UserController {
     @ApiOperation(value = "登录")
     @ResponseBody
     @PostMapping(value = "login")
-    public Result login(HttpServletResponse response, @RequestBody @Validated User user) {
-        Result result = new Result();
-        if (adminProperties.email.equals(user.getEmail()) && adminProperties.password.equals(user.getPassword())) {
-            result.setCode(HttpStatus.OK.value());
+    public ResultDto login(HttpServletResponse response, @RequestBody @Validated UserDto userDto) {
+        ResultDto resultDto = new ResultDto();
+        if (adminProperties.email.equals(userDto.getEmail()) && adminProperties.password.equals(userDto.getPassword())) {
+            resultDto.setCode(HttpStatus.OK.value());
         } else {
-            result.setCode(HttpStatus.FORBIDDEN.value());
+            resultDto.setCode(HttpStatus.FORBIDDEN.value());
         }
         Map<String, String> claims = new HashMap<>();
-        claims.put("email", user.getEmail());
+        claims.put("email", userDto.getEmail());
         String token = jwtTokenService.genToken(claims);
         response.setHeader("Set-Cookie", "WAFTOKEN=" + token + "; Path=/");
-        return result;
+        return resultDto;
     }
 }

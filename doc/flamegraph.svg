@@ -41,10 +41,10 @@
 	})
 
 	// functions
-	function find_child(parent, name, attr) {
+	function find_child(parent, filterName, attr) {
 		var children = parent.childNodes;
 		for (var i=0; i<children.length;i++) {
-			if (children[i].tagName == name)
+			if (children[i].tagName == filterName)
 				return (attr != undefined) ? children[i].attributes[attr].value : children[i];
 		}
 		return;
@@ -67,7 +67,7 @@
 	function g_to_func(e) {
 		var func = g_to_text(e);
 		// if there's any manipulation we want to do to the function
-		// name before it's searched, do it here before returning.
+		// filterName before it's searched, do it here before returning.
 		return (func);
 	}
 	function update_text(e) {
@@ -358,7 +358,7 @@
 <text text-anchor="" x="890.15" y="1147.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (13 samples, 0.42%)</title><rect x="449.7" y="929" width="4.9" height="15.0" fill="rgb(67,215,67)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (13 samples, 0.42%)</title><rect x="449.7" y="929" width="4.9" height="15.0" fill="rgb(67,215,67)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -698,7 +698,7 @@
 <text text-anchor="" x="153.65" y="1131.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (7 samples, 0.22%)</title><rect x="450.5" y="705" width="2.6" height="15.0" fill="rgb(87,234,87)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (7 samples, 0.22%)</title><rect x="450.5" y="705" width="2.6" height="15.0" fill="rgb(87,234,87)" rx="2" ry="2" />
 <text text-anchor="" x="453.47" y="715.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -846,7 +846,7 @@
 <text text-anchor="" x="434.94" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Begin:::match (11 samples, 0.35%)</title><rect x="1022.1" y="977" width="4.2" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Begin:::match (11 samples, 0.35%)</title><rect x="1022.1" y="977" width="4.2" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
 <text text-anchor="" x="1025.13" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -878,7 +878,7 @@
 <text text-anchor="" x="1022.11" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (9 samples, 0.29%)</title><rect x="449.7" y="737" width="3.4" height="15.0" fill="rgb(94,241,94)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (9 samples, 0.29%)</title><rect x="449.7" y="737" width="3.4" height="15.0" fill="rgb(94,241,94)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="747.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -970,7 +970,7 @@
 <text text-anchor="" x="823.61" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="1022.9" y="561" width="2.6" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="1022.9" y="561" width="2.6" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="571.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1086,7 +1086,7 @@
 <text text-anchor="" x="1032.69" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Slice:::match (3 samples, 0.10%)</title><rect x="441.8" y="961" width="1.1" height="15.0" fill="rgb(83,230,83)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Slice:::match (3 samples, 0.10%)</title><rect x="441.8" y="961" width="1.1" height="15.0" fill="rgb(83,230,83)" rx="2" ry="2" />
 <text text-anchor="" x="444.77" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1114,11 +1114,11 @@
 <text text-anchor="" x="901.88" y="1083.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::sequence (3 samples, 0.10%)</title><rect x="439.1" y="977" width="1.2" height="15.0" fill="rgb(69,217,69)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::sequence (3 samples, 0.10%)</title><rect x="439.1" y="977" width="1.2" height="15.0" fill="rgb(69,217,69)" rx="2" ry="2" />
 <text text-anchor="" x="442.13" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (7 samples, 0.22%)</title><rect x="1022.9" y="657" width="2.6" height="15.0" fill="rgb(66,215,66)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (7 samples, 0.22%)</title><rect x="1022.9" y="657" width="2.6" height="15.0" fill="rgb(66,215,66)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="667.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1334,7 +1334,7 @@
 <text text-anchor="" x="574.45" y="859.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Node:::match (1 samples, 0.03%)</title><rect x="450.8" y="609" width="0.4" height="15.0" fill="rgb(64,212,64)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Node:::match (1 samples, 0.03%)</title><rect x="450.8" y="609" width="0.4" height="15.0" fill="rgb(64,212,64)" rx="2" ry="2" />
 <text text-anchor="" x="453.85" y="619.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1350,7 +1350,7 @@
 <text text-anchor="" x="223.21" y="395.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Prolog:::match (1 samples, 0.03%)</title><rect x="35.7" y="897" width="0.4" height="15.0" fill="rgb(54,204,54)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Prolog:::match (1 samples, 0.03%)</title><rect x="35.7" y="897" width="0.4" height="15.0" fill="rgb(54,204,54)" rx="2" ry="2" />
 <text text-anchor="" x="38.71" y="907.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1434,7 +1434,7 @@
 <text text-anchor="" x="535.13" y="571.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (9 samples, 0.29%)</title><rect x="1022.9" y="833" width="3.4" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (9 samples, 0.29%)</title><rect x="1022.9" y="833" width="3.4" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="843.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1490,7 +1490,7 @@
 <text text-anchor="" x="798.66" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="1022.5" y="881" width="3.8" height="15.0" fill="rgb(59,208,59)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="1022.5" y="881" width="3.8" height="15.0" fill="rgb(59,208,59)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="891.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1686,7 +1686,7 @@
 <text text-anchor="" x="52.70" y="1147.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >io/..</text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (15 samples, 0.48%)</title><rect x="449.7" y="961" width="5.7" height="15.0" fill="rgb(105,250,105)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (15 samples, 0.48%)</title><rect x="449.7" y="961" width="5.7" height="15.0" fill="rgb(105,250,105)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -1978,7 +1978,7 @@
 <text text-anchor="" x="859.15" y="571.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (3 samples, 0.10%)</title><rect x="451.6" y="497" width="1.1" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (3 samples, 0.10%)</title><rect x="451.6" y="497" width="1.1" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="507.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -2466,7 +2466,7 @@
 <text text-anchor="" x="1037.61" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Slice:::match (1 samples, 0.03%)</title><rect x="815.7" y="977" width="0.4" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Slice:::match (1 samples, 0.03%)</title><rect x="815.7" y="977" width="0.4" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
 <text text-anchor="" x="818.70" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -2586,7 +2586,7 @@
 <text text-anchor="" x="25.85" y="1339.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (3 samples, 0.10%)</title><rect x="451.6" y="529" width="1.1" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (3 samples, 0.10%)</title><rect x="451.6" y="529" width="1.1" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="539.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -2838,7 +2838,7 @@
 <text text-anchor="" x="479.18" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >or..</text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="449.7" y="913" width="3.8" height="15.0" fill="rgb(73,221,73)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="449.7" y="913" width="3.8" height="15.0" fill="rgb(73,221,73)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -2974,7 +2974,7 @@
 <text text-anchor="" x="563.11" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Begin:::match (1 samples, 0.03%)</title><rect x="460.7" y="1009" width="0.4" height="15.0" fill="rgb(105,250,105)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Begin:::match (1 samples, 0.03%)</title><rect x="460.7" y="1009" width="0.4" height="15.0" fill="rgb(105,250,105)" rx="2" ry="2" />
 <text text-anchor="" x="463.68" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3022,7 +3022,7 @@
 <text text-anchor="" x="79.16" y="523.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="35.7" y="929" width="0.4" height="15.0" fill="rgb(72,220,72)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="35.7" y="929" width="0.4" height="15.0" fill="rgb(72,220,72)" rx="2" ry="2" />
 <text text-anchor="" x="38.71" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3318,7 +3318,7 @@
 <text text-anchor="" x="480.69" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (6 samples, 0.19%)</title><rect x="450.8" y="641" width="2.3" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (6 samples, 0.19%)</title><rect x="450.8" y="641" width="2.3" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
 <text text-anchor="" x="453.85" y="651.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3358,7 +3358,7 @@
 <text text-anchor="" x="740.81" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (3 samples, 0.10%)</title><rect x="451.6" y="577" width="1.1" height="15.0" fill="rgb(93,239,93)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (3 samples, 0.10%)</title><rect x="451.6" y="577" width="1.1" height="15.0" fill="rgb(93,239,93)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="587.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3386,7 +3386,7 @@
 <text text-anchor="" x="1174.10" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Begin:::match (16 samples, 0.51%)</title><rect x="449.7" y="977" width="6.1" height="15.0" fill="rgb(52,202,52)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Begin:::match (16 samples, 0.51%)</title><rect x="449.7" y="977" width="6.1" height="15.0" fill="rgb(52,202,52)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3550,7 +3550,7 @@
 <text text-anchor="" x="502.62" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Single:::isSatisfiedBy (1 samples, 0.03%)</title><rect x="1025.9" y="817" width="0.4" height="15.0" fill="rgb(82,230,82)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Single:::isSatisfiedBy (1 samples, 0.03%)</title><rect x="1025.9" y="817" width="0.4" height="15.0" fill="rgb(82,230,82)" rx="2" ry="2" />
 <text text-anchor="" x="1028.91" y="827.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3586,7 +3586,7 @@
 <text text-anchor="" x="65.93" y="763.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (9 samples, 0.29%)</title><rect x="449.7" y="753" width="3.4" height="15.0" fill="rgb(56,205,56)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (9 samples, 0.29%)</title><rect x="449.7" y="753" width="3.4" height="15.0" fill="rgb(56,205,56)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="763.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3618,7 +3618,7 @@
 <text text-anchor="" x="222.46" y="507.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="440.3" y="977" width="2.6" height="15.0" fill="rgb(100,246,100)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="440.3" y="977" width="2.6" height="15.0" fill="rgb(100,246,100)" rx="2" ry="2" />
 <text text-anchor="" x="443.26" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3774,7 +3774,7 @@
 <text text-anchor="" x="372.18" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::compile (3 samples, 0.10%)</title><rect x="1017.2" y="993" width="1.1" height="15.0" fill="rgb(90,236,90)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::compile (3 samples, 0.10%)</title><rect x="1017.2" y="993" width="1.1" height="15.0" fill="rgb(90,236,90)" rx="2" ry="2" />
 <text text-anchor="" x="1020.22" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -3810,7 +3810,7 @@
 <text text-anchor="" x="79.16" y="555.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="35.7" y="945" width="0.4" height="15.0" fill="rgb(77,225,77)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="35.7" y="945" width="0.4" height="15.0" fill="rgb(77,225,77)" rx="2" ry="2" />
 <text text-anchor="" x="38.71" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -4082,7 +4082,7 @@
 <text text-anchor="" x="979.00" y="1083.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Curly:::match0 (2 samples, 0.06%)</title><rect x="451.6" y="433" width="0.8" height="15.0" fill="rgb(87,234,87)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Curly:::match0 (2 samples, 0.06%)</title><rect x="451.6" y="433" width="0.8" height="15.0" fill="rgb(87,234,87)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="443.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -4258,7 +4258,7 @@
 <text text-anchor="" x="966.91" y="715.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (5 samples, 0.16%)</title><rect x="1018.3" y="993" width="1.9" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (5 samples, 0.16%)</title><rect x="1018.3" y="993" width="1.9" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
 <text text-anchor="" x="1021.35" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -4402,7 +4402,7 @@
 <text text-anchor="" x="809.24" y="1163.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Curly:::match (2 samples, 0.06%)</title><rect x="451.6" y="449" width="0.8" height="15.0" fill="rgb(87,234,87)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Curly:::match (2 samples, 0.06%)</title><rect x="451.6" y="449" width="0.8" height="15.0" fill="rgb(87,234,87)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="459.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -4566,7 +4566,7 @@
 <text text-anchor="" x="371.42" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (10 samples, 0.32%)</title><rect x="1022.5" y="849" width="3.8" height="15.0" fill="rgb(52,202,52)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (10 samples, 0.32%)</title><rect x="1022.5" y="849" width="3.8" height="15.0" fill="rgb(52,202,52)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="859.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -4782,7 +4782,7 @@
 <text text-anchor="" x="1127.21" y="1067.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Begin:::match (2 samples, 0.06%)</title><rect x="814.6" y="977" width="0.7" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Begin:::match (2 samples, 0.06%)</title><rect x="814.6" y="977" width="0.7" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
 <text text-anchor="" x="817.56" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -4842,11 +4842,11 @@
 <text text-anchor="" x="875.79" y="1067.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Prolog:::match (1 samples, 0.03%)</title><rect x="814.9" y="897" width="0.4" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Prolog:::match (1 samples, 0.03%)</title><rect x="814.9" y="897" width="0.4" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="907.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (9 samples, 0.29%)</title><rect x="449.7" y="801" width="3.4" height="15.0" fill="rgb(91,238,91)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (9 samples, 0.29%)</title><rect x="449.7" y="801" width="3.4" height="15.0" fill="rgb(91,238,91)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5002,7 +5002,7 @@
 <text text-anchor="" x="87.10" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Curly:::match0 (1 samples, 0.03%)</title><rect x="1023.6" y="433" width="0.4" height="15.0" fill="rgb(78,226,78)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Curly:::match0 (1 samples, 0.03%)</title><rect x="1023.6" y="433" width="0.4" height="15.0" fill="rgb(78,226,78)" rx="2" ry="2" />
 <text text-anchor="" x="1026.64" y="443.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5210,7 +5210,7 @@
 <text text-anchor="" x="785.43" y="1099.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (10 samples, 0.32%)</title><rect x="449.7" y="865" width="3.8" height="15.0" fill="rgb(72,220,72)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (10 samples, 0.32%)</title><rect x="449.7" y="865" width="3.8" height="15.0" fill="rgb(72,220,72)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="875.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5238,7 +5238,7 @@
 <text text-anchor="" x="540.43" y="523.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="814.9" y="881" width="0.4" height="15.0" fill="rgb(78,226,78)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="814.9" y="881" width="0.4" height="15.0" fill="rgb(78,226,78)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="891.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5282,7 +5282,7 @@
 <text text-anchor="" x="988.46" y="1131.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >io/netty/chann..</text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="450.5" y="721" width="2.6" height="15.0" fill="rgb(63,212,63)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="450.5" y="721" width="2.6" height="15.0" fill="rgb(63,212,63)" rx="2" ry="2" />
 <text text-anchor="" x="453.47" y="731.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5450,7 +5450,7 @@
 <text text-anchor="" x="549.50" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Dollar:::match (1 samples, 0.03%)</title><rect x="1024.0" y="433" width="0.4" height="15.0" fill="rgb(76,224,76)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Dollar:::match (1 samples, 0.03%)</title><rect x="1024.0" y="433" width="0.4" height="15.0" fill="rgb(76,224,76)" rx="2" ry="2" />
 <text text-anchor="" x="1027.02" y="443.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5546,7 +5546,7 @@
 <text text-anchor="" x="591.85" y="1099.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="1022.9" y="785" width="2.6" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="1022.9" y="785" width="2.6" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="795.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5666,7 +5666,7 @@
 <text text-anchor="" x="34.55" y="1291.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (1 samples, 0.03%)</title><rect x="35.7" y="913" width="0.4" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (1 samples, 0.03%)</title><rect x="35.7" y="913" width="0.4" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
 <text text-anchor="" x="38.71" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5678,7 +5678,7 @@
 <text text-anchor="" x="77.65" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (7 samples, 0.22%)</title><rect x="1022.9" y="769" width="2.6" height="15.0" fill="rgb(85,232,85)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (7 samples, 0.22%)</title><rect x="1022.9" y="769" width="2.6" height="15.0" fill="rgb(85,232,85)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="779.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5686,7 +5686,7 @@
 <text text-anchor="" x="971.82" y="475.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Curly:::match (1 samples, 0.03%)</title><rect x="452.4" y="465" width="0.3" height="15.0" fill="rgb(93,240,93)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Curly:::match (1 samples, 0.03%)</title><rect x="452.4" y="465" width="0.3" height="15.0" fill="rgb(93,240,93)" rx="2" ry="2" />
 <text text-anchor="" x="455.36" y="475.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5694,7 +5694,7 @@
 <text text-anchor="" x="347.98" y="907.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (5 samples, 0.16%)</title><rect x="450.8" y="625" width="1.9" height="15.0" fill="rgb(86,233,86)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (5 samples, 0.16%)</title><rect x="450.8" y="625" width="1.9" height="15.0" fill="rgb(86,233,86)" rx="2" ry="2" />
 <text text-anchor="" x="453.85" y="635.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -5982,7 +5982,7 @@
 <text text-anchor="" x="752.91" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (10 samples, 0.32%)</title><rect x="449.7" y="817" width="3.8" height="15.0" fill="rgb(72,221,72)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (10 samples, 0.32%)</title><rect x="449.7" y="817" width="3.8" height="15.0" fill="rgb(72,221,72)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="827.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -6062,7 +6062,7 @@
 <text text-anchor="" x="530.98" y="667.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (1 samples, 0.03%)</title><rect x="453.1" y="801" width="0.4" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (1 samples, 0.03%)</title><rect x="453.1" y="801" width="0.4" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
 <text text-anchor="" x="456.11" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -6086,7 +6086,7 @@
 <text text-anchor="" x="827.01" y="667.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::sequence (2 samples, 0.06%)</title><rect x="1017.6" y="977" width="0.7" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::sequence (2 samples, 0.06%)</title><rect x="1017.6" y="977" width="0.7" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
 <text text-anchor="" x="1020.59" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -6370,7 +6370,7 @@
 <text text-anchor="" x="990.35" y="1067.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (3 samples, 0.10%)</title><rect x="451.6" y="513" width="1.1" height="15.0" fill="rgb(57,206,57)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (3 samples, 0.10%)</title><rect x="451.6" y="513" width="1.1" height="15.0" fill="rgb(57,206,57)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="523.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -6450,7 +6450,7 @@
 <text text-anchor="" x="608.48" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Slice:::match (1 samples, 0.03%)</title><rect x="452.7" y="625" width="0.4" height="15.0" fill="rgb(55,205,55)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Slice:::match (1 samples, 0.03%)</title><rect x="452.7" y="625" width="0.4" height="15.0" fill="rgb(55,205,55)" rx="2" ry="2" />
 <text text-anchor="" x="455.74" y="635.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -6542,7 +6542,7 @@
 <text text-anchor="" x="342.69" y="619.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="814.9" y="913" width="0.4" height="15.0" fill="rgb(100,246,100)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="814.9" y="913" width="0.4" height="15.0" fill="rgb(100,246,100)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -6630,7 +6630,7 @@
 <text text-anchor="" x="923.43" y="731.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (1 samples, 0.03%)</title><rect x="814.9" y="849" width="0.4" height="15.0" fill="rgb(86,233,86)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (1 samples, 0.03%)</title><rect x="814.9" y="849" width="0.4" height="15.0" fill="rgb(86,233,86)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="859.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -7450,7 +7450,7 @@
 <text text-anchor="" x="343.07" y="539.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::atom (3 samples, 0.10%)</title><rect x="439.1" y="961" width="1.2" height="15.0" fill="rgb(53,203,53)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::atom (3 samples, 0.10%)</title><rect x="439.1" y="961" width="1.2" height="15.0" fill="rgb(53,203,53)" rx="2" ry="2" />
 <text text-anchor="" x="442.13" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -7686,7 +7686,7 @@
 <text text-anchor="" x="850.46" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (4 samples, 0.13%)</title><rect x="451.2" y="609" width="1.5" height="15.0" fill="rgb(68,217,68)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (4 samples, 0.13%)</title><rect x="451.2" y="609" width="1.5" height="15.0" fill="rgb(68,217,68)" rx="2" ry="2" />
 <text text-anchor="" x="454.22" y="619.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -7702,7 +7702,7 @@
 <text text-anchor="" x="754.42" y="1067.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (6 samples, 0.19%)</title><rect x="1023.3" y="481" width="2.2" height="15.0" fill="rgb(100,245,100)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (6 samples, 0.19%)</title><rect x="1023.3" y="481" width="2.2" height="15.0" fill="rgb(100,245,100)" rx="2" ry="2" />
 <text text-anchor="" x="1026.26" y="491.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -7762,7 +7762,7 @@
 <text text-anchor="" x="906.41" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (3 samples, 0.10%)</title><rect x="451.6" y="561" width="1.1" height="15.0" fill="rgb(104,249,104)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (3 samples, 0.10%)</title><rect x="451.6" y="561" width="1.1" height="15.0" fill="rgb(104,249,104)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="571.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -7862,7 +7862,7 @@
 <text text-anchor="" x="346.47" y="827.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BnM:::optimize (3 samples, 0.10%)</title><rect x="437.6" y="977" width="1.1" height="15.0" fill="rgb(99,245,99)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BnM:::optimize (3 samples, 0.10%)</title><rect x="437.6" y="977" width="1.1" height="15.0" fill="rgb(99,245,99)" rx="2" ry="2" />
 <text text-anchor="" x="440.61" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -8082,7 +8082,7 @@
 <text text-anchor="" x="332.10" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (1 samples, 0.03%)</title><rect x="814.9" y="865" width="0.4" height="15.0" fill="rgb(83,230,83)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (1 samples, 0.03%)</title><rect x="814.9" y="865" width="0.4" height="15.0" fill="rgb(83,230,83)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="875.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -8254,7 +8254,7 @@
 <text text-anchor="" x="1024.37" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="609" width="2.6" height="15.0" fill="rgb(89,235,89)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="609" width="2.6" height="15.0" fill="rgb(89,235,89)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="619.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -8318,7 +8318,7 @@
 <text text-anchor="" x="975.60" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Begin:::match (1 samples, 0.03%)</title><rect x="35.7" y="961" width="0.4" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Begin:::match (1 samples, 0.03%)</title><rect x="35.7" y="961" width="0.4" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
 <text text-anchor="" x="38.71" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -8646,7 +8646,7 @@
 <text text-anchor="" x="807.73" y="1147.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (2 samples, 0.06%)</title><rect x="451.6" y="465" width="0.8" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (2 samples, 0.06%)</title><rect x="451.6" y="465" width="0.8" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="475.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -8850,11 +8850,11 @@
 <text text-anchor="" x="1043.66" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="440.3" y="993" width="3.7" height="15.0" fill="rgb(76,224,76)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="440.3" y="993" width="3.7" height="15.0" fill="rgb(76,224,76)" rx="2" ry="2" />
 <text text-anchor="" x="443.26" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (1 samples, 0.03%)</title><rect x="814.9" y="929" width="0.4" height="15.0" fill="rgb(107,252,107)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (1 samples, 0.03%)</title><rect x="814.9" y="929" width="0.4" height="15.0" fill="rgb(107,252,107)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -8914,7 +8914,7 @@
 <text text-anchor="" x="804.33" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="815.3" y="977" width="0.4" height="15.0" fill="rgb(93,239,93)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="815.3" y="977" width="0.4" height="15.0" fill="rgb(93,239,93)" rx="2" ry="2" />
 <text text-anchor="" x="818.32" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -8942,7 +8942,7 @@
 <text text-anchor="" x="67.07" y="683.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="1022.9" y="801" width="2.6" height="15.0" fill="rgb(57,206,57)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="1022.9" y="801" width="2.6" height="15.0" fill="rgb(57,206,57)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -9230,11 +9230,11 @@
 <text text-anchor="" x="1059.91" y="875.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (6 samples, 0.19%)</title><rect x="1023.3" y="497" width="2.2" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (6 samples, 0.19%)</title><rect x="1023.3" y="497" width="2.2" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
 <text text-anchor="" x="1026.26" y="507.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (9 samples, 0.29%)</title><rect x="449.7" y="769" width="3.4" height="15.0" fill="rgb(70,219,70)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (9 samples, 0.29%)</title><rect x="449.7" y="769" width="3.4" height="15.0" fill="rgb(70,219,70)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="779.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -9662,7 +9662,7 @@
 <text text-anchor="" x="620.58" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="1022.9" y="545" width="2.6" height="15.0" fill="rgb(104,250,104)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="1022.9" y="545" width="2.6" height="15.0" fill="rgb(104,250,104)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="555.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -9734,7 +9734,7 @@
 <text text-anchor="" x="476.53" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (6 samples, 0.19%)</title><rect x="1023.3" y="513" width="2.2" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (6 samples, 0.19%)</title><rect x="1023.3" y="513" width="2.2" height="15.0" fill="rgb(70,218,70)" rx="2" ry="2" />
 <text text-anchor="" x="1026.26" y="523.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -10470,7 +10470,7 @@
 <text text-anchor="" x="480.69" y="907.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (10 samples, 0.32%)</title><rect x="449.7" y="833" width="3.8" height="15.0" fill="rgb(53,203,53)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (10 samples, 0.32%)</title><rect x="449.7" y="833" width="3.8" height="15.0" fill="rgb(53,203,53)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="843.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -10494,7 +10494,7 @@
 <text text-anchor="" x="596.76" y="1131.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (8 samples, 0.26%)</title><rect x="1022.9" y="817" width="3.0" height="15.0" fill="rgb(92,239,92)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (8 samples, 0.26%)</title><rect x="1022.9" y="817" width="3.0" height="15.0" fill="rgb(92,239,92)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="827.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -10622,7 +10622,7 @@
 <text text-anchor="" x="55.72" y="1051.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::atom (2 samples, 0.06%)</title><rect x="1017.6" y="961" width="0.7" height="15.0" fill="rgb(68,217,68)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::atom (2 samples, 0.06%)</title><rect x="1017.6" y="961" width="0.7" height="15.0" fill="rgb(68,217,68)" rx="2" ry="2" />
 <text text-anchor="" x="1020.59" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -10702,7 +10702,7 @@
 <text text-anchor="" x="87.48" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Slice:::match (2 samples, 0.06%)</title><rect x="1018.3" y="977" width="0.8" height="15.0" fill="rgb(55,204,55)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Slice:::match (2 samples, 0.06%)</title><rect x="1018.3" y="977" width="0.8" height="15.0" fill="rgb(55,204,55)" rx="2" ry="2" />
 <text text-anchor="" x="1021.35" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -10738,7 +10738,7 @@
 <text text-anchor="" x="155.16" y="1147.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (9 samples, 0.29%)</title><rect x="449.7" y="785" width="3.4" height="15.0" fill="rgb(85,232,85)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (9 samples, 0.29%)</title><rect x="449.7" y="785" width="3.4" height="15.0" fill="rgb(85,232,85)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="795.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -10790,7 +10790,7 @@
 <text text-anchor="" x="1086.00" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="1022.9" y="673" width="2.6" height="15.0" fill="rgb(102,248,102)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="1022.9" y="673" width="2.6" height="15.0" fill="rgb(102,248,102)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="683.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -10962,7 +10962,7 @@
 <text text-anchor="" x="1089.03" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (7 samples, 0.22%)</title><rect x="450.5" y="657" width="2.6" height="15.0" fill="rgb(66,215,66)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (7 samples, 0.22%)</title><rect x="450.5" y="657" width="2.6" height="15.0" fill="rgb(66,215,66)" rx="2" ry="2" />
 <text text-anchor="" x="453.47" y="667.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11154,7 +11154,7 @@
 <text text-anchor="" x="261.78" y="1083.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="625" width="2.6" height="15.0" fill="rgb(108,253,108)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="625" width="2.6" height="15.0" fill="rgb(108,253,108)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="635.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11182,7 +11182,7 @@
 <text text-anchor="" x="218.30" y="731.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (3 samples, 0.10%)</title><rect x="451.6" y="481" width="1.1" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (3 samples, 0.10%)</title><rect x="451.6" y="481" width="1.1" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="491.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11214,7 +11214,7 @@
 <text text-anchor="" x="824.75" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="1022.9" y="577" width="2.6" height="15.0" fill="rgb(74,222,74)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="1022.9" y="577" width="2.6" height="15.0" fill="rgb(74,222,74)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="587.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11286,7 +11286,7 @@
 <text text-anchor="" x="1069.37" y="843.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Curly:::match (3 samples, 0.10%)</title><rect x="1023.3" y="449" width="1.1" height="15.0" fill="rgb(63,212,63)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Curly:::match (3 samples, 0.10%)</title><rect x="1023.3" y="449" width="1.1" height="15.0" fill="rgb(63,212,63)" rx="2" ry="2" />
 <text text-anchor="" x="1026.26" y="459.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11342,7 +11342,7 @@
 <text text-anchor="" x="371.05" y="827.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="721" width="2.6" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="721" width="2.6" height="15.0" fill="rgb(98,244,98)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="731.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11410,7 +11410,7 @@
 <text text-anchor="" x="811.14" y="491.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BnM:::match (1 samples, 0.03%)</title><rect x="461.1" y="1009" width="0.3" height="15.0" fill="rgb(78,226,78)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BnM:::match (1 samples, 0.03%)</title><rect x="461.1" y="1009" width="0.3" height="15.0" fill="rgb(78,226,78)" rx="2" ry="2" />
 <text text-anchor="" x="464.05" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11570,7 +11570,7 @@
 <text text-anchor="" x="921.54" y="875.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (7 samples, 0.22%)</title><rect x="1022.9" y="593" width="2.6" height="15.0" fill="rgb(58,208,58)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (7 samples, 0.22%)</title><rect x="1022.9" y="593" width="2.6" height="15.0" fill="rgb(58,208,58)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="603.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11682,7 +11682,7 @@
 <text text-anchor="" x="967.28" y="715.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="450.1" y="721" width="0.4" height="15.0" fill="rgb(90,237,90)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="450.1" y="721" width="0.4" height="15.0" fill="rgb(90,237,90)" rx="2" ry="2" />
 <text text-anchor="" x="453.09" y="731.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11786,7 +11786,7 @@
 <text text-anchor="" x="337.77" y="747.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="814.9" y="945" width="0.4" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="814.9" y="945" width="0.4" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11914,7 +11914,7 @@
 <text text-anchor="" x="1029.67" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="1022.5" y="913" width="3.8" height="15.0" fill="rgb(60,210,60)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="1022.5" y="913" width="3.8" height="15.0" fill="rgb(60,210,60)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -11958,7 +11958,7 @@
 <text text-anchor="" x="22.83" y="1355.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::RemoveQEQuoting (1 samples, 0.03%)</title><rect x="438.7" y="977" width="0.4" height="15.0" fill="rgb(81,229,81)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::RemoveQEQuoting (1 samples, 0.03%)</title><rect x="438.7" y="977" width="0.4" height="15.0" fill="rgb(81,229,81)" rx="2" ry="2" />
 <text text-anchor="" x="441.75" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12030,7 +12030,7 @@
 <text text-anchor="" x="969.17" y="667.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (10 samples, 0.32%)</title><rect x="1022.5" y="945" width="3.8" height="15.0" fill="rgb(70,219,70)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (10 samples, 0.32%)</title><rect x="1022.5" y="945" width="3.8" height="15.0" fill="rgb(70,219,70)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12190,7 +12190,7 @@
 <text text-anchor="" x="508.67" y="891.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (3 samples, 0.10%)</title><rect x="1023.3" y="465" width="1.1" height="15.0" fill="rgb(62,211,62)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (3 samples, 0.10%)</title><rect x="1023.3" y="465" width="1.1" height="15.0" fill="rgb(62,211,62)" rx="2" ry="2" />
 <text text-anchor="" x="1026.26" y="475.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12226,7 +12226,7 @@
 <text text-anchor="" x="777.86" y="1099.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (3 samples, 0.10%)</title><rect x="451.6" y="593" width="1.1" height="15.0" fill="rgb(83,230,83)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (3 samples, 0.10%)</title><rect x="451.6" y="593" width="1.1" height="15.0" fill="rgb(83,230,83)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="603.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12246,7 +12246,7 @@
 <text text-anchor="" x="784.29" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (1 samples, 0.03%)</title><rect x="454.6" y="945" width="0.4" height="15.0" fill="rgb(95,241,95)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (1 samples, 0.03%)</title><rect x="454.6" y="945" width="0.4" height="15.0" fill="rgb(95,241,95)" rx="2" ry="2" />
 <text text-anchor="" x="457.63" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12390,7 +12390,7 @@
 <text text-anchor="" x="815.67" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Prolog:::match (10 samples, 0.32%)</title><rect x="1022.5" y="897" width="3.8" height="15.0" fill="rgb(91,237,91)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Prolog:::match (10 samples, 0.32%)</title><rect x="1022.5" y="897" width="3.8" height="15.0" fill="rgb(91,237,91)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="907.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12402,7 +12402,7 @@
 <text text-anchor="" x="127.18" y="1147.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (13 samples, 0.42%)</title><rect x="449.7" y="945" width="4.9" height="15.0" fill="rgb(95,241,95)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (13 samples, 0.42%)</title><rect x="449.7" y="945" width="4.9" height="15.0" fill="rgb(95,241,95)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12670,7 +12670,7 @@
 <text text-anchor="" x="798.66" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="814.9" y="961" width="0.4" height="15.0" fill="rgb(61,210,61)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="814.9" y="961" width="0.4" height="15.0" fill="rgb(61,210,61)" rx="2" ry="2" />
 <text text-anchor="" x="817.94" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12726,7 +12726,7 @@
 <text text-anchor="" x="1075.04" y="555.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (10 samples, 0.32%)</title><rect x="1022.5" y="865" width="3.8" height="15.0" fill="rgb(87,233,87)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (10 samples, 0.32%)</title><rect x="1022.5" y="865" width="3.8" height="15.0" fill="rgb(87,233,87)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="875.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -12974,7 +12974,7 @@
 <text text-anchor="" x="1029.29" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="737" width="2.6" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="737" width="2.6" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="747.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13070,7 +13070,7 @@
 <text text-anchor="" x="839.11" y="1067.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (10 samples, 0.32%)</title><rect x="1022.5" y="929" width="3.8" height="15.0" fill="rgb(50,200,50)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (10 samples, 0.32%)</title><rect x="1022.5" y="929" width="3.8" height="15.0" fill="rgb(50,200,50)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13090,7 +13090,7 @@
 <text text-anchor="" x="610.75" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Curly:::match (3 samples, 0.10%)</title><rect x="1024.4" y="465" width="1.1" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Curly:::match (3 samples, 0.10%)</title><rect x="1024.4" y="465" width="1.1" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
 <text text-anchor="" x="1027.40" y="475.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13342,7 +13342,7 @@
 <text text-anchor="" x="1074.66" y="603.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="529" width="2.6" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (7 samples, 0.22%)</title><rect x="1022.9" y="529" width="2.6" height="15.0" fill="rgb(88,235,88)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="539.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13390,7 +13390,7 @@
 <text text-anchor="" x="813.03" y="1051.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="1022.9" y="753" width="2.6" height="15.0" fill="rgb(55,205,55)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="1022.9" y="753" width="2.6" height="15.0" fill="rgb(55,205,55)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="763.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13518,7 +13518,7 @@
 <text text-anchor="" x="68.96" y="651.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Begin:::match (1 samples, 0.03%)</title><rect x="815.7" y="993" width="0.4" height="15.0" fill="rgb(75,223,75)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Begin:::match (1 samples, 0.03%)</title><rect x="815.7" y="993" width="0.4" height="15.0" fill="rgb(75,223,75)" rx="2" ry="2" />
 <text text-anchor="" x="818.70" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13566,7 +13566,7 @@
 <text text-anchor="" x="368.78" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Node:::match (1 samples, 0.03%)</title><rect x="1023.6" y="417" width="0.4" height="15.0" fill="rgb(54,204,54)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Node:::match (1 samples, 0.03%)</title><rect x="1023.6" y="417" width="0.4" height="15.0" fill="rgb(54,204,54)" rx="2" ry="2" />
 <text text-anchor="" x="1026.64" y="427.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13602,7 +13602,7 @@
 <text text-anchor="" x="852.35" y="1051.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="813.8" y="993" width="0.4" height="15.0" fill="rgb(65,213,65)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="813.8" y="993" width="0.4" height="15.0" fill="rgb(65,213,65)" rx="2" ry="2" />
 <text text-anchor="" x="816.81" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13842,7 +13842,7 @@
 <text text-anchor="" x="1064.45" y="955.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="449.7" y="881" width="3.8" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="449.7" y="881" width="3.8" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="891.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13894,7 +13894,7 @@
 <text text-anchor="" x="910.95" y="731.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (3 samples, 0.10%)</title><rect x="451.6" y="545" width="1.1" height="15.0" fill="rgb(92,238,92)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (3 samples, 0.10%)</title><rect x="451.6" y="545" width="1.1" height="15.0" fill="rgb(92,238,92)" rx="2" ry="2" />
 <text text-anchor="" x="454.60" y="555.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -13998,7 +13998,7 @@
 <text text-anchor="" x="1024.37" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Prolog:::match (10 samples, 0.32%)</title><rect x="449.7" y="897" width="3.8" height="15.0" fill="rgb(106,252,106)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Prolog:::match (10 samples, 0.32%)</title><rect x="449.7" y="897" width="3.8" height="15.0" fill="rgb(106,252,106)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="907.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -14318,11 +14318,11 @@
 <text text-anchor="" x="831.55" y="1067.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Slice:::match (1 samples, 0.03%)</title><rect x="442.9" y="977" width="0.4" height="15.0" fill="rgb(77,224,77)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Slice:::match (1 samples, 0.03%)</title><rect x="442.9" y="977" width="0.4" height="15.0" fill="rgb(77,224,77)" rx="2" ry="2" />
 <text text-anchor="" x="445.91" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Ques:::match (10 samples, 0.32%)</title><rect x="449.7" y="849" width="3.8" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Ques:::match (10 samples, 0.32%)</title><rect x="449.7" y="849" width="3.8" height="15.0" fill="rgb(96,242,96)" rx="2" ry="2" />
 <text text-anchor="" x="452.71" y="859.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -14746,7 +14746,7 @@
 <text text-anchor="" x="910.19" y="763.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="455.8" y="977" width="0.3" height="15.0" fill="rgb(79,227,79)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (1 samples, 0.03%)</title><rect x="455.8" y="977" width="0.3" height="15.0" fill="rgb(79,227,79)" rx="2" ry="2" />
 <text text-anchor="" x="458.76" y="987.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -14906,7 +14906,7 @@
 <text text-anchor="" x="528.33" y="875.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Prolog:::match (3 samples, 0.10%)</title><rect x="453.5" y="913" width="1.1" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Prolog:::match (3 samples, 0.10%)</title><rect x="453.5" y="913" width="1.1" height="15.0" fill="rgb(106,251,106)" rx="2" ry="2" />
 <text text-anchor="" x="456.49" y="923.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15002,7 +15002,7 @@
 <text text-anchor="" x="62.53" y="859.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="1022.9" y="641" width="2.6" height="15.0" fill="rgb(86,233,86)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Branch:::match (7 samples, 0.22%)</title><rect x="1022.9" y="641" width="2.6" height="15.0" fill="rgb(86,233,86)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="651.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15090,7 +15090,7 @@
 <text text-anchor="" x="837.60" y="1035.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::RemoveQEQuoting (1 samples, 0.03%)</title><rect x="437.2" y="993" width="0.4" height="15.0" fill="rgb(53,203,53)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::RemoveQEQuoting (1 samples, 0.03%)</title><rect x="437.2" y="993" width="0.4" height="15.0" fill="rgb(53,203,53)" rx="2" ry="2" />
 <text text-anchor="" x="440.23" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15206,7 +15206,7 @@
 <text text-anchor="" x="1070.50" y="683.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="1022.1" y="961" width="0.4" height="15.0" fill="rgb(83,231,83)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="1022.1" y="961" width="0.4" height="15.0" fill="rgb(83,231,83)" rx="2" ry="2" />
 <text text-anchor="" x="1025.13" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15246,7 +15246,7 @@
 <text text-anchor="" x="926.45" y="587.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="1022.9" y="689" width="2.6" height="15.0" fill="rgb(106,252,106)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="1022.9" y="689" width="2.6" height="15.0" fill="rgb(106,252,106)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="699.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15286,7 +15286,7 @@
 <text text-anchor="" x="366.13" y="1051.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (7 samples, 0.22%)</title><rect x="1022.9" y="705" width="2.6" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (7 samples, 0.22%)</title><rect x="1022.9" y="705" width="2.6" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
 <text text-anchor="" x="1025.89" y="715.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15406,7 +15406,7 @@
 <text text-anchor="" x="606.59" y="1019.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="450.5" y="673" width="2.6" height="15.0" fill="rgb(107,252,107)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (7 samples, 0.22%)</title><rect x="450.5" y="673" width="2.6" height="15.0" fill="rgb(107,252,107)" rx="2" ry="2" />
 <text text-anchor="" x="453.47" y="683.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15538,7 +15538,7 @@
 <text text-anchor="" x="500.73" y="939.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="1022.5" y="961" width="3.8" height="15.0" fill="rgb(79,227,79)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupHead:::match (10 samples, 0.32%)</title><rect x="1022.5" y="961" width="3.8" height="15.0" fill="rgb(79,227,79)" rx="2" ry="2" />
 <text text-anchor="" x="1025.51" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -15778,7 +15778,7 @@
 <text text-anchor="" x="315.09" y="1067.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="450.5" y="689" width="2.6" height="15.0" fill="rgb(82,229,82)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$GroupTail:::match (7 samples, 0.22%)</title><rect x="450.5" y="689" width="2.6" height="15.0" fill="rgb(82,229,82)" rx="2" ry="2" />
 <text text-anchor="" x="453.47" y="699.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -16026,7 +16026,7 @@
 <text text-anchor="" x="893.18" y="843.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="814.6" y="961" width="0.3" height="15.0" fill="rgb(88,234,88)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$BmpCharProperty:::match (1 samples, 0.03%)</title><rect x="814.6" y="961" width="0.3" height="15.0" fill="rgb(88,234,88)" rx="2" ry="2" />
 <text text-anchor="" x="817.56" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -16098,7 +16098,7 @@
 <text text-anchor="" x="214.90" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern:::compile (7 samples, 0.22%)</title><rect x="437.6" y="993" width="2.7" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern:::compile (7 samples, 0.22%)</title><rect x="437.6" y="993" width="2.7" height="15.0" fill="rgb(51,201,51)" rx="2" ry="2" />
 <text text-anchor="" x="440.61" y="1003.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
@@ -16166,7 +16166,7 @@
 <text text-anchor="" x="142.68" y="971.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">
-<title>java/util/regex/Pattern$Loop:::match (1 samples, 0.03%)</title><rect x="1025.5" y="801" width="0.4" height="15.0" fill="rgb(82,229,82)" rx="2" ry="2" />
+<title>java/util/filterName/Pattern$Loop:::match (1 samples, 0.03%)</title><rect x="1025.5" y="801" width="0.4" height="15.0" fill="rgb(82,229,82)" rx="2" ry="2" />
 <text text-anchor="" x="1028.53" y="811.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
 </g>
 <g class="func_g" onmouseover="s(this)" onmouseout="c()" onclick="zoom(this)">

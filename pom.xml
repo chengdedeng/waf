@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.8.RELEASE</version>
+        <version>1.5.14.RELEASE</version>
         <relativePath/>
     </parent>
 
@@ -65,11 +65,6 @@
             <groupId>net.lightbody.bmp</groupId>
             <artifactId>mitm</artifactId>
             <version>2.1.4</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

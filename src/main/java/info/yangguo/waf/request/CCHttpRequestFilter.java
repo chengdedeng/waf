@@ -3,7 +3,7 @@ package info.yangguo.waf.request;
 import com.google.common.cache.*;
 import com.google.common.util.concurrent.RateLimiter;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpObject;
@@ -11,7 +11,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -49,7 +49,7 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, Set<RequestConfig.Rule> rules) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             String realIp = Constant.getRealIp((DefaultHttpRequest) httpObject, channelHandlerContext);

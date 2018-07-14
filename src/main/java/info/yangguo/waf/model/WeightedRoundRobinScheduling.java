@@ -20,15 +20,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class WeightedRoundRobinScheduling {
     @Getter
     @Setter
-    private Boolean isStart;//host对应的upstream是否开启
+    private BasicConfig basicConfig;//host对应的upstream是否开启
     private int currentIndex = -1;// 上一次选择的服务器
     private int currentWeight = 0;// 当前调度的权值
     @Getter
-    private CopyOnWriteArrayList<Server> healthilyServers = new CopyOnWriteArrayList(); //健康服务器集合
+    private CopyOnWriteArrayList<ServerConfig> healthilyServerConfigs = new CopyOnWriteArrayList(); //健康服务器集合
     @Getter
-    private CopyOnWriteArrayList<Server> unhealthilyServers = new CopyOnWriteArrayList<>(); //不健康服务器集合
+    private CopyOnWriteArrayList<ServerConfig> unhealthilyServerConfigs = new CopyOnWriteArrayList<>(); //不健康服务器集合
     @Getter
-    private Map<String, Server> serversMap = new HashMap<>();
+    private Map<String, ServerConfig> serversMap = new HashMap<>();
 
     /**
      * 返回最大公约数
@@ -44,13 +44,13 @@ public class WeightedRoundRobinScheduling {
     /**
      * 返回所有服务器权重的最大公约数
      */
-    private int getGCDForServers(List<Server> serverList) {
+    private int getGCDForServers(List<ServerConfig> serverConfigList) {
         int w = 0;
-        for (int i = 0, len = serverList.size(); i < len - 1; i++) {
+        for (int i = 0, len = serverConfigList.size(); i < len - 1; i++) {
             if (w == 0) {
-                w = gcd(serverList.get(i).serverConfig.getWeight(), serverList.get(i + 1).getServerConfig().getWeight());
+                w = gcd(serverConfigList.get(i).config.getWeight(), serverConfigList.get(i + 1).getConfig().getWeight());
             } else {
-                w = gcd(w, serverList.get(i + 1).getServerConfig().getWeight());
+                w = gcd(w, serverConfigList.get(i + 1).getConfig().getWeight());
             }
         }
         return w;
@@ -59,13 +59,13 @@ public class WeightedRoundRobinScheduling {
     /**
      * 返回所有服务器中的最大权重
      */
-    private int getMaxWeightForServers(List<Server> serverList) {
+    private int getMaxWeightForServers(List<ServerConfig> serverConfigList) {
         int w = 0;
-        for (int i = 0, len = serverList.size(); i < len - 1; i++) {
+        for (int i = 0, len = serverConfigList.size(); i < len - 1; i++) {
             if (w == 0) {
-                w = Math.max(serverList.get(i).getServerConfig().getWeight(), serverList.get(i + 1).getServerConfig().getWeight());
+                w = Math.max(serverConfigList.get(i).getConfig().getWeight(), serverConfigList.get(i + 1).getConfig().getWeight());
             } else {
-                w = Math.max(w, serverList.get(i + 1).getServerConfig().getWeight());
+                w = Math.max(w, serverConfigList.get(i + 1).getConfig().getWeight());
             }
         }
         return w;
@@ -76,38 +76,38 @@ public class WeightedRoundRobinScheduling {
      * 权值currentWeight初始化为0，currentIndex初始化为-1 ，当第一次的时候返回 权值取最大的那个服务器， 通过权重的不断递减 寻找
      * 适合的服务器返回，直到轮询结束，权值返回为0
      */
-    public Server getServer() {
-        if (healthilyServers.size() == 0) {
+    public ServerConfig getServer() {
+        if (healthilyServerConfigs.size() == 0) {
             return null;
-        } else if (healthilyServers.size() == 1) {
-            return healthilyServers.get(0);
+        } else if (healthilyServerConfigs.size() == 1) {
+            return healthilyServerConfigs.get(0);
         } else {
             while (true) {
-                currentIndex = (currentIndex + 1) % healthilyServers.size();
+                currentIndex = (currentIndex + 1) % healthilyServerConfigs.size();
                 if (currentIndex == 0) {
-                    currentWeight = currentWeight - getGCDForServers(healthilyServers);
+                    currentWeight = currentWeight - getGCDForServers(healthilyServerConfigs);
                     if (currentWeight <= 0) {
-                        currentWeight = getMaxWeightForServers(healthilyServers);
+                        currentWeight = getMaxWeightForServers(healthilyServerConfigs);
                         if (currentWeight == 0)
                             return null;
                     }
                 }
-                if (healthilyServers.get(currentIndex).getServerConfig().getWeight() >= currentWeight) {
-                    return healthilyServers.get(currentIndex);
+                if (healthilyServerConfigs.get(currentIndex).getConfig().getWeight() >= currentWeight) {
+                    return healthilyServerConfigs.get(currentIndex);
                 }
             }
         }
     }
 
-    public WeightedRoundRobinScheduling(List<Server> servers, boolean isStart) {
-        this.isStart = isStart;
-        if (isStart) {
-            servers.stream().forEach(server -> {
-                if (server.getServerConfig().getIsStart())
-                    healthilyServers.add(server);
+    public WeightedRoundRobinScheduling(List<ServerConfig> serverConfigs, BasicConfig basicConfig) {
+        this.basicConfig = basicConfig;
+        if (basicConfig != null && basicConfig.getIsStart()) {
+            serverConfigs.stream().forEach(server -> {
+                if (server.getConfig().getIsStart())
+                    healthilyServerConfigs.add(server);
             });
         }
-        servers.stream().forEach(server -> {
+        serverConfigs.stream().forEach(server -> {
             serversMap.put(server.getIp() + "_" + server.getPort(), server);
         });
     }

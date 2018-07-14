@@ -1,14 +1,14 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,18 +24,18 @@ public class IpHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(IpHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, Set<RequestConfig.Rule> rules) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
             String realIp = Constant.getRealIp(httpRequest, channelHandlerContext);
 
-            for (RequestConfig.Rule rule : rules) {
-                if (rule.getIsStart()) {
-                    Pattern pattern = Pattern.compile(rule.getRegex());
+            for (ItermConfig iterm : iterms) {
+                if (iterm.getConfig().getIsStart()) {
+                    Pattern pattern = Pattern.compile(iterm.getName());
                     Matcher matcher = pattern.matcher(realIp);
                     if (matcher.find()) {
-                        hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Ip", rule.getRegex());
+                        hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Ip", iterm.getName());
                         return true;
                     }
                 }

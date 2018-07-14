@@ -804,7 +804,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             // Report DNS resolution to HttpFilters
             this.remoteAddress = this.currentFilters.proxyToServerResolutionStarted(serverHostAndPort);
 
-            // save the hostname and port of the unresolved address in hostAndPort, in case name resolution fails
+            // save the hostname and port of the unresolved address in hostAndPort, in case filterName resolution fails
             String hostAndPort = null;
             try {
                 if (this.remoteAddress == null) {

@@ -6,26 +6,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ServerConfig {
+public class UpstreamConfig {
     /**
-     * 服务器IP
+     * Upstream唯一标志
      */
-    private String ip;
+    private String host;
     /**
-     * 服务器端口
+     * 配置信息
      */
-    private Integer port;
+    private BasicConfig config;
     /**
-     * 服务器配置信息
+     * 服务器列表
      */
-    public ServerBasicConfig config;
-    /**
-     * 健康标记
-     */
-    private Boolean isHealth;
+    private List<ServerConfig> serverConfigs;
 }

@@ -1,8 +1,6 @@
 package info.yangguo.waf.service;
 
-import info.yangguo.waf.model.Config;
-import info.yangguo.waf.model.RequestConfig;
-import info.yangguo.waf.model.WeightedRoundRobinScheduling;
+import info.yangguo.waf.model.*;
 
 import java.util.Map;
 import java.util.Optional;
@@ -19,41 +17,41 @@ public interface ClusterService {
      * 设置request filter开关
      *
      * @param filterName
-     * @param isStart
+     * @param config
      */
-    void setRequestSwitch(String filterName, Boolean isStart);
+    void setRequestConfig(Optional<String> filterName, Optional<BasicConfig> config);
 
     /**
      * 设置request rule开关
      *
      * @param filterName
-     * @param rule
-     * @param isStart
+     * @param iterm
+     * @param config
      */
-    void setRequestRule(String filterName, String rule, Boolean isStart);
+    void setRequestItermConfig(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config);
 
     /**
-     * 删除request rule
+     * 删除request iterm
      *
      * @param filterName
-     * @param rule
+     * @param iterm
      */
-    void deleteRequestRule(String filterName, String rule);
+    void deleteRequestIterm(Optional<String> filterName, Optional<String> iterm);
 
     /**
      * 获取response filter配置信息
      *
      * @return
      */
-    Map<String, Config> getResponseConfigs();
+    Map<String, ResponseConfig> getResponseConfigs();
 
     /**
      * 设置response filter开关
      *
      * @param filterName
-     * @param isStart
+     * @param config
      */
-    void setResponseSwitch(String filterName, Boolean isStart);
+    void setResponseConfig(Optional<String> filterName, Optional<BasicConfig> config);
 
     /**
      * 获取upstream server配置
@@ -63,22 +61,22 @@ public interface ClusterService {
     Map<String, WeightedRoundRobinScheduling> getUpstreamConfig();
 
     /**
-     * 设置host开关
+     * 设置host配置
      *
      * @param hostOptional
-     * @param isStartOptional
+     * @param config
      */
-    void setUpstream(Optional<String> hostOptional, Optional<Boolean> isStartOptional);
+    void setUpstreamConfig(Optional<String> hostOptional, Optional<BasicConfig> config);
 
     /**
-     * 设置指定host中server的开关
+     * 设置指定host中server的配置
      *
      * @param hostOptional
      * @param ipOptional
      * @param portOptional
-     * @param isStartOptional
+     * @param config
      */
-    void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional);
+    void setUpstreamServerConfig(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<ServerBasicConfig> config);
 
     /**
      * 删除host
@@ -88,7 +86,7 @@ public interface ClusterService {
     void deleteUpstream(Optional<String> hostOptional);
 
     /**
-     * 删除host的server
+     * 删除指定host的server
      *
      * @param hostOptional
      * @param ipOptional

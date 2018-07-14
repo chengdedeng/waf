@@ -1,7 +1,7 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URLDecoder;
-import java.util.Set;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,7 +25,7 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(ArgsHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, Set<RequestConfig.Rule> rules) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
@@ -34,7 +34,7 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
                 String uri = httpRequest.getUri().replaceAll("%", "%25");
                 url = URLDecoder.decode(uri, "UTF-8");
             } catch (Exception e) {
-                logger.warn("URL:{} is inconsistent with the rules", httpRequest.getUri(), e);
+                logger.warn("URL:{} is inconsistent with the iterms", httpRequest.getUri(), e);
             }
             if (url != null) {
                 int index = url.indexOf("?");
@@ -44,12 +44,12 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
                     for (String arg : args) {
                         String[] kv = arg.split("=");
                         if (kv.length == 2) {
-                            for (RequestConfig.Rule rule : rules) {
-                                if (rule.getIsStart()) {
-                                    Pattern pattern = Pattern.compile(rule.getRegex());
+                            for (ItermConfig iterm : iterms) {
+                                if (iterm.getConfig().getIsStart()) {
+                                    Pattern pattern = Pattern.compile(iterm.getName());
                                     Matcher matcher = pattern.matcher(kv[1].toLowerCase());
                                     if (matcher.find()) {
-                                        hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Args", rule.getRegex());
+                                        hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Args", iterm.getName());
                                         return true;
                                     }
                                 }

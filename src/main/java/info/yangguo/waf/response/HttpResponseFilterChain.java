@@ -1,6 +1,6 @@
 package info.yangguo.waf.response;
 
-import info.yangguo.waf.model.Config;
+import info.yangguo.waf.model.ResponseConfig;
 import info.yangguo.waf.service.ClusterService;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -23,8 +23,8 @@ public class HttpResponseFilterChain {
 
     public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse, ClusterService clusterService) {
         for (HttpResponseFilter filter : filters) {
-            Config config = clusterService.getResponseConfigs().get(filter.getClass().getName());
-            if (config.getIsStart()) {
+            ResponseConfig responseConfig = clusterService.getResponseConfigs().get(filter.getClass().getName());
+            if (responseConfig.getConfig().getIsStart()) {
                 filter.doFilter(originalRequest, httpResponse);
             }
         }

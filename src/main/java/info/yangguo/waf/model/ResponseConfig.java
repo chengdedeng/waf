@@ -11,21 +11,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ServerConfig {
+public class ResponseConfig {
     /**
-     * 服务器IP
+     * 拦截器名称
      */
-    private String ip;
+    private String filterName;
     /**
-     * 服务器端口
+     * 配置信息
      */
-    private Integer port;
-    /**
-     * 服务器配置信息
-     */
-    public ServerBasicConfig config;
-    /**
-     * 健康标记
-     */
-    private Boolean isHealth;
+    private BasicConfig config;
 }

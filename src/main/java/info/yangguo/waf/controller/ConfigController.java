@@ -1,8 +1,10 @@
 package info.yangguo.waf.controller;
 
-import com.google.common.collect.Lists;
 import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.dto.*;
 import info.yangguo.waf.model.*;
+import info.yangguo.waf.validator.ExistSequence;
+import info.yangguo.waf.validator.NotExistSequence;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -20,43 +22,88 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "api/config")
 @Api(value = "api/config", description = "配置相关的接口")
 public class ConfigController {
-
-    @ApiOperation(value = "获取Filter配置")
+    @ApiOperation(value = "获取RequestFilter配置")
     @ResponseBody
     @GetMapping(value = "request")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result<List<RequestConfigDto>> getRequestConfigs() {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-        List<RequestConfigDto> value = Lists.newArrayList();
-        ContextHolder.getClusterService().getRequestConfigs().entrySet().stream().forEach(entry -> {
-            RequestConfigDto requestConfigDto = RequestConfigDto.builder().filterName(entry.getKey()).config(entry.getValue()).build();
-            value.add(requestConfigDto);
-        });
-        result.setValue(value);
-        return result;
+    public ResultDto<List<RequestConfig>> getRequestConfigs() {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        List<RequestConfig> value = ContextHolder
+                .getClusterService()
+                .getRequestConfigs()
+                .entrySet()
+                .stream()
+                .map(entry -> entry.getValue())
+                .collect(Collectors.toList());
+        resultDto.setValue(value);
+        return resultDto;
     }
 
-    @ApiOperation(value = "获取Filter配置")
+    @ApiOperation(value = "获取ResponseFilter配置")
     @ResponseBody
     @GetMapping(value = "response")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result<List<ResponseConfigDto>> getResponseConfigs() {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-        List<ResponseConfigDto> value = Lists.newArrayList();
-        ContextHolder.getClusterService().getResponseConfigs().entrySet().stream().forEach(entry -> {
-            ResponseConfigDto responseConfigDto = ResponseConfigDto.builder().filterName(entry.getKey()).config(entry.getValue()).build();
-            value.add(responseConfigDto);
-        });
-        result.setValue(value);
-        return result;
+    public ResultDto<List<ResponseConfig>> getResponseConfigs() {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        List<ResponseConfig> value = ContextHolder
+                .getClusterService()
+                .getResponseConfigs()
+                .entrySet()
+                .stream()
+                .map(entry -> entry.getValue())
+                .collect(Collectors.toList());
+        resultDto.setValue(value);
+        return resultDto;
+    }
+
+    @ApiOperation(value = "获取Upstream配置")
+    @ResponseBody
+    @GetMapping(value = "upstream")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto<List<UpstreamConfig>> getUpstreamConfigs() {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        List<UpstreamConfig> upstreamConfigs = ContextHolder.getClusterService().getUpstreamConfig().entrySet().stream().map(hostEntry -> {
+            UpstreamConfig upstreamConfig = UpstreamConfig.builder().host(hostEntry.getKey()).config(hostEntry.getValue().getBasicConfig()).build();
+
+            Map<String, ServerConfig> map = hostEntry.getValue().getServersMap().entrySet().stream().collect(Collectors.toMap(serverEntry -> {
+                return serverEntry.getKey();
+            }, entry2 -> {
+                return ServerConfig.builder()
+                        .ip(entry2.getValue().getIp())
+                        .port(entry2.getValue().getPort())
+                        .config(entry2.getValue().getConfig())
+                        .build();
+            }));
+
+            hostEntry.getValue().getUnhealthilyServerConfigs().stream().forEach(server -> {
+                map.get(server.getIp() + "_" + server.getPort()).setIsHealth(false);
+            });
+            hostEntry.getValue().getHealthilyServerConfigs().stream().forEach(server -> {
+                map.get(server.getIp() + "_" + server.getPort()).setIsHealth(true);
+            });
+
+            List<ServerConfig> serverDtos = map.entrySet().stream().map(entry3 -> {
+                return entry3.getValue();
+            }).collect(Collectors.toList());
+
+            upstreamConfig.setServerConfigs(serverDtos);
+
+            return upstreamConfig;
+        }).collect(Collectors.toList());
+        resultDto.setValue(upstreamConfigs);
+        return resultDto;
     }
 
 
@@ -67,35 +114,42 @@ public class ConfigController {
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result setRequestConfig(@RequestBody @Validated RequestConfigDto requestConfigDto) {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-        RequestConfig config = requestConfigDto.getConfig();
-        if (config.getIsStart() != null)
-            ContextHolder.getClusterService().setRequestSwitch(requestConfigDto.getFilterName(), config.getIsStart());
-        if (config.getRules() != null)
-            config.getRules().stream().forEach(rule -> {
-                ContextHolder.getClusterService().setRequestRule(requestConfigDto.getFilterName(), rule.getRegex(), rule.getIsStart());
-            });
-        return result;
+    public ResultDto setRequestConfig(@RequestBody @Validated RequestConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().setRequestConfig(Optional.of(dto.getFilterName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+        return resultDto;
     }
 
-    @ApiOperation(value = "删除RequestFilter中Rule")
+    @ApiOperation(value = "设置RequestFilter Iterm")
     @ResponseBody
-    @DeleteMapping(value = "request")
+    @PutMapping(value = "request/iterm")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result deleteRequestConfig(@RequestBody @Validated RequestConfigDto requestConfigDto) {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
+    public ResultDto setRequestConfig(@RequestBody @Validated(ExistSequence.class) RequestItermConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
 
-        requestConfigDto.getConfig().getRules().stream().forEach(rule -> {
-            ContextHolder.getClusterService().deleteRequestRule(requestConfigDto.getFilterName(), rule.getRegex());
-        });
+        ContextHolder.getClusterService().setRequestItermConfig(Optional.of(dto.getFilterName()),
+                Optional.of(dto.getRegex()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
 
-        return result;
+        return resultDto;
+    }
+
+    @ApiOperation(value = "删除RequestFilter Iterm")
+    @ResponseBody
+    @DeleteMapping(value = "request/iterm")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto deleteRequestIterm(@RequestBody @Validated(NotExistSequence.class) RequestItermConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().deleteRequestIterm(Optional.of(dto.getFilterName()), Optional.of(dto.getRegex()));
+        return resultDto;
     }
 
     @ApiOperation(value = "设置ResponseFilter")
@@ -105,55 +159,13 @@ public class ConfigController {
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result setResponseConfig(@RequestBody @Validated ResponseConfigDto responseConfigDto) {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().setResponseSwitch(responseConfigDto.getFilterName(), responseConfigDto.getConfig().getIsStart());
-        return result;
+    public ResultDto setResponseConfig(@RequestBody @Validated ResponseConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().setResponseConfig(Optional.of(dto.getFilterName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+        return resultDto;
     }
 
-    @ApiOperation(value = "获取Upstream配置")
-    @ResponseBody
-    @GetMapping(value = "upstream")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
-                    dataType = "string", paramType = "cookie")
-    })
-    public Result<List<UpstreamDto>> getUpstreamConfig() {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-        List<UpstreamDto> upstreamDtos = ContextHolder.getClusterService().getUpstreamConfig().entrySet().stream().map(entry1 -> {
-            UpstreamDto upstreamDto = UpstreamDto.builder().host(entry1.getKey()).isStart(entry1.getValue().getIsStart()).build();
-
-            Map<String, UpstreamDto.ServerDto> map = entry1.getValue().getServersMap().entrySet().stream().collect(Collectors.toMap(entry2 -> {
-                return entry2.getKey();
-            }, entry2 -> {
-                return UpstreamDto.ServerDto.builder()
-                        .ip(entry2.getValue().getIp())
-                        .port(entry2.getValue().getPort())
-                        .isStart(entry2.getValue().getServerConfig().getIsStart())
-                        .weight(entry2.getValue().getServerConfig().getWeight())
-                        .build();
-            }));
-
-            entry1.getValue().getUnhealthilyServers().stream().forEach(server -> {
-                map.get(server.getIp() + "_" + server.getPort()).setIsHealth(false);
-            });
-            entry1.getValue().getHealthilyServers().stream().forEach(server -> {
-                map.get(server.getIp() + "_" + server.getPort()).setIsHealth(true);
-            });
-
-            List<UpstreamDto.ServerDto> serverDtos = map.entrySet().stream().map(entry3 -> {
-                return entry3.getValue();
-            }).collect(Collectors.toList());
-
-            upstreamDto.setServers(serverDtos);
-
-            return upstreamDto;
-        }).collect(Collectors.toList());
-        result.setValue(upstreamDtos);
-        return result;
-    }
 
     @ApiOperation(value = "设置Upstream")
     @ResponseBody
@@ -162,23 +174,29 @@ public class ConfigController {
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result setUpstreamConfig(@RequestBody @Validated UpstreamDto upstreamDto) {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-        if (upstreamDto.getIsStart() != null) {
-            ContextHolder.getClusterService().setUpstream(Optional.of(upstreamDto.getHost()), Optional.of(upstreamDto.getIsStart()));
-        }
-        if (upstreamDto.getServers() != null) {
-            upstreamDto.getServers().stream().forEach(serverDto -> {
-                ContextHolder.getClusterService().setUpstreamServer(Optional.of(upstreamDto.getHost()),
-                        Optional.of(serverDto.getIp()),
-                        Optional.of(serverDto.getPort()),
-                        Optional.ofNullable(serverDto.getIsStart()),
-                        Optional.ofNullable(serverDto.getWeight()));
-            });
-        }
+    public ResultDto setUpstreamConfig(@RequestBody @Validated(ExistSequence.class) UpstreamConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().setUpstreamConfig(Optional.of(dto.getHost()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+        return resultDto;
+    }
 
-        return result;
+    @ApiOperation(value = "设置Upstream Server")
+    @ResponseBody
+    @PutMapping(value = "upstream/server")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto setUpstreamConfig(@RequestBody @Validated(ExistSequence.class) UpstreamServerConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().setUpstreamServerConfig(Optional.of(dto.getHost()),
+                Optional.of(dto.getIp()),
+                Optional.of(dto.getPort()),
+                Optional.of(ServerBasicConfig.builder().isStart(dto.getIsStart()).weight(dto.getWeight()).build()));
+
+        return resultDto;
     }
 
     @ApiOperation(value = "删除Upstream")
@@ -188,13 +206,11 @@ public class ConfigController {
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result deleteUpstream(@RequestBody @Validated UpstreamDto upstreamDto) {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-
-        ContextHolder.getClusterService().deleteUpstream(Optional.of(upstreamDto.getHost()));
-
-        return result;
+    public ResultDto deleteUpstream(@RequestBody @Validated(NotExistSequence.class) UpstreamConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().deleteUpstream(Optional.of(dto.getHost()));
+        return resultDto;
     }
 
     @ApiOperation(value = "删除Upstream Server")
@@ -204,14 +220,10 @@ public class ConfigController {
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public Result deleteUpstreamServer(@RequestBody @Validated UpstreamDto upstreamDto) {
-        Result result = new Result();
-        result.setCode(HttpStatus.OK.value());
-
-        upstreamDto.getServers().stream().forEach(serverDto -> {
-            ContextHolder.getClusterService().deleteUpstreamServer(Optional.of(upstreamDto.getHost()), Optional.of(serverDto.getIp()), Optional.of(serverDto.getPort()));
-        });
-
-        return result;
+    public ResultDto deleteUpstreamServer(@RequestBody @Validated(NotExistSequence.class) UpstreamServerConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().deleteUpstreamServer(Optional.of(dto.getHost()), Optional.of(dto.getIp()), Optional.of(dto.getPort()));
+        return resultDto;
     }
 }

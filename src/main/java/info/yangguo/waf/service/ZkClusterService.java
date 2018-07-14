@@ -35,7 +35,7 @@ public class ZkClusterService implements ClusterService {
 
     private static CuratorFramework client;
     Map<String, RequestConfig> requestConfigMap = new HashMap<>();
-    Map<String, Config> responseConfigMap = new HashMap<>();
+    Map<String, ResponseConfig> responseConfigMap = new HashMap<>();
     Map<String, WeightedRoundRobinScheduling> upstreamServerMap = new HashMap<>();
 
     public ZkClusterService() throws Exception {
@@ -89,31 +89,24 @@ public class ZkClusterService implements ClusterService {
                     || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
                     || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
                     || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
-                requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(entry1 -> {
-                    String filterName = entry1.getKey();
-                    String filterPath = entry1.getValue().getPath();
-                    boolean filterIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
+                requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(requestEntry -> {
+                    String filterName = requestEntry.getKey();
+                    String filterPath = requestEntry.getValue().getPath();
+                    BasicConfig filterConfig = (BasicConfig) JsonUtil.fromJson(new String(requestEntry.getValue().getData()), BasicConfig.class);
 
-                    Set<RequestConfig.Rule> rules = new HashSet<>();
-                    requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(entry2 -> {
-                        String ruleRegex = null;
+                    List<ItermConfig> itermConfigs = Lists.newArrayList();
+                    requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(itermEntry -> {
+                        String regex = null;
                         try {
-                            ruleRegex = URLDecoder.decode(entry2.getKey(), ENC);
+                            regex = URLDecoder.decode(itermEntry.getKey(), ENC);
                         } catch (UnsupportedEncodingException e) {
-                            LOGGER.error("Decode regex:[{}] ", entry2.getKey());
+                            LOGGER.error("Decode regex:[{}] ", itermEntry.getKey());
                         }
-                        Boolean ruleIsStart = Boolean.valueOf(new String(entry2.getValue().getData()));
-                        RequestConfig.Rule rule = new RequestConfig.Rule();
-                        rule.setRegex(ruleRegex);
-                        rule.setIsStart(ruleIsStart);
-                        rules.add(rule);
+                        BasicConfig regexConfig = (BasicConfig) JsonUtil.fromJson(new String(itermEntry.getValue().getData()), BasicConfig.class);
+                        itermConfigs.add(ItermConfig.builder().name(regex).config(regexConfig).build());
                     });
 
-                    RequestConfig requestConfig = new RequestConfig();
-                    requestConfig.setIsStart(filterIsStart);
-                    requestConfig.setRules(rules);
-
-                    requestConfigMap.put(filterName, requestConfig);
+                    requestConfigMap.put(filterName, RequestConfig.builder().filterName(filterName).config(filterConfig).regexConfigs(itermConfigs).build());
                 });
             }
         });
@@ -127,12 +120,8 @@ public class ZkClusterService implements ClusterService {
                     || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
                 responseTreeCache.getCurrentChildren(responsePath).entrySet().stream().forEach(entry -> {
                     String filterName = entry.getKey();
-                    Boolean filterIsStart = Boolean.valueOf(new String(entry.getValue().getData()));
-
-                    Config config = new Config();
-                    config.setIsStart(filterIsStart);
-
-                    responseConfigMap.put(filterName, config);
+                    BasicConfig config = (BasicConfig) JsonUtil.fromJson(new String(entry.getValue().getData()), BasicConfig.class);
+                    responseConfigMap.put(filterName, ResponseConfig.builder().filterName(filterName).config(config).build());
                 });
             }
         });
@@ -148,27 +137,27 @@ public class ZkClusterService implements ClusterService {
                     || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
                     || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
                 Set<String> hosts = Sets.newHashSet();
-                upstreamTreeCache.getCurrentChildren(upstreamPath).entrySet().stream().forEach(entry1 -> {
-                    String host = entry1.getKey();
-                    String hostPath = entry1.getValue().getPath();
-                    Boolean hostIsStart = Boolean.valueOf(new String(entry1.getValue().getData()));
+                upstreamTreeCache.getCurrentChildren(upstreamPath).entrySet().stream().forEach(hostEntry -> {
+                    String host = hostEntry.getKey();
+                    String hostPath = hostEntry.getValue().getPath();
+                    BasicConfig hostBasicConfig = (BasicConfig) JsonUtil.fromJson(new String(hostEntry.getValue().getData()), BasicConfig.class);
 
-                    List<Server> servers = Lists.newArrayList();
-                    upstreamTreeCache.getCurrentChildren(hostPath).entrySet().stream().forEach(entry2 -> {
-                        String[] serverInfo = entry2.getKey().split(":");
+                    List<ServerConfig> serverConfigs = Lists.newArrayList();
+                    upstreamTreeCache.getCurrentChildren(hostPath).entrySet().stream().forEach(serverEntry -> {
+                        String[] serverInfo = serverEntry.getKey().split(":");
                         String ip = serverInfo[0];
                         int port = Integer.parseInt(serverInfo[1]);
-                        ServerConfig serverConfig = (ServerConfig) JsonUtil.fromJson(new String(entry2.getValue().getData()), ServerConfig.class);
+                        ServerBasicConfig serverBasicConfig = (ServerBasicConfig) JsonUtil.fromJson(new String(serverEntry.getValue().getData()), ServerBasicConfig.class);
 
-                        Server server = Server.builder()
+                        ServerConfig serverConfig = ServerConfig.builder()
                                 .ip(ip)
                                 .port(port)
-                                .serverConfig(serverConfig)
+                                .config(serverBasicConfig)
                                 .build();
-                        servers.add(server);
+                        serverConfigs.add(serverConfig);
                     });
 
-                    WeightedRoundRobinScheduling weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(servers, hostIsStart);
+                    WeightedRoundRobinScheduling weightedRoundRobinScheduling = new WeightedRoundRobinScheduling(serverConfigs, hostBasicConfig);
                     upstreamServerMap.put(host, weightedRoundRobinScheduling);
                     hosts.add(host);
                 });
@@ -187,34 +176,16 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void setRequestSwitch(String filterName, Boolean isStart) {
+    public void setRequestConfig(Optional<String> filterName, Optional<BasicConfig> config) {
         try {
-            String path = requestPath + separator + filterName;
-            if (client.checkExists().forPath(path) != null) {
-                client.setData().forPath(path, String.valueOf(isStart).getBytes());
-                LOGGER.info("Path[{}]|Data[{}] has been set.", path, isStart);
-            } else {
-                LOGGER.warn("Path[{}] not exist.", path);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void setRequestRule(String filterName, String regex, Boolean isStart) {
-        try {
-            String filterPath = requestPath + separator + filterName;
-            if (client.checkExists().forPath(filterPath) == null) {
-                LOGGER.warn("Path[{}] not exist.", filterPath);
-            } else {
-                String rulePath = filterPath + separator + URLEncoder.encode(regex, ENC);
-                if (client.checkExists().forPath(rulePath) == null) {
-                    client.create().forPath(rulePath, String.valueOf(isStart).getBytes());
-                    LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been created.", regex, rulePath, isStart);
+            if (filterName.isPresent() && config.isPresent()) {
+                String path = requestPath + separator + filterName.get();
+                if (client.checkExists().forPath(path) != null) {
+                    String data = JsonUtil.toJson(config.get(), false);
+                    client.setData().forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
                 } else {
-                    client.setData().forPath(rulePath, String.valueOf(isStart).getBytes());
-                    LOGGER.info("Regex[{}]|Path[{}]|Data[{}] has been set.", regex, rulePath, isStart);
+                    LOGGER.warn("Path[{}] not exist.", path);
                 }
             }
         } catch (Exception e) {
@@ -223,14 +194,23 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void deleteRequestRule(String filterName, String regex) {
+    public void setRequestItermConfig(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config) {
         try {
-            String rulePath = requestPath + separator + filterName + separator + URLEncoder.encode(regex, ENC);
-            if (client.checkExists().forPath(rulePath) != null) {
-                client.delete().forPath(rulePath);
-                LOGGER.info("Regex[{}]|Path[{}] has been deleted.", regex, rulePath);
-            } else {
-                LOGGER.warn("Regex[{}]|Path[{}] not exist.", regex, rulePath);
+            if (filterName.isPresent() && iterm.isPresent() && config.isPresent()) {
+                String filterPath = requestPath + separator + filterName.get();
+                if (client.checkExists().forPath(filterPath) == null) {
+                    LOGGER.warn("Path[{}] not exist.", filterPath);
+                } else {
+                    String rulePath = filterPath + separator + URLEncoder.encode(iterm.get(), ENC);
+                    String data = JsonUtil.toJson(config.get(), false);
+                    if (client.checkExists().forPath(rulePath) == null) {
+                        client.create().forPath(rulePath, data.getBytes());
+                        LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, iterm.get(), data);
+                    } else {
+                        client.setData().forPath(rulePath, data.getBytes());
+                        LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, iterm.get(), data);
+                    }
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -238,19 +218,39 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public Map<String, Config> getResponseConfigs() {
+    public void deleteRequestIterm(Optional<String> filterName, Optional<String> iterm) {
+        try {
+            if (filterName.isPresent() && iterm.isPresent()) {
+                String itermPath = requestPath + separator + filterName.get() + separator + URLEncoder.encode(iterm.get(), ENC);
+                if (client.checkExists().forPath(itermPath) != null) {
+                    client.delete().forPath(itermPath);
+                    LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itermPath, iterm.get());
+                } else {
+                    LOGGER.warn("Path[{}]|Regex[{}] not exist.", itermPath, iterm.get());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Map<String, ResponseConfig> getResponseConfigs() {
         return responseConfigMap;
     }
 
     @Override
-    public void setResponseSwitch(String filterName, Boolean isStart) {
+    public void setResponseConfig(Optional<String> filterName, Optional<BasicConfig> config) {
         try {
-            String path = responsePath + separator + filterName;
-            if (client.checkExists().forPath(path) != null) {
-                client.setData().forPath(path, String.valueOf(isStart).getBytes());
-                LOGGER.info("Path[{}]|Data[{}] has been set.", path, isStart);
-            } else {
-                LOGGER.warn("Path[{}] not exist.", path);
+            if (filterName.isPresent() && config.isPresent()) {
+                String path = responsePath + separator + filterName.get();
+                if (client.checkExists().forPath(path) != null) {
+                    String data = JsonUtil.toJson(config.get(), false);
+                    client.setData().forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
+                } else {
+                    LOGGER.warn("Path[{}] not exist.", path);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -263,16 +263,17 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void setUpstream(Optional<String> hostOptional, Optional<Boolean> isStartOptional) {
+    public void setUpstreamConfig(Optional<String> hostOptional, Optional<BasicConfig> config) {
         try {
-            if (hostOptional.isPresent() && isStartOptional.isPresent()) {
+            if (hostOptional.isPresent() && config.isPresent()) {
                 String path = upstreamPath + separator + hostOptional.get();
+                String data = JsonUtil.toJson(config.get(), false);
                 if (client.checkExists().forPath(path) != null) {
-                    client.setData().forPath(path, String.valueOf(isStartOptional.get()).getBytes());
-                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, isStartOptional.get());
+                    client.setData().forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
                 } else {
-                    client.create().forPath(path, String.valueOf(isStartOptional.get()).getBytes());
-                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, isStartOptional.get());
+                    client.create().forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, data);
                 }
             }
         } catch (Exception e) {
@@ -281,44 +282,21 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional) {
+    public void setUpstreamServerConfig(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<ServerBasicConfig> config) {
         try {
-            if (hostOptional.isPresent() && ipOptional.isPresent() && portOptional.isPresent()) {
+            if (hostOptional.isPresent() && ipOptional.isPresent() && portOptional.isPresent() && config.isPresent()) {
                 String hostPath = upstreamPath + separator + hostOptional.get();
                 if (client.checkExists().forPath(hostPath) == null) {
                     LOGGER.warn("Path[{}] not exist.", hostPath);
                 } else {
                     String serverPath = hostPath + separator + ipOptional.get() + ":" + portOptional.get();
+                    String data = JsonUtil.toJson(config.get(), false);
                     if (client.checkExists().forPath(serverPath) != null) {
-                        ServerConfig serverConfig = (ServerConfig) JsonUtil.fromJson(new String(client.getData().forPath(serverPath)), ServerConfig.class);
-                        isStartOptional.ifPresent(new Consumer<Boolean>() {
-                            @Override
-                            public void accept(Boolean t) {
-                                serverConfig.setIsStart(t);
-                            }
-                        });
-                        weightOptional.ifPresent(new Consumer<Integer>() {
-                            @Override
-                            public void accept(Integer t) {
-                                serverConfig.setWeight(t);
-                            }
-                        });
-
-                        String data = JsonUtil.toJson(serverConfig, false);
                         client.setData().forPath(serverPath, data.getBytes());
                         LOGGER.info("Path[{}]|Data[{}] has been set.", serverPath, data);
                     } else {
-                        ServerConfig serverConfig = new ServerConfig();
-                        serverConfig.setIsStart(isStartOptional.get());
-                        serverConfig.setWeight(weightOptional.get());
-                        String data = JsonUtil.toJson(serverConfig, false);
-                        if (isStartOptional.isPresent() && weightOptional.isPresent()) {
-                            client.create().forPath(serverPath, data.getBytes());
-                            LOGGER.info("Path[{}]|Data[{}] has been created.", serverPath, data);
-                        } else {
-                            LOGGER.warn("Path[{}]|Data[{}] is incomplete.", serverPath, data);
-                        }
-
+                        client.create().forPath(serverPath, data.getBytes());
+                        LOGGER.info("Path[{}]|Data[{}] has been created.", serverPath, data);
                     }
                 }
             }
@@ -375,8 +353,9 @@ public class ZkClusterService implements ClusterService {
         }
         try {
             if (client.checkExists().forPath(path) == null) {
-                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, "false".getBytes());
-                LOGGER.info("Path[{}]|Data[{}] has been initialized", path, false);
+                String data = JsonUtil.toJson(BasicConfig.builder().isStart(false).build(), false);
+                client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                LOGGER.info("Path[{}]|Data[{}] has been initialized", path, data);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

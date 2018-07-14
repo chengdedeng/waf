@@ -1,7 +1,7 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.model.ItermConfig;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URLDecoder;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +25,7 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
     private static Logger logger = LoggerFactory.getLogger(PostHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, Set<RequestConfig.Rule> rules) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<ItermConfig> iterms) {
         if (originalRequest.getMethod().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
@@ -40,17 +39,17 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                             String contentStr = new String(Unpooled.copiedBuffer(httpContent.content()).array()).replaceAll("%", "%25");
                             contentBody = URLDecoder.decode(contentStr, "UTF-8");
                         } catch (Exception e) {
-                            logger.warn("URL:{} POST body is inconsistent with the rules", originalRequest.getUri(), e);
+                            logger.warn("URL:{} POST body is inconsistent with the iterms", originalRequest.getUri(), e);
                         }
                     }
 
                     if (contentBody != null) {
-                        for (RequestConfig.Rule rule : rules) {
-                            if (rule.getIsStart()) {
-                                Pattern pattern = Pattern.compile(rule.getRegex());
+                        for (ItermConfig iterm : iterms) {
+                            if (iterm.getConfig().getIsStart()) {
+                                Pattern pattern = Pattern.compile(iterm.getName());
                                 Matcher matcher = pattern.matcher(contentBody.toLowerCase());
                                 if (matcher.find()) {
-                                    hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", rule.getRegex());
+                                    hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", iterm.getName());
                                     return true;
                                 }
                             }

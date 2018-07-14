@@ -2,7 +2,7 @@ package info.yangguo.waf;
 
 
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.Server;
+import info.yangguo.waf.model.ServerConfig;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import info.yangguo.waf.service.ClusterService;
 import info.yangguo.waf.util.NetUtils;
@@ -191,30 +191,30 @@ public class Application {
             try {
                 for (Map.Entry<String, WeightedRoundRobinScheduling> entry : ContextHolder.getClusterService().getUpstreamConfig().entrySet()) {
                     WeightedRoundRobinScheduling weightedRoundRobinScheduling = entry.getValue();
-                    List<Server> delServers = new ArrayList<>();
+                    List<ServerConfig> delServerConfigs = new ArrayList<>();
                     CloseableHttpResponse httpResponse = null;
-                    for (Server server : weightedRoundRobinScheduling.getUnhealthilyServers()) {
-                        HttpGet request = new HttpGet("http://" + server.getIp() + ":" + server.getPort());
+                    for (ServerConfig serverConfig : weightedRoundRobinScheduling.getUnhealthilyServerConfigs()) {
+                        HttpGet request = new HttpGet("http://" + serverConfig.getIp() + ":" + serverConfig.getPort());
                         try {
                             httpResponse = (CloseableHttpResponse) client.execute(request);
-                            logger.warn("statuscode:{}",httpResponse.getStatusLine().getStatusCode());
-                            weightedRoundRobinScheduling.getHealthilyServers().add(weightedRoundRobinScheduling.getServersMap().get(server.getIp() + "_" + server.getPort()));
-                            delServers.add(server);
-                            logger.info("Domain host->{},ip->{},port->{} is healthy.", entry.getKey(), server.getIp(), server.getPort());
+                            logger.warn("statuscode:{}", httpResponse.getStatusLine().getStatusCode());
+                            weightedRoundRobinScheduling.getHealthilyServerConfigs().add(weightedRoundRobinScheduling.getServersMap().get(serverConfig.getIp() + "_" + serverConfig.getPort()));
+                            delServerConfigs.add(serverConfig);
+                            logger.info("Domain host->{},ip->{},port->{} is healthy.", entry.getKey(), serverConfig.getIp(), serverConfig.getPort());
                         } catch (Exception e1) {
-                            logger.warn("Domain host->{},ip->{},port->{} is unhealthy.", entry.getKey(), server.getIp(), server.getPort());
+                            logger.warn("Domain host->{},ip->{},port->{} is unhealthy.", entry.getKey(), serverConfig.getIp(), serverConfig.getPort());
                         } finally {
                             if (httpResponse != null) {
                                 httpResponse.close();
                             }
                         }
                     }
-                    if (delServers.size() > 0) {
-                        weightedRoundRobinScheduling.getUnhealthilyServers().removeAll(delServers);
+                    if (delServerConfigs.size() > 0) {
+                        weightedRoundRobinScheduling.getUnhealthilyServerConfigs().removeAll(delServerConfigs);
                     }
                 }
             } catch (Exception e) {
-                logger.error("Server check task is error.", e);
+                logger.error("ServerConfig check task is error.", e);
             }
         }
     }

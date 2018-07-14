@@ -1,6 +1,6 @@
 package info.yangguo.waf.config;
 
-import info.yangguo.waf.model.Result;
+import info.yangguo.waf.dto.ResultDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.http.HttpStatus;
@@ -26,11 +26,11 @@ public class CustomErrorController implements ErrorController {
     @RequestMapping
     @ResponseBody
     public ResponseEntity<Object> error(HttpServletRequest request) {
-        Result result = new Result();
+        ResultDto resultDto = new ResultDto();
         HttpStatus status = getStatus(request);
-        result.setCode(status.value());
-        result.setValue(status.getReasonPhrase());
-        return new ResponseEntity<Object>(result, HttpStatus.OK);
+        resultDto.setCode(status.value());
+        resultDto.setValue(status.getReasonPhrase());
+        return new ResponseEntity<Object>(resultDto, HttpStatus.OK);
     }
 
     private HttpStatus getStatus(HttpServletRequest request) {

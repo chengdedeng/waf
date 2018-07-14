@@ -6,26 +6,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ServerConfig {
+public class ItermConfig implements Serializable {
+    private static final long serialVersionUID = 3823749021458846717L;
     /**
-     * 服务器IP
+     * 名称
      */
-    private String ip;
+    private String name;
     /**
-     * 服务器端口
+     * 配置信息
      */
-    private Integer port;
-    /**
-     * 服务器配置信息
-     */
-    public ServerBasicConfig config;
-    /**
-     * 健康标记
-     */
-    private Boolean isHealth;
+    private BasicConfig config;
 }

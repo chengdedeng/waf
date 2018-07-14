@@ -1,7 +1,8 @@
 package info.yangguo.waf;
 
-import info.yangguo.waf.model.Server;
+import info.yangguo.waf.model.BasicConfig;
 import info.yangguo.waf.model.ServerConfig;
+import info.yangguo.waf.model.ServerBasicConfig;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import org.junit.Test;
 
@@ -19,27 +20,29 @@ import java.util.Map;
 public class WeightedRoundRobinSchedulingTest {
     @Test
     public void test1() {
-        ServerConfig serverConfig=new ServerConfig();
-        serverConfig.setWeight(1);
-        serverConfig.setIsStart(true);
-        Server s1 = Server.builder().ip("192.168.0.100").port(80).serverConfig(serverConfig).build();//3
-        Server s2 = Server.builder().ip("192.168.0.101").port(80).serverConfig(serverConfig).build();//2
-        Server s3 = Server.builder().ip("192.168.0.102").port(80).serverConfig(serverConfig).build();//2
-        Server s4 = Server.builder().ip("192.168.0.103").port(80).serverConfig(serverConfig).build();//2
-        Server s5 = Server.builder().ip("192.168.0.104").port(80).serverConfig(serverConfig).build();//2
-        List<Server> serverList = new ArrayList<>();
-        serverList.add(s1);
-        serverList.add(s2);
-        serverList.add(s3);
-        serverList.add(s4);
-        serverList.add(s5);
-        WeightedRoundRobinScheduling obj = new WeightedRoundRobinScheduling(serverList, true);
+        ServerBasicConfig serverBasicConfig1 =ServerBasicConfig.builder().weight(4).isStart(true).build();
+        ServerBasicConfig serverBasicConfig2 =ServerBasicConfig.builder().weight(2).isStart(true).build();
+
+        ServerConfig s1 = ServerConfig.builder().ip("192.168.0.100").port(81).config(serverBasicConfig1).build();
+        ServerConfig s2 = ServerConfig.builder().ip("192.168.0.101").port(82).config(serverBasicConfig1).build();
+        ServerConfig s3 = ServerConfig.builder().ip("192.168.0.102").port(83).config(serverBasicConfig1).build();
+        ServerConfig s4 = ServerConfig.builder().ip("192.168.0.103").port(84).config(serverBasicConfig2).build();
+        ServerConfig s5 = ServerConfig.builder().ip("192.168.0.104").port(85).config(serverBasicConfig2).build();
+        List<ServerConfig> serverConfigList = new ArrayList<>();
+        serverConfigList.add(s1);
+        serverConfigList.add(s2);
+        serverConfigList.add(s3);
+        serverConfigList.add(s4);
+        serverConfigList.add(s5);
+        BasicConfig basicConfig =new BasicConfig();
+        basicConfig.setIsStart(true);
+        WeightedRoundRobinScheduling obj = new WeightedRoundRobinScheduling(serverConfigList, basicConfig);
 
         Map<String, Integer> countResult = new HashMap<>();
 
         for (int i = 0; i < 100; i++) {
-            Server s = obj.getServer();
-            String log = "ip:" + s.getIp() + ";weight:" + s.getServerConfig().getWeight();
+            ServerConfig s = obj.getServer();
+            String log = "ip:" + s.getIp() + ";weight:" + s.getConfig().getWeight();
             if (countResult.containsKey(log)) {
                 countResult.put(log, countResult.get(log) + 1);
             } else {

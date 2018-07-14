@@ -1,17 +1,21 @@
 package info.yangguo.waf.model;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Config implements Serializable {
-    private static final long serialVersionUID = 666558172889943990L;
-    @ApiModelProperty(value = "是否开启，true启用，false关闭")
+public abstract class Config {
+    /**
+     * 开关,ture开启,false关闭
+     */
     private Boolean isStart;
+    /**
+     * 自定义扩展信息
+     */
+    private Map<String, Object> extension;
 }

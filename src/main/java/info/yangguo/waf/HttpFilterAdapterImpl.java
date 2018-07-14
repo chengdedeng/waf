@@ -1,10 +1,10 @@
 package info.yangguo.waf;
 
 import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import info.yangguo.waf.request.HttpRequestFilter;
 import info.yangguo.waf.request.HttpRequestFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
-import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.*;
@@ -118,8 +118,8 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
                 int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
 
                 WeightedRoundRobinScheduling weightedRoundRobinScheduling = ContextHolder.getClusterService().getUpstreamConfig().get(serverHostAndPort);
-                weightedRoundRobinScheduling.getUnhealthilyServers().add(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
-                weightedRoundRobinScheduling.getHealthilyServers().remove(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
+                weightedRoundRobinScheduling.getUnhealthilyServerConfigs().add(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
+                weightedRoundRobinScheduling.getHealthilyServerConfigs().remove(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
             } catch (Exception e) {
                 logger.error("connection of proxy->server is failed", e);
             }

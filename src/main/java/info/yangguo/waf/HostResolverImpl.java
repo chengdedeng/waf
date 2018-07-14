@@ -1,7 +1,7 @@
 package info.yangguo.waf;
 
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.Server;
+import info.yangguo.waf.model.ServerConfig;
 import org.littleshoot.proxy.HostResolver;
 
 import java.net.InetSocketAddress;
@@ -20,11 +20,11 @@ class HostResolverImpl implements HostResolver {
             throws UnknownHostException {
         String key = host + "_" + port;
         if (ContextHolder.getClusterService().getUpstreamConfig().containsKey(key)) {
-            Server server = ContextHolder.getClusterService().getUpstreamConfig().get(key).getServer();
-            if (server != null) {
-                return new InetSocketAddress(server.getIp(), server.getPort());
+            ServerConfig serverConfig = ContextHolder.getClusterService().getUpstreamConfig().get(key).getServer();
+            if (serverConfig != null) {
+                return new InetSocketAddress(serverConfig.getIp(), serverConfig.getPort());
             } else {
-                throw new UnknownHostException(key + " have not healthy server.");
+                throw new UnknownHostException(key + " have not healthy serverConfig.");
             }
         } else {
             throw new UnknownHostException(key);

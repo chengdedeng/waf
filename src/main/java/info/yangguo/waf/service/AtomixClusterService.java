@@ -1,12 +1,11 @@
 package info.yangguo.waf.service;
 
+import com.google.common.collect.Lists;
 import info.yangguo.waf.config.ClusterProperties;
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.Config;
-import info.yangguo.waf.model.RequestConfig;
+import info.yangguo.waf.model.*;
 import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
-import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import io.atomix.cluster.Node;
 import io.atomix.core.Atomix;
 import io.atomix.core.map.ConsistentMap;
@@ -17,7 +16,7 @@ import io.atomix.utils.serializer.Serializer;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class AtomixClusterService implements ClusterService {
     private Atomix atomix;
     private static ConsistentMap<String, RequestConfig> requestConfigs;
-    private static ConsistentMap<String, Config> responseConfigs;
+    private static ConsistentMap<String, ResponseConfig> responseConfigs;
 
     public AtomixClusterService() {
         ClusterProperties.AtomixProperty clusterProperties = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getAtomix();
@@ -65,9 +64,10 @@ public class AtomixClusterService implements ClusterService {
 
         KryoNamespace.Builder kryoBuilder = KryoNamespace.builder()
                 .register(KryoNamespaces.BASIC)
-                .register(Config.class)
-                .register(RequestConfig.Rule.class)
-                .register(RequestConfig.class);
+                .register(BasicConfig.class)
+                .register(ItermConfig.class)
+                .register(RequestConfig.class)
+                .register(ServerBasicConfig.class);
 
         requestConfigs = atomix
                 .<String, RequestConfig>consistentMapBuilder("WAF-CONFIG-REQUEST")
@@ -75,30 +75,43 @@ public class AtomixClusterService implements ClusterService {
                 .withCacheEnabled()
                 .build();
         responseConfigs = atomix
-                .<String, Config>consistentMapBuilder("WAF-CONFIG-RESPONSE")
+                .<String, ResponseConfig>consistentMapBuilder("WAF-CONFIG-RESPONSE")
                 .withSerializer(Serializer.using(kryoBuilder.build()))
                 .withCacheEnabled()
                 .build();
 
-        RequestConfig requestConfig = new RequestConfig();
-        requestConfig.setRules(new HashSet<>());
-        requestConfig.setIsStart(false);
-        Config responseConfig = new Config();
-        responseConfig.setIsStart(false);
+        Arrays.stream(new Class[]{
+                ArgsHttpRequestFilter.class,
+                CCHttpRequestFilter.class,
+                CookieHttpRequestFilter.class,
+                IpHttpRequestFilter.class,
+                PostHttpRequestFilter.class,
+                FileHttpRequestFilter.class,
+                ScannerHttpRequestFilter.class,
+                UaHttpRequestFilter.class,
+                UrlHttpRequestFilter.class,
+                WIpHttpRequestFilter.class,
+                WUrlHttpRequestFilter.class
+        }).forEach(filterClass -> {
+            RequestConfig requestConfig = new RequestConfig();
+            requestConfig.setFilterName(filterClass.getName());
+            requestConfig.setRegexConfigs(Lists.newArrayList());
+            BasicConfig basicConfig = new BasicConfig();
+            basicConfig.setIsStart(false);
+            requestConfig.setConfig(basicConfig);
+            requestConfigs.putIfAbsent(filterClass.getName(), requestConfig);
+        });
 
-        requestConfigs.putIfAbsent(ArgsHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(CCHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(CookieHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(IpHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(PostHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(FileHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(ScannerHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(UaHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(UrlHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(WIpHttpRequestFilter.class.getName(), requestConfig);
-        requestConfigs.putIfAbsent(WUrlHttpRequestFilter.class.getName(), requestConfig);
-
-        responseConfigs.putIfAbsent(ClickjackHttpResponseFilter.class.getName(), responseConfig);
+        Arrays.stream(new Class[]{
+                ClickjackHttpResponseFilter.class
+        }).forEach(filterClass -> {
+            ResponseConfig responseConfig = new ResponseConfig();
+            responseConfig.setFilterName(filterClass.getName());
+            BasicConfig config = new BasicConfig();
+            config.setIsStart(false);
+            responseConfig.setConfig(config);
+            responseConfigs.putIfAbsent(filterClass.getName(), responseConfig);
+        });
     }
 
     @Override
@@ -107,51 +120,59 @@ public class AtomixClusterService implements ClusterService {
     }
 
     @Override
-    public void setRequestSwitch(String filterName, Boolean isStart) {
-        RequestConfig requestConfig = requestConfigs.get(filterName).value();
-        requestConfig.setIsStart(isStart);
-        requestConfigs.put(filterName, requestConfig);
+    public void setRequestConfig(Optional<String> filterName, Optional<BasicConfig> config) {
+        if (filterName.isPresent() && config.isPresent()) {
+            RequestConfig requestConfig = requestConfigs.get(filterName.get()).value();
+            requestConfig.setConfig(config.get());
+            requestConfigs.put(filterName.get(), requestConfig);
+        }
     }
 
     @Override
-    public void setRequestRule(String filterName, String rule, Boolean isStart) {
-        RequestConfig requestConfig = requestConfigs.get(filterName).value();
-        requestConfig.getRules().stream().anyMatch(ruleTmp -> {
-            if (ruleTmp.getRegex().equals(rule)) {
-                ruleTmp.setIsStart(isStart);
-                requestConfigs.put(filterName, requestConfig);
-                return true;
-            } else {
-                return false;
-            }
-        });
+    public void setRequestItermConfig(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config) {
+        if (filterName.isPresent() && iterm.isPresent() && config.isPresent()) {
+            RequestConfig requestConfig = requestConfigs.get(filterName.get()).value();
+            requestConfig.getRegexConfigs().stream().anyMatch(ruleTmp -> {
+                if (ruleTmp.getName().equals(iterm.get())) {
+                    ruleTmp.setConfig(config.get());
+                    requestConfigs.put(filterName.get(), requestConfig);
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        }
     }
 
     @Override
-    public void deleteRequestRule(String filterName, String rule) {
-        RequestConfig requestConfig = requestConfigs.get(filterName).value();
-        requestConfig.getRules().stream().anyMatch(ruleTmp -> {
-            if (ruleTmp.getRegex().equals(rule)) {
-                requestConfig.getRules().remove(ruleTmp);
-                requestConfigs.put(filterName, requestConfig);
-                return true;
-            } else {
-                return false;
-            }
-        });
+    public void deleteRequestIterm(Optional<String> filterName, Optional<String> iterm) {
+        if (filterName.isPresent() && iterm.isPresent()) {
+            RequestConfig requestConfig = requestConfigs.get(filterName.get()).value();
+            requestConfig.getRegexConfigs().stream().anyMatch(ruleTmp -> {
+                if (ruleTmp.getName().equals(iterm.get())) {
+                    requestConfig.getRegexConfigs().remove(ruleTmp);
+                    requestConfigs.put(filterName.get(), requestConfig);
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+        }
     }
 
     @Override
-    public Map<String, Config> getResponseConfigs() {
+    public Map<String, ResponseConfig> getResponseConfigs() {
         return responseConfigs.asJavaMap();
     }
 
 
     @Override
-    public void setResponseSwitch(String filterName, Boolean isStart) {
-        Config config = responseConfigs.get(filterName).value();
-        config.setIsStart(isStart);
-        responseConfigs.put(filterName, config);
+    public void setResponseConfig(Optional<String> filterName, Optional<BasicConfig> config) {
+        if (filterName.isPresent() && config.isPresent()) {
+            ResponseConfig responseConfig = responseConfigs.get(filterName.get()).value();
+            responseConfig.setConfig(config.get());
+            responseConfigs.put(filterName.get(), responseConfig);
+        }
     }
 
     @Override
@@ -161,12 +182,12 @@ public class AtomixClusterService implements ClusterService {
     }
 
     @Override
-    public void setUpstream(Optional<String> hostOptional, Optional<Boolean> isStartOptional) {
+    public void setUpstreamConfig(Optional<String> hostOptional, Optional<BasicConfig> hostConfig) {
         //todo
     }
 
     @Override
-    public void setUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<Boolean> isStartOptional, Optional<Integer> weightOptional) {
+    public void setUpstreamServerConfig(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional, Optional<ServerBasicConfig> serverConfig) {
         //todo
     }
 

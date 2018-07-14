@@ -3,6 +3,7 @@ package info.yangguo.waf.util;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class JsonUtil {
         try {
             result = objectMapper.readValue(jsonAsString, pojoClass);
         } catch (Exception e) {
-            logger.error("JSON[{}]反序列化失败", jsonAsString);
+            logger.error("JSON[{}]反序列化失败\n{}", jsonAsString, ExceptionUtils.getFullStackTrace(e));
         }
         return result;
     }
@@ -47,7 +48,7 @@ public class JsonUtil {
             objectMapper.writeValue(jg, pojo);
             result = sw.toString();
         } catch (Exception e) {
-            logger.error("[{}]序列化成JSON失败", pojo);
+            logger.error("[{}]序列化成JSON失败\n{}", pojo, ExceptionUtils.getFullStackTrace(e));
         }
         return result;
     }

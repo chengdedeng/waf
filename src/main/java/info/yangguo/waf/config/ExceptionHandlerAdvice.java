@@ -1,8 +1,8 @@
 package info.yangguo.waf.config;
 
 import com.google.common.collect.Maps;
+import info.yangguo.waf.dto.ResultDto;
 import info.yangguo.waf.exception.UnauthorizedException;
-import info.yangguo.waf.model.Result;
 import info.yangguo.waf.util.JsonUtil;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -30,18 +30,18 @@ public class ExceptionHandlerAdvice {
     private final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandlerAdvice.class);
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public Result handleHttpMessageNotReadableException(HttpMessageNotReadableException e, HttpServletRequest request, HttpServletResponse response) {
+    public ResultDto handleHttpMessageNotReadableException(HttpMessageNotReadableException e, HttpServletRequest request, HttpServletResponse response) {
         LOGGER.warn(ExceptionUtils.getFullStackTrace(e));
         addCorsHeader(request, response);
-        Result result = new Result();
-        result.setCode(HttpStatus.BAD_REQUEST.value());
-        result.setValue("数据格式错误");
-        return result;
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.BAD_REQUEST.value());
+        resultDto.setValue("数据格式错误");
+        return resultDto;
     }
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Result handleArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request, HttpServletResponse response) {
+    public ResultDto handleArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request, HttpServletResponse response) {
         LOGGER.warn(ExceptionUtils.getFullStackTrace(e));
         addCorsHeader(request, response);
         List<ObjectError> errorList = e.getBindingResult().getAllErrors();
@@ -49,31 +49,31 @@ public class ExceptionHandlerAdvice {
         for (ObjectError err : errorList) {
             errMap.put(((FieldError) err).getField(), err.getDefaultMessage());
         }
-        Result result = new Result();
-        result.setCode(HttpStatus.BAD_REQUEST.value());
-        result.setValue(JsonUtil.toJson(errMap, true));
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.BAD_REQUEST.value());
+        resultDto.setValue(JsonUtil.toJson(errMap, true));
 
-        return result;
+        return resultDto;
     }
 
 
     @ExceptionHandler(ServletRequestBindingException.class)
-    public Result handleServletRequestBindingException(ServletRequestBindingException e, HttpServletRequest request, HttpServletResponse response) {
+    public ResultDto handleServletRequestBindingException(ServletRequestBindingException e, HttpServletRequest request, HttpServletResponse response) {
         LOGGER.error(ExceptionUtils.getFullStackTrace(e));
         addCorsHeader(request, response);
-        Result result = new Result();
-        result.setCode(HttpStatus.BAD_REQUEST.value());
-        result.setValue("Header/Body不正确");
-        return result;
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.BAD_REQUEST.value());
+        resultDto.setValue("Header/Body不正确");
+        return resultDto;
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public Result handleServletRequestUnauthorizedException(UnauthorizedException e, HttpServletRequest request, HttpServletResponse response) {
+    public ResultDto handleServletRequestUnauthorizedException(UnauthorizedException e, HttpServletRequest request, HttpServletResponse response) {
         addCorsHeader(request, response);
-        Result result = new Result();
-        result.setCode(HttpStatus.UNAUTHORIZED.value());
-        result.setValue("请登录");
-        return result;
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.UNAUTHORIZED.value());
+        resultDto.setValue("请登录");
+        return resultDto;
     }
 
     private void addCorsHeader(HttpServletRequest request, HttpServletResponse response) {

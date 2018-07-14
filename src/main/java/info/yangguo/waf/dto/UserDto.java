@@ -1,4 +1,4 @@
-package info.yangguo.waf.model;
+package info.yangguo.waf.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class UserDto {
     @NotNull
     @Email
     @ApiModelProperty(value = "邮箱", required = true)
