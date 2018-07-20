@@ -76,6 +76,7 @@ public class ZkClusterService implements ClusterService {
                 UrlHttpRequestFilter.class,
                 WIpHttpRequestFilter.class,
                 WUrlHttpRequestFilter.class,
+                ScriptHttpRequestFilter.class,
                 ClickjackHttpResponseFilter.class
         }).forEach(filterClass -> {
             initFilter(filterClass);

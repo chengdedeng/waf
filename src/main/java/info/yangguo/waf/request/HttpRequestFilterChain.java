@@ -34,6 +34,7 @@ public class HttpRequestFilterChain {
         filters.add(new CookieHttpRequestFilter());
         filters.add(new PostHttpRequestFilter());
         filters.add(new FileHttpRequestFilter());
+        filters.add(new ScriptHttpRequestFilter());
     }
 
     public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ClusterService clusterService) {
