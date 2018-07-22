@@ -133,7 +133,7 @@ public class ConfigController {
         resultDto.setCode(HttpStatus.OK.value());
 
         ContextHolder.getClusterService().setRequestItermConfig(Optional.of(dto.getFilterName()),
-                Optional.of(dto.getRegex()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+                Optional.of(dto.getName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(dto.getExtension()).build()));
 
         return resultDto;
     }
@@ -148,7 +148,7 @@ public class ConfigController {
     public ResultDto deleteRequestIterm(@RequestBody @Validated(NotExistSequence.class) RequestItermConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteRequestIterm(Optional.of(dto.getFilterName()), Optional.of(dto.getRegex()));
+        ContextHolder.getClusterService().deleteRequestIterm(Optional.of(dto.getFilterName()), Optional.of(dto.getName()));
         return resultDto;
     }
 

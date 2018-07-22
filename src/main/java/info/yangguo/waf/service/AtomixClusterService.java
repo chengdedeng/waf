@@ -95,7 +95,7 @@ public class AtomixClusterService implements ClusterService {
         }).forEach(filterClass -> {
             RequestConfig requestConfig = new RequestConfig();
             requestConfig.setFilterName(filterClass.getName());
-            requestConfig.setRegexConfigs(Lists.newArrayList());
+            requestConfig.setItermConfigs(Lists.newArrayList());
             BasicConfig basicConfig = new BasicConfig();
             basicConfig.setIsStart(false);
             requestConfig.setConfig(basicConfig);
@@ -132,7 +132,7 @@ public class AtomixClusterService implements ClusterService {
     public void setRequestItermConfig(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config) {
         if (filterName.isPresent() && iterm.isPresent() && config.isPresent()) {
             RequestConfig requestConfig = requestConfigs.get(filterName.get()).value();
-            requestConfig.getRegexConfigs().stream().anyMatch(ruleTmp -> {
+            requestConfig.getItermConfigs().stream().anyMatch(ruleTmp -> {
                 if (ruleTmp.getName().equals(iterm.get())) {
                     ruleTmp.setConfig(config.get());
                     requestConfigs.put(filterName.get(), requestConfig);
@@ -148,9 +148,9 @@ public class AtomixClusterService implements ClusterService {
     public void deleteRequestIterm(Optional<String> filterName, Optional<String> iterm) {
         if (filterName.isPresent() && iterm.isPresent()) {
             RequestConfig requestConfig = requestConfigs.get(filterName.get()).value();
-            requestConfig.getRegexConfigs().stream().anyMatch(ruleTmp -> {
+            requestConfig.getItermConfigs().stream().anyMatch(ruleTmp -> {
                 if (ruleTmp.getName().equals(iterm.get())) {
-                    requestConfig.getRegexConfigs().remove(ruleTmp);
+                    requestConfig.getItermConfigs().remove(ruleTmp);
                     requestConfigs.put(filterName.get(), requestConfig);
                     return true;
                 } else {

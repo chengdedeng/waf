@@ -107,7 +107,7 @@ public class ZkClusterService implements ClusterService {
                         itermConfigs.add(ItermConfig.builder().name(regex).config(regexConfig).build());
                     });
 
-                    requestConfigMap.put(filterName, RequestConfig.builder().filterName(filterName).config(filterConfig).regexConfigs(itermConfigs).build());
+                    requestConfigMap.put(filterName, RequestConfig.builder().filterName(filterName).config(filterConfig).itermConfigs(itermConfigs).build());
                 });
             }
         });

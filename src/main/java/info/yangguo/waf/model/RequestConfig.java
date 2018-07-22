@@ -26,5 +26,5 @@ public class RequestConfig {
     /**
      * 配置项
      */
-    private List<ItermConfig> regexConfigs;
+    private List<ItermConfig> itermConfigs;
 }

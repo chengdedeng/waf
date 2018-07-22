@@ -47,7 +47,10 @@ public class ExceptionHandlerAdvice {
         List<ObjectError> errorList = e.getBindingResult().getAllErrors();
         Map errMap = Maps.newHashMap();
         for (ObjectError err : errorList) {
-            errMap.put(((FieldError) err).getField(), err.getDefaultMessage());
+            if (err instanceof FieldError)
+                errMap.put(((FieldError) err).getField(), err.getDefaultMessage());
+            else if (err instanceof ObjectError)
+                errMap.put(((ObjectError) err).getObjectName(), err.getDefaultMessage());
         }
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.BAD_REQUEST.value());

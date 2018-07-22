@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class ScriptEntry {
     static Logger logger = LoggerFactory.getLogger(ScriptEntry.class)
 
-    void execute(HttpRequest originalRequest, HttpObject httpObject, AtomicBoolean result,String script) {
+    void execute(HttpRequest originalRequest, HttpObject httpObject, AtomicBoolean result, String script) {
         GroovySandbox sandbox = new GroovySandbox()
         def cc = new CompilerConfiguration()
         cc.addCompilationCustomizers(new SandboxTransformer())

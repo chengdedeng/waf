@@ -41,7 +41,7 @@ public class HttpRequestFilterChain {
         for (HttpRequestFilter filter : filters) {
             RequestConfig config = clusterService.getRequestConfigs().get(filter.getClass().getName());
             if (config.getConfig().getIsStart()) {
-                boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getRegexConfigs());
+                boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getItermConfigs());
                 if (result && filter.isBlacklist()) {
                     return new ImmutablePair<>(filter.isBlacklist(), filter);
                 } else if (result && !filter.isBlacklist()) {
