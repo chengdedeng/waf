@@ -32,7 +32,7 @@ bin/waf { console | start | stop | restart | status | dump }
 ##### 配置:
 2.0开始配置分为基础配置和应用配置，基础配置就是Classpath下的waf.properties、admin.properties、application.properties、cluster.properties；
 应用配置则需要通过接口进行设置，waf目前还没有一套简易的UI来进行设置，不过集成了swagger，可以通过swagger ui界面来配置。2.0相较于1.0，配置集中化之后的好处在于配置修改
-不再需要停机重新加载，规则随时可以添加、禁用删除。配置中心目前zookeeper是稳定的，atomix自研的配置中心目前还不完善，建议别开启atomix的spi实现。由于没有UI，所以接口做了
+不再需要停机重新加载，规则随时可以添加、禁用删除。配置中心目前zookeeper是稳定的，atomix自研的配置中心目前还不完善，建议别开启atomix的spi实现。尽管没有UI，但是接口做了
 详细的校验，大家可以放心设置，不大会出现配置参数设置错误导致的系统崩溃。
 
 
@@ -88,7 +88,7 @@ wrapper.java.additional.9=-XX:+PrintGCTimeStamps
 wrapper.java.additional.10=-XX:+PreserveFramePointer
 ```
 
-##### WAF参数配置:
+##### WAF基础配置:
 ```
 #on表示waf支持loadbalance,需要配置upstream.properties,与waf.proxy.chain和waf.mitm互斥
 waf.lb=on
