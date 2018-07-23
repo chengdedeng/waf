@@ -5,44 +5,18 @@ import info.yangguo.waf.Constant;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ChannelFactory;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.udt.nio.NioUdtProvider;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMessage;
-import io.netty.handler.codec.http.HttpObject;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpRequestEncoder;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.proxy.Socks5ProxyHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.traffic.GlobalTrafficShapingHandler;
 import io.netty.util.ReferenceCounted;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import org.littleshoot.proxy.ActivityTracker;
-import org.littleshoot.proxy.ChainedProxy;
-import org.littleshoot.proxy.ChainedProxyAdapter;
-import org.littleshoot.proxy.ChainedProxyManager;
-import org.littleshoot.proxy.FullFlowContext;
-import org.littleshoot.proxy.HttpFilters;
-import org.littleshoot.proxy.MitmManager;
-import org.littleshoot.proxy.TransportProtocol;
-import org.littleshoot.proxy.UnknownTransportProtocolException;
+import org.littleshoot.proxy.*;
 
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSession;
@@ -53,12 +27,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.RejectedExecutionException;
 
-import static org.littleshoot.proxy.impl.ConnectionState.AWAITING_CHUNK;
-import static org.littleshoot.proxy.impl.ConnectionState.AWAITING_CONNECT_OK;
-import static org.littleshoot.proxy.impl.ConnectionState.AWAITING_INITIAL;
-import static org.littleshoot.proxy.impl.ConnectionState.CONNECTING;
-import static org.littleshoot.proxy.impl.ConnectionState.DISCONNECTED;
-import static org.littleshoot.proxy.impl.ConnectionState.HANDSHAKING;
+import static org.littleshoot.proxy.impl.ConnectionState.*;
 
 /**
  * <p>
@@ -66,7 +35,7 @@ import static org.littleshoot.proxy.impl.ConnectionState.HANDSHAKING;
  * ProxyConnections are reused fairly liberally, and can go from disconnected to
  * connected, back to disconnected and so on.
  * </p>
- *
+ * <p>
  * <p>
  * Connecting a {@link ProxyToServerConnection} can involve more than just
  * connecting the underlying {@link Channel}. In particular, the connection may
@@ -264,12 +233,12 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
      * doesn't know that any given response is to a HEAD request, so it needs to
      * be told that there's no content so that it doesn't hang waiting for it.
      * </p>
-     *
+     * <p>
      * <p>
      * See the documentation for {@link HttpResponseDecoder} for information
      * about why HEAD requests need special handling.
      * </p>
-     *
+     * <p>
      * <p>
      * Thanks to <a href="https://github.com/nataliakoval">nataliakoval</a> for
      * pointing out that with connections being reused as they are, this needs
@@ -289,13 +258,15 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             // negotiating a CONNECT request with a chained proxy
             // while it is running as a MITM. Since the response to a
             // CONNECT request does not have any content, we return true.
-            if(currentHttpRequest == null) {
+            if (currentHttpRequest == null) {
                 return true;
             } else {
                 return ProxyUtils.isHEAD(currentHttpRequest) || super.isContentAlwaysEmpty(httpMessage);
             }
         }
-    };
+    }
+
+    ;
 
     /***************************************************************************
      * Writing
@@ -350,7 +321,9 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             LOG.debug("Using existing connection to: {}", remoteAddress);
             doWrite(msg);
         }
-    };
+    }
+
+    ;
 
     @Override
     protected void writeHttp(HttpObject httpObject) {
@@ -624,10 +597,12 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             cb.handler(new ChannelInitializer<Channel>() {
                 protected void initChannel(Channel ch) throws Exception {
                     initChannelPipeline(ch.pipeline(), initialRequest);
-                    if("on".equals(Constant.wafConfs.get("waf.ss"))){
+                    if ("on".equals(Constant.wafConfs.get("waf.ss"))) {
                         ch.pipeline().addFirst(new Socks5ProxyHandler(new InetSocketAddress(Constant.wafConfs.get("waf.ss.server.host"), Integer.valueOf(Constant.wafConfs.get("waf.ss.server.port")))));
                     }
-                };
+                }
+
+                ;
             });
             cb.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
                     proxyServer.getConnectTimeout());
@@ -659,13 +634,13 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
              * when the next request is written. Writing the EmptyLastContent
              * resets its state.
              */
-            if(isMitmEnabled){
+            if (isMitmEnabled) {
                 ChannelFuture future = writeToChannel(initialRequest);
                 future.addListener(new ChannelFutureListener() {
 
                     @Override
                     public void operationComplete(ChannelFuture arg0) throws Exception {
-                        if(arg0.isSuccess()){
+                        if (arg0.isSuccess()) {
                             writeToChannel(LastHttpContent.EMPTY_LAST_CONTENT);
                         }
                     }
@@ -704,7 +679,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
      * <p>
      * Encrypts the client channel based on our server {@link SSLSession}.
      * </p>
-     *
+     * <p>
      * <p>
      * This does not wait for the handshake to finish so that we can go on and
      * respond to the CONNECT request.
@@ -778,7 +753,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             // Let the ChainedProxy know that we were unable to connect
             chainedProxy.connectionFailed(cause);
         } else {
-            LOG.info("Connection to upstream server failed", cause);
+            LOG.warn("Connection to upstream server failed,{}", cause.getMessage());
         }
 
         // attempt to connect using a chained proxy, if available
@@ -859,11 +834,11 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
     /**
      * Initialize our {@link ChannelPipeline} to connect the upstream server.
      * LittleProxy acts as a client here.
-     *
+     * <p>
      * A {@link ChannelPipeline} invokes the read (Inbound) handlers in
      * ascending ordering of the list and then the write (Outbound) handlers in
      * descending ordering.
-     *
+     * <p>
      * Regarding the Javadoc of {@link HttpObjectAggregator} it's needed to have
      * the {@link HttpResponseEncoder} or {@link HttpRequestEncoder} before the
      * {@link HttpObjectAggregator} in the {@link ChannelPipeline}.
@@ -912,9 +887,8 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
      * has succeeded.
      * </p>
      *
-     * @param shouldForwardInitialRequest
-     *            whether or not we should forward the initial HttpRequest to
-     *            the server after the connection has been established.
+     * @param shouldForwardInitialRequest whether or not we should forward the initial HttpRequest to
+     *                                    the server after the connection has been established.
      */
     void connectionSucceeded(boolean shouldForwardInitialRequest) {
         become(AWAITING_INITIAL);
@@ -940,7 +914,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
         // completely dropped (HTTPS CONNECTs). if the initialRequest is reference counted (typically because the HttpObjectAggregator is in
         // the pipeline to generate FullHttpRequests), we need to manually release it to avoid a memory leak.
         if (initialRequest instanceof ReferenceCounted) {
-            ((ReferenceCounted)initialRequest).release();
+            ((ReferenceCounted) initialRequest).release();
         }
     }
 
@@ -951,7 +925,7 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
      * @param proxyServer the current {@link DefaultHttpProxyServer}
      * @return a resolved InetSocketAddress for the specified hostAndPort
      * @throws UnknownHostException if hostAndPort could not be resolved, or if the input string could not be parsed into
-     *          a host and port.
+     *                              a host and port.
      */
     public static InetSocketAddress addressFor(String hostAndPort, DefaultHttpProxyServer proxyServer)
             throws UnknownHostException {

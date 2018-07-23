@@ -1,10 +1,12 @@
 package info.yangguo.waf.response;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import info.yangguo.waf.model.ResponseConfig;
+import info.yangguo.waf.service.ClusterService;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author:杨果
@@ -15,14 +17,16 @@ import io.netty.handler.codec.http.HttpResponse;
 public class HttpResponseFilterChain {
     public List<HttpResponseFilter> filters = new ArrayList<>();
 
-    public HttpResponseFilterChain addFilter(HttpResponseFilter filter) {
-        filters.add(filter);
-        return this;
+    public HttpResponseFilterChain() {
+        filters.add(new ClickjackHttpResponseFilter());
     }
 
-    public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse) {
+    public void doFilter(HttpRequest originalRequest, HttpResponse httpResponse, ClusterService clusterService) {
         for (HttpResponseFilter filter : filters) {
-            filter.doFilter(originalRequest, httpResponse);
+            ResponseConfig responseConfig = clusterService.getResponseConfigs().get(filter.getClass().getName());
+            if (responseConfig.getConfig().getIsStart()) {
+                filter.doFilter(originalRequest, httpResponse);
+            }
         }
     }
 }

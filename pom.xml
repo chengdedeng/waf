@@ -3,13 +3,42 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <version>1.0</version>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.14.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <version>2.0-SNAPSHOT</version>
     <groupId>info.yangguo</groupId>
     <artifactId>waf</artifactId>
 
+    <profiles>
+        <profile>
+            <id>server1</id>
+            <properties>
+                <env>server1</env>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>server2</id>
+            <properties>
+                <env>server2</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>server3</id>
+            <properties>
+                <env>server3</env>
+            </properties>
+        </profile>
+    </profiles>
+
     <properties>
-        <org.springframework>4.2.5.RELEASE</org.springframework>
-        <io.dropwizard.metrics>3.1.2</io.dropwizard.metrics>
         <maven.deploy.skip>true</maven.deploy.skip>
     </properties>
 
@@ -37,46 +66,52 @@
             <version>2.1.4</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${org.springframework}</version>
-        </dependency>
-        <!-- log -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.21</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.7</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+            <version>4.2.3.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>1.5.13</version>
         </dependency>
         <!-- metrics -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
-            <version>${io.dropwizard.metrics}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-graphite</artifactId>
-            <version>${io.dropwizard.metrics}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-log4j</artifactId>
-            <version>${io.dropwizard.metrics}</version>
+            <artifactId>metrics-logback</artifactId>
+            <version>${dropwizard-metrics.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
-            <version>${io.dropwizard.metrics}</version>
+            <version>${dropwizard-metrics.version}</version>
         </dependency>
         <dependency>
             <groupId>com.ryantenney.metrics</groupId>
@@ -96,17 +131,14 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
-            <version>4.4.6</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.5.2</version>
         </dependency>
         <dependency>
             <groupId>org.owasp.esapi</groupId>
@@ -116,7 +148,6 @@
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.9.9</version>
         </dependency>
         <!--test-->
         <dependency>
@@ -128,13 +159,67 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.16</version>
+        </dependency>
+        <dependency>
+            <groupId>io.atomix</groupId>
+            <artifactId>atomix</artifactId>
+            <version>2.1.0-beta3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.atomix</groupId>
+            <artifactId>atomix-primary-backup</artifactId>
+            <version>2.1.0-beta3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.atomix</groupId>
+            <artifactId>atomix-raft</artifactId>
+            <version>2.1.0-beta3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-client</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>groovy-sandbox</artifactId>
+            <version>1.19</version>
         </dependency>
     </dependencies>
 
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>server1/**</exclude>
+                    <exclude>server2/**</exclude>
+                    <exclude>server3/**</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/main/resources/${env}</directory>
+                <targetPath>${project.build.outputDirectory}</targetPath>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -157,7 +242,7 @@
                     <repositoryName>lib</repositoryName>
                     <configurationDirectory>conf</configurationDirectory>
                     <copyConfigurationDirectory>true</copyConfigurationDirectory>
-                    <configurationSourceDirectory>src/main/resources
+                    <configurationSourceDirectory>src/main/resources/${env}
                     </configurationSourceDirectory>
                     <includeConfigurationDirectoryInClasspath>true
                     </includeConfigurationDirectoryInClasspath>
@@ -204,8 +289,8 @@
                             <jvmSettings>
                                 <extraArguments>
                                     <extraArgument>-server</extraArgument>
-                                    <extraArgument>-Xms128m</extraArgument>
-                                    <extraArgument>-Xmx128m</extraArgument>
+                                    <extraArgument>-Xms256m</extraArgument>
+                                    <extraArgument>-Xmx256m</extraArgument>
                                     <extraArgument>-Xmn60m</extraArgument>
                                     <extraArgument>-XX:+UseG1GC</extraArgument>
                                     <extraArgument>-Xloggc:/tmp/log/gc.log</extraArgument>
@@ -213,7 +298,7 @@
                                     <extraArgument>-XX:+PrintGCDetails</extraArgument>
                                     <extraArgument>-XX:+PrintGCTimeStamps</extraArgument>
                                     <!--This section provides a tutorial example on how to the '-verbose:class' option on the 'java' command to see when and where classes are loaded into the JVM.-->
-                                    <extraArgument>-verbose:class</extraArgument>
+                                    <!--<extraArgument>-verbose:class</extraArgument>-->
                                     <!--火焰图,只支持JDK8-->
                                     <!--<extraArgument>-XX:+PreserveFramePointer</extraArgument>-->
                                     <!--测试SSL-->

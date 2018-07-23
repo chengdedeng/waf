@@ -1,29 +1,28 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author:杨果
  * @date:2017/5/15 上午9:59
- *
+ * <p>
  * Description:
- *
  */
 public class ScannerHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(ScannerHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
@@ -43,7 +42,7 @@ public class ScannerHttpRequestFilter extends HttpRequestFilter {
             Matcher matcher1 = pattern1.matcher(httpRequest.getUri());
 
             //Bugscan
-            String bsKey="--%3E%27%22%3E%3CH1%3EXSS%40HERE%3C%2FH1%3E";
+            String bsKey = "--%3E%27%22%3E%3CH1%3EXSS%40HERE%3C%2FH1%3E";
             boolean matcher2 = httpRequest.getUri().contains(bsKey);
 
             //Netsparker

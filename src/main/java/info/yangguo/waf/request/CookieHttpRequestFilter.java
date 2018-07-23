@@ -1,7 +1,7 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.util.ConfUtil;
+import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -24,7 +24,7 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
     private static final Logger logger = LoggerFactory.getLogger(CookieHttpRequestFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
@@ -32,11 +32,14 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
             if (headerValues.size() > 0 && headerValues.get(0) != null) {
                 String[] cookies = headerValues.get(0).split(";");
                 for (String cookie : cookies) {
-                    for (Pattern pat : ConfUtil.getPattern(FilterType.COOKIE.name())) {
-                        Matcher matcher = pat.matcher(cookie.toLowerCase());
-                        if (matcher.find()) {
-                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), FilterType.COOKIE.name(), pat.toString());
-                            return true;
+                    for (ItermConfig iterm : iterms) {
+                        if (iterm.getConfig().getIsStart()) {
+                            Pattern pattern = Pattern.compile(iterm.getName());
+                            Matcher matcher = pattern.matcher(cookie.toLowerCase());
+                            if (matcher.find()) {
+                                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Cookie", iterm.getName());
+                                return true;
+                            }
                         }
                     }
                 }

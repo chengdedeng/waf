@@ -1,9 +1,11 @@
 package info.yangguo.waf;
 
-import info.yangguo.waf.request.*;
-import info.yangguo.waf.response.ClickjackHttpResponseFilter;
+import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.model.WeightedRoundRobinScheduling;
+import info.yangguo.waf.request.CCHttpRequestFilter;
+import info.yangguo.waf.request.HttpRequestFilter;
+import info.yangguo.waf.request.HttpRequestFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
-import info.yangguo.waf.util.WeightedRoundRobinScheduling;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.*;
@@ -29,55 +31,23 @@ import java.util.List;
 public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
     private static final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain();
-    private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain()
-            .addFilter(new ClickjackHttpResponseFilter());
-
-    static {
-        if (Constant.wafConfs.get("waf.ip.whitelist").equals("on")) {
-            httpRequestFilterChain.addFilter(new WIpHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.ip.blacklist").equals("on")) {
-            httpRequestFilterChain.addFilter(new IpHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.cc").equals("on")) {
-            httpRequestFilterChain.addFilter(new CCHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.scanner").equals("on")) {
-            httpRequestFilterChain.addFilter(new ScannerHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.url.whitelist").equals("on")) {
-            httpRequestFilterChain.addFilter(new WUrlHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.ua").equals("on")) {
-            httpRequestFilterChain.addFilter(new UaHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.url.blacklist").equals("on")) {
-            httpRequestFilterChain.addFilter(new UrlHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.args").equals("on")) {
-            httpRequestFilterChain.addFilter(new ArgsHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.cookie").equals("on")) {
-            httpRequestFilterChain.addFilter(new CookieHttpRequestFilter());
-        }
-        if (Constant.wafConfs.get("waf.post").equals("on")) {
-            httpRequestFilterChain.addFilter(new PostHttpRequestFilter());
-        }
-    }
+    private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain();
 
 
     public HttpFilterAdapterImpl(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
     }
 
-
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
         HttpResponse httpResponse = null;
         try {
-            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx);
+            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
             if (immutablePair.left) {
-                httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
+                if (immutablePair.right instanceof CCHttpRequestFilter)
+                    httpResponse = createResponse(HttpResponseStatus.SERVICE_UNAVAILABLE, originalRequest);
+                else
+                    httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
             }
         } catch (Exception e) {
             httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
@@ -130,7 +100,11 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     @Override
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
-            httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject);
+            try {
+                httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
+            } catch (Exception e) {
+                logger.error("response filter failed", e.getCause());
+            }
         }
         return httpObject;
     }
@@ -147,9 +121,9 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
                 String remoteHostName = proxyToServerConnection.getRemoteAddress().getAddress().getHostAddress();
                 int remoteHostPort = proxyToServerConnection.getRemoteAddress().getPort();
 
-                WeightedRoundRobinScheduling weightedRoundRobinScheduling = HostResolverImpl.getSingleton().getServers(serverHostAndPort);
-                weightedRoundRobinScheduling.unhealthilyServers.add(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
-                weightedRoundRobinScheduling.healthilyServers.remove(weightedRoundRobinScheduling.serversMap.get(remoteHostName + "_" + remoteHostPort));
+                WeightedRoundRobinScheduling weightedRoundRobinScheduling = ContextHolder.getClusterService().getUpstreamConfig().get(serverHostAndPort);
+                weightedRoundRobinScheduling.getUnhealthilyServerConfigs().add(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
+                weightedRoundRobinScheduling.getHealthilyServerConfigs().remove(weightedRoundRobinScheduling.getServersMap().get(remoteHostName + "_" + remoteHostPort));
             } catch (Exception e) {
                 logger.error("connection of proxy->server is failed", e);
             }

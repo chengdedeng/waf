@@ -1,7 +1,7 @@
 package info.yangguo.waf.request;
 
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.util.ConfUtil;
+import info.yangguo.waf.model.ItermConfig;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -23,10 +23,9 @@ import java.util.regex.Pattern;
  */
 public class PostHttpRequestFilter extends HttpRequestFilter {
     private static Logger logger = LoggerFactory.getLogger(PostHttpRequestFilter.class);
-    private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<ItermConfig> iterms) {
         if (originalRequest.getMethod().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
@@ -40,28 +39,18 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                             String contentStr = new String(Unpooled.copiedBuffer(httpContent.content()).array()).replaceAll("%", "%25");
                             contentBody = URLDecoder.decode(contentStr, "UTF-8");
                         } catch (Exception e) {
-                            logger.warn("URL:{} POST body is inconsistent with the rules", originalRequest.getUri(), e);
+                            logger.warn("URL:{} POST body is inconsistent with the iterms", originalRequest.getUri(), e);
                         }
                     }
 
                     if (contentBody != null) {
-                        List<Pattern> postPatternList = ConfUtil.getPattern(FilterType.POST.name());
-                        for (Pattern pattern : postPatternList) {
-                            Matcher matcher = pattern.matcher(contentBody.toLowerCase());
-                            if (matcher.find()) {
-                                hackLog(logger, Constant.getRealIp(originalRequest, ctx), FilterType.POST.name(), pattern.toString());
-                                return true;
-                            }
-                        }
-                        if (Constant.wafConfs.get("waf.file").equals("on")) {
-                            Matcher fileMatcher = filePattern.matcher(contentBody);
-                            if (fileMatcher.find()) {
-                                String fileExt = fileMatcher.group(3);
-                                for (Pattern pat : ConfUtil.getPattern(FilterType.FILE.name())) {
-                                    if (pat.matcher(fileExt).matches()) {
-                                        hackLog(logger, Constant.getRealIp(originalRequest, ctx), FilterType.POST.name(), filePattern.toString());
-                                        return true;
-                                    }
+                        for (ItermConfig iterm : iterms) {
+                            if (iterm.getConfig().getIsStart()) {
+                                Pattern pattern = Pattern.compile(iterm.getName());
+                                Matcher matcher = pattern.matcher(contentBody.toLowerCase());
+                                if (matcher.find()) {
+                                    hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", iterm.getName());
+                                    return true;
                                 }
                             }
                         }

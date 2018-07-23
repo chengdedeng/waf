@@ -1,7 +1,6 @@
 package info.yangguo.waf.response;
 
 import info.yangguo.waf.Constant;
-
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 
