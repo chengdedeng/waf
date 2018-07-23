@@ -4,10 +4,14 @@
 
 
 ### 特性
-1. 支持"hijacking" HTTPS connection using "Man in the Middle" style attack.
-2. 支持HTTP proxy, HTTPS through CONNECT.
-3. 支持非法参数拦截.
-4. 支持下游代理为Socks5.
+1. 支持"hijacking" HTTPS connection using "Man in the Middle" style attack；
+2. 支持HTTP proxy， HTTPS through CONNECT；
+3. 支持非法参数拦截；
+4. CC攻击防护；
+5. 支持下游代理为Socks5；
+6. 集中式配置（2.0新增）；
+7. 引入Groovy脚本引擎，可以通过脚本实时编写拦截器，而且脚本是运行在受限的沙箱之中（2.0新增）。
+
 
 ### Quick Start
 
@@ -26,8 +30,10 @@ bin/waf { console | start | stop | restart | status | dump }
 ```
 
 ##### 配置:
-配置文件在conf目录下,upstream.properties中配置的是需要反向代理的目标机,waf.properties中配置的是WAF拦截的信息及一些常规配置,wrapper.conf
-中是JSW的配置文件,这里面包含JVM配置等信息.
+2.0开始配置分为基础配置和应用配置，基础配置就是Classpath下的waf.properties、admin.properties、application.properties、cluster.properties；
+应用配置则需要通过接口进行设置，waf目前还没有一套简易的UI来进行设置，不过集成了swagger，可以通过swagger ui界面来配置。2.0相较于1.0，配置集中化之后的好处在于配置修改
+不再需要停机重新加载，规则随时可以添加、禁用删除。配置中心目前zookeeper是稳定的，atomix自研的配置中心目前还不完善，建议别开启atomix的spi实现。由于没有UI，所以接口做了
+详细的校验，大家可以放心设置，不大会出现配置参数设置错误导致的系统崩溃。
 
 
 ### 架构
@@ -40,6 +46,7 @@ LittleProxy是[LANTERN](https://getlantern.org/)的维护者发起的开源项�
 
 更多技术详情请移步个人[Java版WAF技术细节](http://www.yangguo.info/2017/06/06/Java%E7%89%88WAF%E5%AE%9E%E7%8E%B0/#more)
 [HttpProxy研发心得](http://www.yangguo.info/2017/11/13/HttpProxy%E7%A0%94%E5%8F%91%E5%BF%83%E5%BE%97/#more)
+
 
 ### 性能
 
@@ -83,50 +90,33 @@ wrapper.java.additional.10=-XX:+PreserveFramePointer
 
 ##### WAF参数配置:
 ```
-#url路径拦截
-waf.url=on
-#cookie拦截
-waf.cookie=on
-#user agent拦截
-waf.ua=on
-#post body参数拦截
-waf.post=on
-#url参数拦截
-waf.args=on
-#文件拦截
-waf.file=on
-#cc拦截
-waf.cc=on
-#扫描器拦截
-waf.scanner=on
-#每秒rate
-waf.cc.rate=10000
 #on表示waf支持loadbalance,需要配置upstream.properties,与waf.proxy.chain和waf.mitm互斥
-waf.proxy.lb=off
+waf.lb=on
 #设置重试间隔时间，默认10秒
-waf.proxy.lb.fail_timeout=10
+waf.lb.fail_timeout=10
 #是否路由到waf下游的proxy,与waf.proxy.lb互斥
-waf.proxy.chain=off
+waf.chain=off
 #waf下游的proxy,多个用","分隔.注意只有前一个不可用,才会用下一个,下游proxy不会负载均衡
-waf.proxy.chain.servers=127.0.0.1:8180
+waf.chain.servers=127.0.0.1:4321
 #是否启用TLS,与waf.mitm互斥
 waf.tls=off
 #是否HTTPS开启中间人拦截,与waf.tls和waf.proxy.lb互斥
-waf.mitm=on
-#ip白名单
-waf.ip.whitelist=on
-#ip黑名单
-waf.ip.blacklist=on
-#url白名单
-waf.url.whitelist=on
-#接收者线程数
-waf.acceptorThreads=20
+waf.mitm=off
+#接收者线程数,如果系统只有一个服务端port需要监听,则BossGroup线程组线程数设置为 1。
+#https://stackoverflow.com/questions/22280916/do-we-need-more-than-a-single-thread-for-boss-group
+waf.acceptorThreads=1
 #处理client请求的工作线程数
 waf.clientToProxyWorkerThreads=100
 #处理proxy与后端服务器的工作线程数
 waf.proxyToServerWorkerThreads=100
 #waf服务器端口
-waf.serverPort=8080
+waf.serverPort=9091
+#是否开启Socks5支持
+waf.ss=off
+waf.ss.server.host=127.0.0.1
+waf.ss.server.port=1080
+#The timeout (in seconds) for auto-closing idle connections.
+waf.idleConnectionTimeout=70
 ```
 
 ##### 服务器/虚拟机(测试机)配置:
