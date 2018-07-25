@@ -2,6 +2,7 @@ package info.yangguo.waf.util;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -17,8 +18,8 @@ public class JsonUtil {
     /**
      * 将json发序列化为对象
      *
-     * @param jsonAsString json字符串
-     * @param pojoClass    需要反序列化的类型
+     * @param jsonAsString
+     * @param pojoClass
      */
     public static <T> Object fromJson(String jsonAsString, Class<T> pojoClass) {
         Object result = null;
@@ -31,11 +32,26 @@ public class JsonUtil {
     }
 
     /**
+     * 将json发序列化为对象
+     *
+     * @param jsonAsString
+     * @param reference
+     */
+    public static <T> T fromJson(String jsonAsString, TypeReference<T> reference) {
+        T result = null;
+        try {
+            result = objectMapper.readValue(jsonAsString, reference);
+        } catch (Exception e) {
+            logger.error("JSON[{}]反序列化失败\n{}", jsonAsString, ExceptionUtils.getFullStackTrace(e));
+        }
+        return result;
+    }
+
+    /**
      * 将对象转化为json
      *
-     * @param pojo        需要序列化的对象
-     * @param prettyPrint 是否打印优化，即换行
-     * @return String 返回序列化的字符串
+     * @param pojo
+     * @param prettyPrint
      */
     public static String toJson(Object pojo, boolean prettyPrint) {
         String result = null;

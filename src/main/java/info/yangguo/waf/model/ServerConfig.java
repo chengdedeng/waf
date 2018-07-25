@@ -6,12 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ServerConfig {
+public class ServerConfig implements Serializable {
+    private static final long serialVersionUID = 7426117635312217242L;
     /**
      * 服务器IP
      */

@@ -1,8 +1,11 @@
 package info.yangguo.waf.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +20,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * <p>
  * 权重轮询调度算法(WeightedRound-RobinScheduling)-Java实现
  */
-public class WeightedRoundRobinScheduling {
+@NoArgsConstructor
+public class WeightedRoundRobinScheduling implements Serializable {
+    private static final long serialVersionUID = -3030570670940352661L;
     @Getter
     @Setter
     private BasicConfig basicConfig;//host对应的upstream是否开启
@@ -76,6 +81,7 @@ public class WeightedRoundRobinScheduling {
      * 权值currentWeight初始化为0，currentIndex初始化为-1 ，当第一次的时候返回 权值取最大的那个服务器， 通过权重的不断递减 寻找
      * 适合的服务器返回，直到轮询结束，权值返回为0
      */
+    @JsonIgnore
     public ServerConfig getServer() {
         if (healthilyServerConfigs.size() == 0) {
             return null;

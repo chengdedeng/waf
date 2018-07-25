@@ -6,12 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ResponseConfig {
+public class ResponseConfig implements Serializable {
+    private static final long serialVersionUID = 2031500986318114814L;
     /**
      * 拦截器名称
      */

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -14,7 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class RequestConfig {
+public class RequestConfig implements Serializable{
+    private static final long serialVersionUID = 7698988201535399962L;
     /**
      * 拦截器名称
      */

@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -13,7 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UpstreamConfig {
+public class UpstreamConfig implements Serializable {
+    private static final long serialVersionUID = 1392103965835939457L;
     /**
      * Upstream唯一标志
      */
