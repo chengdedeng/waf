@@ -62,7 +62,7 @@ public class ScriptHttpRequestFilter extends HttpRequestFilter {
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         AtomicBoolean result = new AtomicBoolean(false);
-        scripts.entrySet().stream().anyMatch(entry -> {
+        scripts.entrySet().parallelStream().anyMatch(entry -> {
             scriptEntry.execute(originalRequest, httpObject, result, entry.getValue());
             return result.get();
         });

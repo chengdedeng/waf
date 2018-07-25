@@ -14,6 +14,10 @@ public class ItermExtensionValidator implements ConstraintValidator<CheckItermCo
     @Override
     public boolean isValid(RequestItermConfigDto config, ConstraintValidatorContext context) {
         if (CCHttpRequestFilter.class.getName().equals(config.getFilterName())) {
+            if(config.getExtension()==null){
+                context.buildConstraintViolationWithTemplate("CCHttpRequestFilter extension value can't be null").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
+                return false;
+            }
             boolean isMatch = config.getExtension().values().stream().anyMatch(value -> {
                 if (value instanceof Integer)
                     return false;

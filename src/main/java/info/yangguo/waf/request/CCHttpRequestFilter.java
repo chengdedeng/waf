@@ -55,7 +55,7 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
-            Optional<String> httpHost = Constant.getHeaderValues(originalRequest, "host").stream().findFirst();
+            Optional<String> httpHost = Optional.ofNullable(Constant.getHeaderValues(originalRequest, "host").get(0));
             HttpRequest httpRequest = (HttpRequest) httpObject;
             Optional<String> url;
             int index = httpRequest.uri().indexOf("?");
@@ -78,7 +78,7 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                         .getRequestConfigs()
                         .get(CCHttpRequestFilter.class.getName())
                         .getItermConfigs()
-                        .stream()
+                        .parallelStream()
                         .filter(iterm -> {
                             if (host.toString().equals(iterm.getName()))
                                 return true;
@@ -90,7 +90,7 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                             else
                                 return false;
                         }).flatMap(iterm -> {
-                            return iterm.getConfig().getExtension().entrySet().stream();
+                            return iterm.getConfig().getExtension().entrySet().parallelStream();
                         }).filter(entry -> {
                             Pattern pattern = Pattern.compile(entry.getKey());
                             Matcher matcher = pattern.matcher(url.get());
