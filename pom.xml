@@ -94,29 +94,17 @@
             <artifactId>swagger-annotations</artifactId>
             <version>1.5.13</version>
         </dependency>
-        <!-- metrics -->
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
-            <artifactId>metrics-graphite</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-logback</artifactId>
-            <version>${dropwizard-metrics.version}</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jvm</artifactId>
-            <version>${dropwizard-metrics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ryantenney.metrics</groupId>
-            <artifactId>metrics-spring</artifactId>
-            <version>3.1.3</version>
         </dependency>
         <dependency>
             <groupId>org.owasp.esapi</groupId>

@@ -18,3 +18,4 @@ log/
 *.p12
 standlone/*
 metadata/*
+*.log

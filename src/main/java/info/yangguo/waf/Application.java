@@ -1,6 +1,7 @@
 package info.yangguo.waf;
 
 
+import com.codahale.metrics.Slf4jReporter;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.ServerConfig;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
@@ -37,6 +38,14 @@ public class Application {
     private static Logger logger = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) {
+        //初始化metric reporter
+        Slf4jReporter reporter = Slf4jReporter.forRegistry(Constant.metrics)
+                .outputTo(LoggerFactory.getLogger("info.yangguo.waf.metrics"))
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build();
+        reporter.start(1, TimeUnit.MINUTES);
+
         SpringApplication.run(Application.class, args);
 
         ServiceLoader<ClusterService> serviceLoader = ServiceLoader.load(ClusterService.class);
@@ -187,7 +196,7 @@ public class Application {
 
         @Override
         public void run() {
-            logger.info("..........upstream server check..........");
+            logger.debug("upstream server check");
             try {
                 for (Map.Entry<String, WeightedRoundRobinScheduling> entry : ContextHolder.getClusterService().getUpstreamConfig().entrySet()) {
                     WeightedRoundRobinScheduling weightedRoundRobinScheduling = entry.getValue();

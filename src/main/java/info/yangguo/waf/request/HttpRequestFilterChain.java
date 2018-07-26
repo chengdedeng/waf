@@ -1,5 +1,7 @@
 package info.yangguo.waf.request;
 
+import com.codahale.metrics.Timer;
+import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.RequestConfig;
 import info.yangguo.waf.service.ClusterService;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,14 +41,20 @@ public class HttpRequestFilterChain {
 
     public ImmutablePair<Boolean, HttpRequestFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ClusterService clusterService) {
         for (HttpRequestFilter filter : filters) {
-            RequestConfig config = clusterService.getRequestConfigs().get(filter.getClass().getName());
-            if (config.getConfig().getIsStart()) {
-                boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getItermConfigs());
-                if (result && filter.isBlacklist()) {
-                    return new ImmutablePair<>(filter.isBlacklist(), filter);
-                } else if (result && !filter.isBlacklist()) {
-                    break;
+            Timer filterTimer = Constant.metrics.timer(filter.getClass().getName());
+            Timer.Context filterContext = filterTimer.time();
+            try {
+                RequestConfig config = clusterService.getRequestConfigs().get(filter.getClass().getName());
+                if (config.getConfig().getIsStart()) {
+                    boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getItermConfigs());
+                    if (result && filter.isBlacklist()) {
+                        return new ImmutablePair<>(filter.isBlacklist(), filter);
+                    } else if (result && !filter.isBlacklist()) {
+                        break;
+                    }
                 }
+            } finally {
+                filterContext.stop();
             }
         }
         return new ImmutablePair<>(false, null);
