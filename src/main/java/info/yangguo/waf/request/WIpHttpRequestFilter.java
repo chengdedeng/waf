@@ -1,5 +1,6 @@
 package info.yangguo.waf.request;
 
+import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,11 +36,17 @@ public class WIpHttpRequestFilter extends HttpRequestFilter {
             HttpRequest httpRequest = (HttpRequest) httpObject;
             for (ItermConfig iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {
-                    Pattern pattern = Pattern.compile(iterm.getName());
-                    Matcher matcher = pattern.matcher(Constant.getRealIp(httpRequest, channelHandlerContext));
-                    if (matcher.find()) {
-                        hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "WIp", iterm.getName());
-                        return true;
+                    Timer itermTimer = Constant.metrics.timer("WIpHttpRequestFilter[" + iterm.getName() + "]");
+                    Timer.Context itermContext = itermTimer.time();
+                    try {
+                        Pattern pattern = Pattern.compile(iterm.getName());
+                        Matcher matcher = pattern.matcher(Constant.getRealIp(httpRequest, channelHandlerContext));
+                        if (matcher.find()) {
+                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "WIp", iterm.getName());
+                            return true;
+                        }
+                    } finally {
+                        itermContext.stop();
                     }
                 }
             }

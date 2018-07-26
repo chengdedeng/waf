@@ -1,5 +1,6 @@
 package info.yangguo.waf.request;
 
+import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,11 +35,17 @@ public class CookieHttpRequestFilter extends HttpRequestFilter {
                 for (String cookie : cookies) {
                     for (ItermConfig iterm : iterms) {
                         if (iterm.getConfig().getIsStart()) {
-                            Pattern pattern = Pattern.compile(iterm.getName());
-                            Matcher matcher = pattern.matcher(cookie.toLowerCase());
-                            if (matcher.find()) {
-                                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Cookie", iterm.getName());
-                                return true;
+                            Timer itermTimer = Constant.metrics.timer("CookieHttpRequestFilter[" + iterm.getName() + "]");
+                            Timer.Context itermContext = itermTimer.time();
+                            try {
+                                Pattern pattern = Pattern.compile(iterm.getName());
+                                Matcher matcher = pattern.matcher(cookie.toLowerCase());
+                                if (matcher.find()) {
+                                    hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Cookie", iterm.getName());
+                                    return true;
+                                }
+                            } finally {
+                                itermContext.stop();
                             }
                         }
                     }

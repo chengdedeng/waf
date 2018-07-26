@@ -1,5 +1,6 @@
 package info.yangguo.waf.request;
 
+import com.codahale.metrics.Timer;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -80,24 +81,26 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                         .getItermConfigs()
                         .parallelStream()
                         .filter(iterm -> {
-                            if (host.toString().equals(iterm.getName()))
+                            if (host.toString().equals(iterm.getName()) && iterm.getConfig().getIsStart())
                                 return true;
                             else
                                 return false;
-                        }).filter(iterm -> {
-                            if (iterm.getConfig().getIsStart())
-                                return true;
-                            else
-                                return false;
-                        }).flatMap(iterm -> {
+                        })
+                        .flatMap(iterm -> {
                             return iterm.getConfig().getExtension().entrySet().parallelStream();
                         }).filter(entry -> {
-                            Pattern pattern = Pattern.compile(entry.getKey());
-                            Matcher matcher = pattern.matcher(url.get());
-                            if (matcher.matches()) {
-                                return true;
-                            } else {
-                                return false;
+                            Timer itermTimer = Constant.metrics.timer("CCHttpRequestFilter[" + entry.getKey() + "]");
+                            Timer.Context itermContext = itermTimer.time();
+                            try {
+                                Pattern pattern = Pattern.compile(entry.getKey());
+                                Matcher matcher = pattern.matcher(url.get());
+                                if (matcher.matches()) {
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            } finally {
+                                itermContext.stop();
                             }
                         }).min((e1, e2) -> ((Integer) e1.getValue()).compareTo(((Integer) e2.getValue())));
 

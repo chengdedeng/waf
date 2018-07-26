@@ -1,7 +1,9 @@
 package info.yangguo.waf.request;
 
+import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
 import com.xbniao.paas.script.ScriptEntry;
+import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
@@ -63,8 +65,14 @@ public class ScriptHttpRequestFilter extends HttpRequestFilter {
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
         AtomicBoolean result = new AtomicBoolean(false);
         scripts.entrySet().parallelStream().anyMatch(entry -> {
-            scriptEntry.execute(originalRequest, httpObject, result, entry.getValue());
-            return result.get();
+            Timer itermTimer = Constant.metrics.timer("ScriptHttpRequestFilter[" + entry.getKey() + "]");
+            Timer.Context itermContext = itermTimer.time();
+            try {
+                scriptEntry.execute(originalRequest, httpObject, result, entry.getValue());
+                return result.get();
+            } finally {
+                itermContext.stop();
+            }
         });
         return result.get();
     }

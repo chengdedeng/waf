@@ -1,5 +1,6 @@
 package info.yangguo.waf.request;
 
+import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.ItermConfig;
 import io.netty.buffer.Unpooled;
@@ -44,10 +45,16 @@ public class FileHttpRequestFilter extends HttpRequestFilter {
                             String fileExt = fileMatcher.group(3);
                             for (ItermConfig iterm : iterms) {
                                 if (iterm.getConfig().getIsStart()) {
-                                    Pattern pattern = Pattern.compile(iterm.getName());
-                                    if (pattern.matcher(fileExt).matches()) {
-                                        hackLog(logger, Constant.getRealIp(originalRequest, ctx), "File", iterm.getName());
-                                        return true;
+                                    Timer itermTimer = Constant.metrics.timer("FileHttpRequestFilter[" + iterm.getName() + "]");
+                                    Timer.Context itermContext = itermTimer.time();
+                                    try {
+                                        Pattern pattern = Pattern.compile(iterm.getName());
+                                        if (pattern.matcher(fileExt).matches()) {
+                                            hackLog(logger, Constant.getRealIp(originalRequest, ctx), "File", iterm.getName());
+                                            return true;
+                                        }
+                                    } finally {
+                                        itermContext.stop();
                                     }
                                 }
                             }
