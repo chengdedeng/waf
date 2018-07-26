@@ -39,15 +39,15 @@ public class ScannerHttpRequestFilter extends HttpRequestFilter {
 
             //Appscan
             Pattern pattern1 = Pattern.compile("AppScan_fingerprint");
-            Matcher matcher1 = pattern1.matcher(httpRequest.getUri());
+            Matcher matcher1 = pattern1.matcher(httpRequest.uri());
 
             //Bugscan
             String bsKey = "--%3E%27%22%3E%3CH1%3EXSS%40HERE%3C%2FH1%3E";
-            boolean matcher2 = httpRequest.getUri().contains(bsKey);
+            boolean matcher2 = httpRequest.uri().contains(bsKey);
 
             //Netsparker
             Pattern pattern3 = Pattern.compile("netsparker=");
-            Matcher matcher3 = pattern3.matcher(httpRequest.getUri());
+            Matcher matcher3 = pattern3.matcher(httpRequest.uri());
 
             if (acunetixAspect || acunetixAspectPassword || acunetixAspectQueries) {
                 hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "scanner", "Acunetix Web Vulnerability");

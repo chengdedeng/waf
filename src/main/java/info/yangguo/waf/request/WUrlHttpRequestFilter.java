@@ -32,11 +32,11 @@ public class WUrlHttpRequestFilter extends HttpRequestFilter {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
             String url;
-            int index = httpRequest.getUri().indexOf("?");
+            int index = httpRequest.uri().indexOf("?");
             if (index > -1) {
-                url = httpRequest.getUri().substring(0, index);
+                url = httpRequest.uri().substring(0, index);
             } else {
-                url = httpRequest.getUri();
+                url = httpRequest.uri();
             }
             for (ItermConfig iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {

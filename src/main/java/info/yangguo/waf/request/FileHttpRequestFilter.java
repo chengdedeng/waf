@@ -21,7 +21,7 @@ public class FileHttpRequestFilter extends HttpRequestFilter {
 
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<ItermConfig> iterms) {
-        if (originalRequest.getMethod().name().equals("POST")) {
+        if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
                 String contentBody = null;
@@ -34,7 +34,7 @@ public class FileHttpRequestFilter extends HttpRequestFilter {
                             String contentStr = new String(Unpooled.copiedBuffer(httpContent.content()).array()).replaceAll("%", "%25");
                             contentBody = URLDecoder.decode(contentStr, "UTF-8");
                         } catch (Exception e) {
-                            logger.warn("URL:{} POST body is inconsistent with the iterms", originalRequest.getUri(), e);
+                            logger.warn("URL:{} POST body is inconsistent with the iterms", originalRequest.uri(), e);
                         }
                     }
 

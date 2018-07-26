@@ -31,10 +31,10 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
             HttpRequest httpRequest = (HttpRequest) httpObject;
             String url = null;
             try {
-                String uri = httpRequest.getUri().replaceAll("%", "%25");
+                String uri = httpRequest.uri().replaceAll("%", "%25");
                 url = URLDecoder.decode(uri, "UTF-8");
             } catch (Exception e) {
-                logger.warn("URL:{} is inconsistent with the iterms", httpRequest.getUri(), e);
+                logger.warn("URL:{} is inconsistent with the iterms", httpRequest.uri(), e);
             }
             if (url != null) {
                 int index = url.indexOf("?");
