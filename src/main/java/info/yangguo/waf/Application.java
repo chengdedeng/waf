@@ -9,6 +9,7 @@ import info.yangguo.waf.service.ClusterService;
 import info.yangguo.waf.util.NetUtils;
 import info.yangguo.waf.util.WafSelfSignedSslEngineSource;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import net.lightbody.bmp.mitm.CertificateAndKeySource;
 import net.lightbody.bmp.mitm.KeyStoreFileCertificateSource;
@@ -169,10 +170,24 @@ public class Application {
                             @Override
                             public void requestReceivedFromClient(FlowContext flowContext,
                                                                   HttpRequest httpRequest) {
-                                List<String> headerValues2 = Constant.getHeaderValues(httpRequest, "X-Real-IP");
+                                List<String> headerValues2 = Constant.getHeaderValues(httpRequest, "X-Real-Ip");
                                 if (headerValues2.size() == 0) {
                                     String remoteAddress = flowContext.getClientAddress().getAddress().getHostAddress();
-                                    httpRequest.headers().add("X-Real-IP", remoteAddress);
+                                    httpRequest.headers().add("X-Real-Ip", remoteAddress);
+                                }
+                            }
+                        }
+                )
+                //X-Waf-Host设置
+                .plusActivityTracker(
+                        new ActivityTrackerAdapter() {
+                            @Override
+                            public void requestReceivedFromClient(FlowContext flowContext,
+                                                                  HttpRequest httpRequest) {
+                                if (httpRequest.headers().get("X-Waf-Host") == null) {
+                                    List<String> hosts = httpRequest.headers().getAll(
+                                            HttpHeaderNames.HOST);
+                                    httpRequest.headers().add("X-Waf-Host", hosts);
                                 }
                             }
                         }

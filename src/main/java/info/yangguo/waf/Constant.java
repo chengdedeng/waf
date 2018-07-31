@@ -31,7 +31,7 @@ public class Constant {
     public static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
 
     public static String getRealIp(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        List<String> headerValues = getHeaderValues(httpRequest, "X-Real-IP");
+        List<String> headerValues = getHeaderValues(httpRequest, "X-Real-Ip");
         return headerValues.get(0);
     }
 
