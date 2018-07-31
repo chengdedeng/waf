@@ -13,6 +13,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,10 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                         return rateLimiter;
                     }
                 });
-        ;
+    }
+
+    public HttpResponseStatus getHttpResponseStatus(){
+        return HttpResponseStatus.SERVICE_UNAVAILABLE;
     }
 
     @Override

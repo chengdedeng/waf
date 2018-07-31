@@ -2,7 +2,6 @@ package info.yangguo.waf;
 
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
-import info.yangguo.waf.request.CCHttpRequestFilter;
 import info.yangguo.waf.request.HttpRequestFilter;
 import info.yangguo.waf.request.HttpRequestFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
@@ -44,10 +43,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         try {
             ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
             if (immutablePair.left) {
-                if (immutablePair.right instanceof CCHttpRequestFilter)
-                    httpResponse = createResponse(HttpResponseStatus.SERVICE_UNAVAILABLE, originalRequest);
-                else
-                    httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
+                httpResponse = createResponse(immutablePair.right.getHttpResponseStatus(), originalRequest);
             }
         } catch (Exception e) {
             httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);

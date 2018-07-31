@@ -597,12 +597,10 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             cb.handler(new ChannelInitializer<Channel>() {
                 protected void initChannel(Channel ch) throws Exception {
                     initChannelPipeline(ch.pipeline(), initialRequest);
-                    if ("on".equals(Constant.wafConfs.get("waf.ss"))) {
-                        ch.pipeline().addFirst(new Socks5ProxyHandler(new InetSocketAddress(Constant.wafConfs.get("waf.ss.server.host"), Integer.valueOf(Constant.wafConfs.get("waf.ss.server.port")))));
+                    if ("on".equals(Constant.wafConfs.get("waf.gateway.forward.ss"))) {
+                        ch.pipeline().addFirst(new Socks5ProxyHandler(new InetSocketAddress(Constant.wafConfs.get("waf.gateway.forward.ss.server.host"), Integer.valueOf(Constant.wafConfs.get("waf.gateway.forward.ss.server.port")))));
                     }
                 }
-
-                ;
             });
             cb.option(ChannelOption.CONNECT_TIMEOUT_MILLIS,
                     proxyServer.getConnectTimeout());

@@ -4,6 +4,7 @@ import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 
 import java.util.List;
@@ -33,6 +34,15 @@ public abstract class HttpRequestFilter {
      */
     public boolean isBlacklist() {
         return true;
+    }
+
+    /**
+     * 被拦截是返回的HttpResponseStatus
+     *
+     * @return
+     */
+    public HttpResponseStatus getHttpResponseStatus(){
+        return HttpResponseStatus.FORBIDDEN;
     }
 
     /**
