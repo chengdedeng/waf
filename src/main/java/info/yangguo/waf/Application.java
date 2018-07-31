@@ -178,16 +178,16 @@ public class Application {
                             }
                         }
                 )
-                //X-Waf-Host设置
+                //X-Waf-Host-Port设置
                 .plusActivityTracker(
                         new ActivityTrackerAdapter() {
                             @Override
                             public void requestReceivedFromClient(FlowContext flowContext,
                                                                   HttpRequest httpRequest) {
-                                if (httpRequest.headers().get("X-Waf-Host") == null) {
+                                if (httpRequest.headers().get("X-Waf-Host-Port") == null) {
                                     List<String> hosts = httpRequest.headers().getAll(
                                             HttpHeaderNames.HOST);
-                                    httpRequest.headers().add("X-Waf-Host", hosts);
+                                    httpRequest.headers().add("X-Waf-Host-Port", hosts);
                                 }
                             }
                         }
