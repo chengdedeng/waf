@@ -18,7 +18,11 @@ class HostResolverImpl implements HostResolver {
     @Override
     public InetSocketAddress resolve(String host, int port)
             throws UnknownHostException {
-        String key = host + "_" + port;
+        String key;
+        if (port == 80)
+            key = host;
+        else
+            key = host + ":" + port;
         if (ContextHolder.getClusterService().getUpstreamConfig().containsKey(key)) {
             ServerConfig serverConfig = ContextHolder.getClusterService().getUpstreamConfig().get(key).getServer();
             if (serverConfig != null) {

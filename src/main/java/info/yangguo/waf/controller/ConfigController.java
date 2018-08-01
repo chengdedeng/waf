@@ -75,7 +75,7 @@ public class ConfigController {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
         List<UpstreamConfig> upstreamConfigs = ContextHolder.getClusterService().getUpstreamConfig().entrySet().stream().map(hostEntry -> {
-            UpstreamConfig upstreamConfig = UpstreamConfig.builder().wafHostPort(hostEntry.getKey()).config(hostEntry.getValue().getBasicConfig()).build();
+            UpstreamConfig upstreamConfig = UpstreamConfig.builder().wafRoute(hostEntry.getKey()).config(hostEntry.getValue().getBasicConfig()).build();
 
             Map<String, ServerConfig> map = hostEntry.getValue().getServersMap().entrySet().stream().collect(Collectors.toMap(serverEntry -> {
                 return serverEntry.getKey();
@@ -177,7 +177,7 @@ public class ConfigController {
     public ResultDto setUpstreamConfig(@RequestBody @Validated(ExistSequence.class) UpstreamConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().setUpstreamConfig(Optional.of(dto.getWafHostPort()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+        ContextHolder.getClusterService().setUpstreamConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
         return resultDto;
     }
 
@@ -191,7 +191,7 @@ public class ConfigController {
     public ResultDto setUpstreamConfig(@RequestBody @Validated(ExistSequence.class) UpstreamServerConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().setUpstreamServerConfig(Optional.of(dto.getWafHostPort()),
+        ContextHolder.getClusterService().setUpstreamServerConfig(Optional.of(dto.getWafRoute()),
                 Optional.of(dto.getIp()),
                 Optional.of(dto.getPort()),
                 Optional.of(ServerBasicConfig.builder().isStart(dto.getIsStart()).weight(dto.getWeight()).build()));
@@ -209,7 +209,7 @@ public class ConfigController {
     public ResultDto deleteUpstream(@RequestBody @Validated(NotExistSequence.class) UpstreamConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteUpstream(Optional.of(dto.getWafHostPort()));
+        ContextHolder.getClusterService().deleteUpstream(Optional.of(dto.getWafRoute()));
         return resultDto;
     }
 
@@ -223,7 +223,7 @@ public class ConfigController {
     public ResultDto deleteUpstreamServer(@RequestBody @Validated(NotExistSequence.class) UpstreamServerConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteUpstreamServer(Optional.of(dto.getWafHostPort()), Optional.of(dto.getIp()), Optional.of(dto.getPort()));
+        ContextHolder.getClusterService().deleteUpstreamServer(Optional.of(dto.getWafRoute()), Optional.of(dto.getIp()), Optional.of(dto.getPort()));
         return resultDto;
     }
 }

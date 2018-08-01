@@ -11,7 +11,6 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
 
 @Data
 @Builder
@@ -19,9 +18,8 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class UpstreamConfigDto {
     @NotEmpty
-    @Pattern(regexp = ".*_\\d{1,5}")
-    @ApiModelProperty(value = "X-Waf-Host-Port，路由标志。", required = true)
-    private String wafHostPort;
+    @ApiModelProperty(value = "X-Waf-Route，路由标志。", required = true)
+    private String wafRoute;
     @NotNull(groups = Exist.class)
     @Null(groups = NotExist.class)
     @ApiModelProperty(value = "开关，true启用，false关闭。")

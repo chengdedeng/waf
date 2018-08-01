@@ -1274,11 +1274,9 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
     private String identifyHostAndPort(HttpRequest httpRequest) {
         String hostAndPort = ProxyUtils.parseHostAndPort(httpRequest);
         if (StringUtils.isBlank(hostAndPort)) {
-            List<String> hosts = httpRequest.headers().getAll(
-                    "X-Waf-Host-Port");
-            if (hosts != null && !hosts.isEmpty()) {
-                hostAndPort = hosts.get(0);
-            }
+            String xWafRoute = httpRequest.headers().getAsString(
+                    "X-Waf-Route");
+            hostAndPort = xWafRoute;
         }
 
         return hostAndPort;

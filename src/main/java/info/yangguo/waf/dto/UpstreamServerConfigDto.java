@@ -17,9 +17,8 @@ import javax.validation.constraints.*;
 @NoArgsConstructor
 public class UpstreamServerConfigDto {
     @NotEmpty
-    @Pattern(regexp = ".*_\\d{1,5}")
-    @ApiModelProperty(value = "X-Waf-Host-Port，路由标志。", required = true)
-    private String wafHostPort;
+    @ApiModelProperty(value = "X-Waf-Route，路由标志。", required = true)
+    private String wafRoute;
     @NotEmpty
     @ApiModelProperty(value = "IP地址。", required = true)
     @Pattern(regexp = "(^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$)|(^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$)")

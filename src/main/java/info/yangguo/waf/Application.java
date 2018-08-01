@@ -10,6 +10,7 @@ import info.yangguo.waf.util.NetUtils;
 import info.yangguo.waf.util.WafSelfSignedSslEngineSource;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import net.lightbody.bmp.mitm.CertificateAndKeySource;
 import net.lightbody.bmp.mitm.KeyStoreFileCertificateSource;
@@ -129,10 +130,12 @@ public class Application {
                                 @Override
                                 public void requestReceivedFromClient(FlowContext flowContext,
                                                                       HttpRequest httpRequest) {
-                                    if (httpRequest.headers().get("X-Waf-Host-Port") == null) {
-                                        List<String> hosts = httpRequest.headers().getAll(
-                                                HttpHeaderNames.HOST);
-                                        httpRequest.headers().add("X-Waf-Host-Port", hosts);
+                                    if (httpRequest.headers().get("X-Waf-Route") == null) {
+                                        //Host包含多个值，只取第一个
+                                        List<String> hosts = httpRequest.headers().getAll(HttpHeaderNames.HOST);
+                                        if (hosts != null && !hosts.isEmpty()) {
+                                            httpRequest.headers().add("X-Waf-Route", hosts.get(0));
+                                        }
                                     }
                                 }
                             }

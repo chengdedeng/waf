@@ -19,7 +19,7 @@ public class UpstreamConfig implements Serializable {
     /**
      * Upstream唯一标志
      */
-    private String wafHostPort;
+    private String wafRoute;
     /**
      * 配置信息
      */
