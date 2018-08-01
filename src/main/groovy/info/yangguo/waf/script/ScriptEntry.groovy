@@ -1,4 +1,4 @@
-package com.xbniao.paas.script
+package info.yangguo.waf.script
 
 import io.netty.handler.codec.http.HttpObject
 import io.netty.handler.codec.http.HttpRequest

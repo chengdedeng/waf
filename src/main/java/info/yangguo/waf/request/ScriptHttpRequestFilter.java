@@ -2,7 +2,7 @@ package info.yangguo.waf.request;
 
 import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
-import com.xbniao.paas.script.ScriptEntry;
+import info.yangguo.waf.script.ScriptEntry;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.ItermConfig;
 import io.netty.channel.ChannelHandlerContext;
