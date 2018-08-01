@@ -21,6 +21,7 @@ public class Constant {
         DENY,//表示该页面不允许在 frame 中展示,即便是在相同域名的页面中嵌套也不允许.
         SAMEORIGIN//表示该页面可以在相同域名页面的 frame 中展示.
     }
+
     public static final MetricRegistry metrics = new MetricRegistry();
     public static Map<String, String> wafConfs = PropertiesUtil.getProperty("waf.properties");
     public static int AcceptorThreads = Integer.parseInt(wafConfs.get("waf.acceptorThreads"));

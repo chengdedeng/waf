@@ -2,8 +2,8 @@ package info.yangguo.waf;
 
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
-import info.yangguo.waf.request.HttpRequestFilter;
-import info.yangguo.waf.request.HttpRequestFilterChain;
+import info.yangguo.waf.request.security.SecurityFilter;
+import info.yangguo.waf.request.security.SecurityFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -29,7 +29,7 @@ import java.util.List;
  */
 public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
-    private static final HttpRequestFilterChain httpRequestFilterChain = new HttpRequestFilterChain();
+    private static final SecurityFilterChain SECURITY_FILTER_CHAIN = new SecurityFilterChain();
     private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain();
 
 
@@ -41,7 +41,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
         HttpResponse httpResponse = null;
         try {
-            ImmutablePair<Boolean, HttpRequestFilter> immutablePair = httpRequestFilterChain.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
+            ImmutablePair<Boolean, SecurityFilter> immutablePair = SECURITY_FILTER_CHAIN.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
             if (immutablePair.left) {
                 httpResponse = createResponse(immutablePair.right.getHttpResponseStatus(), originalRequest);
             }

@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
 
-    <version>2.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <groupId>info.yangguo</groupId>
     <artifactId>waf</artifactId>
 

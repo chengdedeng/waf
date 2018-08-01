@@ -1,8 +1,8 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class FileHttpRequestFilter extends HttpRequestFilter {
-    private static Logger logger = LoggerFactory.getLogger(PostHttpRequestFilter.class);
+public class FileSecurityFilter extends SecurityFilter {
+    private static Logger logger = LoggerFactory.getLogger(PostSecurityFilter.class);
     private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<SecurityConfigIterm> iterms) {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
@@ -43,9 +43,9 @@ public class FileHttpRequestFilter extends HttpRequestFilter {
                         Matcher fileMatcher = filePattern.matcher(contentBody);
                         if (fileMatcher.find()) {
                             String fileExt = fileMatcher.group(3);
-                            for (ItermConfig iterm : iterms) {
+                            for (SecurityConfigIterm iterm : iterms) {
                                 if (iterm.getConfig().getIsStart()) {
-                                    Timer itermTimer = Constant.metrics.timer("FileHttpRequestFilter[" + iterm.getName() + "]");
+                                    Timer itermTimer = Constant.metrics.timer("FileSecurityFilter[" + iterm.getName() + "]");
                                     Timer.Context itermContext = itermTimer.time();
                                     try {
                                         Pattern pattern = Pattern.compile(iterm.getName());

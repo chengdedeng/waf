@@ -18,24 +18,24 @@ import javax.validation.constraints.*;
 public class UpstreamServerConfigDto {
     @NotEmpty
     @Pattern(regexp = ".*_\\d{1,5}")
-    @ApiModelProperty(value = "Host,需要端口号,例如:localhost_80.", required = true)
-    private String host;
+    @ApiModelProperty(value = "X-Waf-Host-Port，路由标志。", required = true)
+    private String wafHostPort;
     @NotEmpty
-    @ApiModelProperty(value = "IP地址", required = true)
+    @ApiModelProperty(value = "IP地址。", required = true)
     @Pattern(regexp = "(^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$)|(^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$)")
     private String ip;
     @Min(1)
     @Max(65535)
     @NotNull
-    @ApiModelProperty(value = "端口", required = true)
+    @ApiModelProperty(value = "端口。", required = true)
     private Integer port;
     @NotNull(groups = Exist.class)
     @Null(groups = NotExist.class)
-    @ApiModelProperty(value = "开关,true启用,false关闭")
+    @ApiModelProperty(value = "开关，true启用，false关闭。")
     private Boolean isStart;
     @Min(value = 1, groups = Exist.class)
     @NotNull(groups = Exist.class)
     @Null(groups = NotExist.class)
-    @ApiModelProperty("权重")
+    @ApiModelProperty("权重。")
     private Integer weight;
 }

@@ -14,16 +14,16 @@ import java.net.InetAddress;
  */
 public class NetUtilsTest {
     @Test
-    public  void getLocalAddress() {
-        InetAddress inetAddress=NetUtils.getLocalAddress();
+    public void getLocalAddress() {
+        InetAddress inetAddress = NetUtils.getLocalAddress();
         System.out.println(inetAddress.getHostAddress());
         System.out.println(inetAddress.getHostName());
         System.out.println(inetAddress.getCanonicalHostName());
     }
 
     @Test
-    public  void getLocalHost() {
-        String localHost=NetUtils.getLocalHost();
+    public void getLocalHost() {
+        String localHost = NetUtils.getLocalHost();
         System.out.println(localHost);
     }
 }

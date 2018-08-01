@@ -20,10 +20,10 @@ import javax.validation.constraints.Pattern;
 public class UpstreamConfigDto {
     @NotEmpty
     @Pattern(regexp = ".*_\\d{1,5}")
-    @ApiModelProperty(value = "Upstream唯一标志,规则为Host_Port,如果是域名访问,Port为80,例如:yangguo.info_80", required = true)
-    private String host;
+    @ApiModelProperty(value = "X-Waf-Host-Port，路由标志。", required = true)
+    private String wafHostPort;
     @NotNull(groups = Exist.class)
     @Null(groups = NotExist.class)
-    @ApiModelProperty(value = "开关,true启用,false关闭")
+    @ApiModelProperty(value = "开关，true启用，false关闭。")
     private Boolean isStart;
 }

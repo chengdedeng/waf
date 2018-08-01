@@ -1,7 +1,7 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -18,11 +18,11 @@ import java.util.regex.Pattern;
  * <p>
  * Description:
  */
-public class ScannerHttpRequestFilter extends HttpRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(ScannerHttpRequestFilter.class);
+public class ScannerSecurityFilter extends SecurityFilter {
+    private static final Logger logger = LoggerFactory.getLogger(ScannerSecurityFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;

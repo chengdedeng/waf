@@ -1,4 +1,4 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import com.google.common.cache.CacheBuilder;
@@ -8,7 +8,7 @@ import com.google.common.hash.Hashing;
 import com.google.common.util.concurrent.RateLimiter;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.HttpObject;
@@ -31,12 +31,12 @@ import java.util.regex.Pattern;
  * Description:
  * cc拦截
  */
-public class CCHttpRequestFilter extends HttpRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(CCHttpRequestFilter.class);
+public class CCSecurityFilter extends SecurityFilter {
+    private static final Logger logger = LoggerFactory.getLogger(CCSecurityFilter.class);
     private LoadingCache<String, RateLimiter> loadingCache;
 
 
-    public CCHttpRequestFilter() {
+    public CCSecurityFilter() {
         loadingCache = CacheBuilder.newBuilder()
                 .maximumSize(1000)
                 .removalListener(notification -> {
@@ -52,12 +52,12 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                 });
     }
 
-    public HttpResponseStatus getHttpResponseStatus(){
+    public HttpResponseStatus getHttpResponseStatus() {
         return HttpResponseStatus.SERVICE_UNAVAILABLE;
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             Optional<String> httpHost = Optional.ofNullable(Constant.getHeaderValues(originalRequest, "host").get(0));
@@ -81,8 +81,8 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                 Optional<Map.Entry<String, Object>> matching = ContextHolder
                         .getClusterService()
                         .getRequestConfigs()
-                        .get(CCHttpRequestFilter.class.getName())
-                        .getItermConfigs()
+                        .get(CCSecurityFilter.class.getName())
+                        .getSecurityConfigIterms()
                         .parallelStream()
                         .filter(iterm -> {
                             if (host.toString().equals(iterm.getName()) && iterm.getConfig().getIsStart())
@@ -93,7 +93,7 @@ public class CCHttpRequestFilter extends HttpRequestFilter {
                         .flatMap(iterm -> {
                             return iterm.getConfig().getExtension().entrySet().parallelStream();
                         }).filter(entry -> {
-                            Timer itermTimer = Constant.metrics.timer("CCHttpRequestFilter[" + entry.getKey() + "]");
+                            Timer itermTimer = Constant.metrics.timer("CCSecurityFilter[" + entry.getKey() + "]");
                             Timer.Context itermContext = itermTimer.time();
                             try {
                                 Pattern pattern = Pattern.compile(entry.getKey());

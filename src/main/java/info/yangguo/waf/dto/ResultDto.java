@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @ApiModel("响应结果")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResultDto<T> {
-    @ApiModelProperty(value = "结果代码")
+    @ApiModelProperty(value = "结果代码。")
     private int code;
-    @ApiModelProperty(value = "结果对象")
+    @ApiModelProperty(value = "结果对象。")
     private T value;
 }

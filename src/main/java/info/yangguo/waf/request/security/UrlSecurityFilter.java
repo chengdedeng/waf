@@ -1,8 +1,8 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -15,31 +15,36 @@ import java.util.regex.Pattern;
 
 /**
  * @author:杨果
- * @date:2017/5/12 上午10:34
+ * @date:2017/5/11 下午2:24
  * <p>
  * Description:
  * <p>
- * IP黑名单拦截
+ * URL路径黑名单拦截
  */
-public class IpHttpRequestFilter extends HttpRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(IpHttpRequestFilter.class);
+public class UrlSecurityFilter extends SecurityFilter {
+    private static final Logger logger = LoggerFactory.getLogger(UrlSecurityFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            String realIp = Constant.getRealIp(httpRequest, channelHandlerContext);
-
-            for (ItermConfig iterm : iterms) {
+            String url;
+            int index = httpRequest.uri().indexOf("?");
+            if (index > -1) {
+                url = httpRequest.uri().substring(0, index);
+            } else {
+                url = httpRequest.uri();
+            }
+            for (SecurityConfigIterm iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {
-                    Timer itermTimer = Constant.metrics.timer("IpHttpRequestFilter[" + iterm.getName() + "]");
+                    Timer itermTimer = Constant.metrics.timer("UrlSecurityFilter[" + iterm.getName() + "]");
                     Timer.Context itermContext = itermTimer.time();
                     try {
                         Pattern pattern = Pattern.compile(iterm.getName());
-                        Matcher matcher = pattern.matcher(realIp);
+                        Matcher matcher = pattern.matcher(url);
                         if (matcher.find()) {
-                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Ip", iterm.getName());
+                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Url", iterm.getName());
                             return true;
                         }
                     } finally {

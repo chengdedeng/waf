@@ -1,8 +1,8 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -22,11 +22,11 @@ import java.util.regex.Pattern;
  * <p>
  * URL参数黑名单参数拦截
  */
-public class ArgsHttpRequestFilter extends HttpRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(ArgsHttpRequestFilter.class);
+public class ArgsSecurityFilter extends SecurityFilter {
+    private static final Logger logger = LoggerFactory.getLogger(ArgsSecurityFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
@@ -45,9 +45,9 @@ public class ArgsHttpRequestFilter extends HttpRequestFilter {
                     for (String arg : args) {
                         String[] kv = arg.split("=");
                         if (kv.length == 2) {
-                            for (ItermConfig iterm : iterms) {
+                            for (SecurityConfigIterm iterm : iterms) {
                                 if (iterm.getConfig().getIsStart()) {
-                                    Timer itermTimer = Constant.metrics.timer("ArgsHttpRequestFilter[" + iterm.getName() + "]");
+                                    Timer itermTimer = Constant.metrics.timer("ArgsSecurityFilter[" + iterm.getName() + "]");
                                     Timer.Context itermContext = itermTimer.time();
                                     try {
                                         Pattern pattern = Pattern.compile(iterm.getName());

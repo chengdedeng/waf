@@ -1,10 +1,10 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
-import info.yangguo.waf.script.ScriptEntry;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.script.ScriptEntry;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ScriptHttpRequestFilter extends HttpRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(ScannerHttpRequestFilter.class);
+public class ScriptSecurityFilter extends SecurityFilter {
+    private static final Logger logger = LoggerFactory.getLogger(ScannerSecurityFilter.class);
     private ScriptEntry scriptEntry;
     private Map<String, String> scripts;
 
-    public ScriptHttpRequestFilter() {
+    public ScriptSecurityFilter() {
         this.scriptEntry = new ScriptEntry();
         this.scripts = Maps.newHashMap();
 
@@ -62,10 +62,10 @@ public class ScriptHttpRequestFilter extends HttpRequestFilter {
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         AtomicBoolean result = new AtomicBoolean(false);
         scripts.entrySet().parallelStream().anyMatch(entry -> {
-            Timer itermTimer = Constant.metrics.timer("ScriptHttpRequestFilter[" + entry.getKey() + "]");
+            Timer itermTimer = Constant.metrics.timer("ScriptSecurityFilter[" + entry.getKey() + "]");
             Timer.Context itermContext = itermTimer.time();
             try {
                 scriptEntry.execute(originalRequest, httpObject, result, entry.getValue());

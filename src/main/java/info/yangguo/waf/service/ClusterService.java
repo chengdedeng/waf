@@ -11,7 +11,7 @@ public interface ClusterService {
      *
      * @return
      */
-    Map<String, RequestConfig> getRequestConfigs();
+    Map<String, SecurityConfig> getRequestConfigs();
 
     /**
      * 设置request filter开关

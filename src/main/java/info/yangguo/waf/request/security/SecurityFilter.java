@@ -1,6 +1,6 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -17,7 +17,7 @@ import java.util.List;
  * <p>
  * HTTP Request拦截器抽象类
  */
-public abstract class HttpRequestFilter {
+public abstract class SecurityFilter {
     /**
      * httpRequest拦截逻辑
      *
@@ -25,7 +25,7 @@ public abstract class HttpRequestFilter {
      * @param httpObject      http请求
      * @return true:正则匹配成功,false:正则匹配失败
      */
-    public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms);
+    public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms);
 
     /**
      * 是否是黑名单
@@ -41,7 +41,7 @@ public abstract class HttpRequestFilter {
      *
      * @return
      */
-    public HttpResponseStatus getHttpResponseStatus(){
+    public HttpResponseStatus getHttpResponseStatus() {
         return HttpResponseStatus.FORBIDDEN;
     }
 

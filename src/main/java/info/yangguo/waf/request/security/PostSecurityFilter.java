@@ -1,8 +1,8 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
@@ -22,11 +22,11 @@ import java.util.regex.Pattern;
  * <p>
  * Description:
  */
-public class PostHttpRequestFilter extends HttpRequestFilter {
-    private static Logger logger = LoggerFactory.getLogger(PostHttpRequestFilter.class);
+public class PostSecurityFilter extends SecurityFilter {
+    private static Logger logger = LoggerFactory.getLogger(PostSecurityFilter.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<SecurityConfigIterm> iterms) {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
@@ -45,9 +45,9 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                     }
 
                     if (contentBody != null) {
-                        for (ItermConfig iterm : iterms) {
+                        for (SecurityConfigIterm iterm : iterms) {
                             if (iterm.getConfig().getIsStart()) {
-                                Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");
+                                Timer itermTimer = Constant.metrics.timer("PostSecurityFilter[" + iterm.getName() + "]");
                                 Timer.Context itermContext = itermTimer.time();
                                 try {
                                     Pattern pattern = Pattern.compile(iterm.getName());

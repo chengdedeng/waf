@@ -20,19 +20,19 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @CheckItermConfig(groups = Exist.class)
-public class RequestItermConfigDto {
+public class SecurityConfigItermDto {
     @NotEmpty
-    @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\..*HttpRequestFilter")
-    @ApiModelProperty(value = "request拦截器名称", required = true)
+    @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\.security\\..*SecurityFilter")
+    @ApiModelProperty(value = "Security拦截器名称。", required = true)
     private String filterName;
     @NotEmpty
-    @ApiModelProperty(value = "配置项名称", required = true)
+    @ApiModelProperty(value = "配置项名称。", required = true)
     private String name;
     @NotNull(groups = Exist.class)
     @Null(groups = NotExist.class)
     @ApiModelProperty(value = "是否开启，true启用，false关闭。")
     private Boolean isStart;
     @Null(groups = NotExist.class)
-    @ApiModelProperty(value = "iterm扩展信息，目前只在CCHttpFilter有使用。")
+    @ApiModelProperty(value = "Iterm扩展信息，目前只在CCSecurityFilter有使用。")
     private Map<String, Object> extension;
 }

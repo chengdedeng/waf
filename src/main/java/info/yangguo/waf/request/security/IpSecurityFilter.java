@@ -1,8 +1,8 @@
-package info.yangguo.waf.request;
+package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.ItermConfig;
+import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -15,34 +15,31 @@ import java.util.regex.Pattern;
 
 /**
  * @author:杨果
- * @date:2017/4/11 下午2:06
+ * @date:2017/5/12 上午10:34
  * <p>
  * Description:
  * <p>
- * IP白名单拦截
+ * IP黑名单拦截
  */
-public class WIpHttpRequestFilter extends HttpRequestFilter {
-    private static final Logger logger = LoggerFactory.getLogger(WIpHttpRequestFilter.class);
+public class IpSecurityFilter extends SecurityFilter {
+    private static final Logger logger = LoggerFactory.getLogger(IpSecurityFilter.class);
 
     @Override
-    public boolean isBlacklist() {
-        return false;
-    }
-
-    @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<ItermConfig> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            for (ItermConfig iterm : iterms) {
+            String realIp = Constant.getRealIp(httpRequest, channelHandlerContext);
+
+            for (SecurityConfigIterm iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {
-                    Timer itermTimer = Constant.metrics.timer("WIpHttpRequestFilter[" + iterm.getName() + "]");
+                    Timer itermTimer = Constant.metrics.timer("IpSecurityFilter[" + iterm.getName() + "]");
                     Timer.Context itermContext = itermTimer.time();
                     try {
                         Pattern pattern = Pattern.compile(iterm.getName());
-                        Matcher matcher = pattern.matcher(Constant.getRealIp(httpRequest, channelHandlerContext));
+                        Matcher matcher = pattern.matcher(realIp);
                         if (matcher.find()) {
-                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "WIp", iterm.getName());
+                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Ip", iterm.getName());
                             return true;
                         }
                     } finally {

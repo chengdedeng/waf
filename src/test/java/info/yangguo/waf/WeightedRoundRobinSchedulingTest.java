@@ -1,8 +1,8 @@
 package info.yangguo.waf;
 
 import info.yangguo.waf.model.BasicConfig;
-import info.yangguo.waf.model.ServerConfig;
 import info.yangguo.waf.model.ServerBasicConfig;
+import info.yangguo.waf.model.ServerConfig;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import org.junit.Test;
 
@@ -20,8 +20,8 @@ import java.util.Map;
 public class WeightedRoundRobinSchedulingTest {
     @Test
     public void test1() {
-        ServerBasicConfig serverBasicConfig1 =ServerBasicConfig.builder().weight(4).isStart(true).build();
-        ServerBasicConfig serverBasicConfig2 =ServerBasicConfig.builder().weight(2).isStart(true).build();
+        ServerBasicConfig serverBasicConfig1 = ServerBasicConfig.builder().weight(4).isStart(true).build();
+        ServerBasicConfig serverBasicConfig2 = ServerBasicConfig.builder().weight(2).isStart(true).build();
 
         ServerConfig s1 = ServerConfig.builder().ip("192.168.0.100").port(81).config(serverBasicConfig1).build();
         ServerConfig s2 = ServerConfig.builder().ip("192.168.0.101").port(82).config(serverBasicConfig1).build();
@@ -34,7 +34,7 @@ public class WeightedRoundRobinSchedulingTest {
         serverConfigList.add(s3);
         serverConfigList.add(s4);
         serverConfigList.add(s5);
-        BasicConfig basicConfig =new BasicConfig();
+        BasicConfig basicConfig = new BasicConfig();
         basicConfig.setIsStart(true);
         WeightedRoundRobinScheduling obj = new WeightedRoundRobinScheduling(serverConfigList, basicConfig);
 

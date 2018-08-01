@@ -16,9 +16,9 @@ import javax.validation.constraints.NotNull;
 public class UserDto {
     @NotNull
     @Email
-    @ApiModelProperty(value = "邮箱", required = true)
+    @ApiModelProperty(value = "邮箱。", required = true)
     private String email;
     @NotNull
-    @ApiModelProperty(value = "密码", required = true)
+    @ApiModelProperty(value = "密码。", required = true)
     private String password;
 }

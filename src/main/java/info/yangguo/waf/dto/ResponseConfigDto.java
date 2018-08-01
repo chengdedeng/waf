@@ -17,9 +17,9 @@ import javax.validation.constraints.Pattern;
 public class ResponseConfigDto {
     @NotEmpty
     @Pattern(regexp = "info\\.yangguo\\.waf\\.response\\..*HttpResponseFilter")
-    @ApiModelProperty(value = "request拦截器名称", required = true)
+    @ApiModelProperty(value = "Response拦截器名称。", required = true)
     private String filterName;
     @NotNull
-    @ApiModelProperty(value = "是否开启，true启用，false关闭")
+    @ApiModelProperty(value = "是否开启，true启用，false关闭。")
     private Boolean isStart;
 }

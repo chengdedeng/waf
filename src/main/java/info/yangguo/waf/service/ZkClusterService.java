@@ -7,7 +7,7 @@ import com.google.common.collect.Sets;
 import info.yangguo.waf.config.ClusterProperties;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.*;
-import info.yangguo.waf.request.*;
+import info.yangguo.waf.request.security.*;
 import info.yangguo.waf.response.ClickjackHttpResponseFilter;
 import info.yangguo.waf.response.HttpResponseFilter;
 import info.yangguo.waf.util.JsonUtil;
@@ -39,7 +39,7 @@ public class ZkClusterService implements ClusterService {
     private static final String ENC = "UTF-8";
 
     private static CuratorFramework client;
-    Map<String, RequestConfig> requestConfigMap = Maps.newHashMap();
+    Map<String, SecurityConfig> requestConfigMap = Maps.newHashMap();
     Map<String, ResponseConfig> responseConfigMap = Maps.newHashMap();
     Map<String, WeightedRoundRobinScheduling> upstreamServerMap = Maps.newHashMap();
 
@@ -72,18 +72,18 @@ public class ZkClusterService implements ClusterService {
         syncConfig();
 
         Arrays.stream(new Class[]{
-                ArgsHttpRequestFilter.class,
-                CCHttpRequestFilter.class,
-                CookieHttpRequestFilter.class,
-                IpHttpRequestFilter.class,
-                PostHttpRequestFilter.class,
-                FileHttpRequestFilter.class,
-                ScannerHttpRequestFilter.class,
-                UaHttpRequestFilter.class,
-                UrlHttpRequestFilter.class,
-                WIpHttpRequestFilter.class,
-                WUrlHttpRequestFilter.class,
-                ScriptHttpRequestFilter.class,
+                ArgsSecurityFilter.class,
+                CCSecurityFilter.class,
+                CookieSecurityFilter.class,
+                IpSecurityFilter.class,
+                PostSecurityFilter.class,
+                FileSecurityFilter.class,
+                ScannerSecurityFilter.class,
+                UaSecurityFilter.class,
+                UrlSecurityFilter.class,
+                WIpSecurityFilter.class,
+                WUrlSecurityFilter.class,
+                ScriptSecurityFilter.class,
                 ClickjackHttpResponseFilter.class
         }).forEach(filterClass -> {
             initFilter(filterClass);
@@ -102,7 +102,7 @@ public class ZkClusterService implements ClusterService {
                     String filterPath = requestEntry.getValue().getPath();
                     BasicConfig filterConfig = (BasicConfig) JsonUtil.fromJson(new String(requestEntry.getValue().getData()), BasicConfig.class);
 
-                    List<ItermConfig> itermConfigs = Lists.newArrayList();
+                    List<SecurityConfigIterm> securityConfigIterms = Lists.newArrayList();
                     requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(itermEntry -> {
                         String regex = null;
                         try {
@@ -111,10 +111,10 @@ public class ZkClusterService implements ClusterService {
                             LOGGER.error("Decode regex:[{}] ", itermEntry.getKey());
                         }
                         BasicConfig regexConfig = (BasicConfig) JsonUtil.fromJson(new String(itermEntry.getValue().getData()), BasicConfig.class);
-                        itermConfigs.add(ItermConfig.builder().name(regex).config(regexConfig).build());
+                        securityConfigIterms.add(SecurityConfigIterm.builder().name(regex).config(regexConfig).build());
                     });
 
-                    requestConfigMap.put(filterName, RequestConfig.builder().filterName(filterName).config(filterConfig).itermConfigs(itermConfigs).build());
+                    requestConfigMap.put(filterName, SecurityConfig.builder().filterName(filterName).config(filterConfig).securityConfigIterms(securityConfigIterms).build());
                 });
                 ConfigLocalCache.setRequestConfig(requestConfigMap);
             }
@@ -182,7 +182,7 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public Map<String, RequestConfig> getRequestConfigs() {
+    public Map<String, SecurityConfig> getRequestConfigs() {
         return requestConfigMap;
     }
 
@@ -355,7 +355,7 @@ public class ZkClusterService implements ClusterService {
 
     private void initFilter(Class filterClass) {
         String path;
-        if (HttpRequestFilter.class.isAssignableFrom(filterClass)) {
+        if (SecurityFilter.class.isAssignableFrom(filterClass)) {
             path = requestPath + separator + filterClass.getName();
         } else if (HttpResponseFilter.class.isAssignableFrom(filterClass)) {
             path = responsePath + separator + filterClass.getName();
@@ -392,9 +392,9 @@ public class ZkClusterService implements ClusterService {
                 })
                 .forEach(entry -> {
                     String filterName = entry.getKey();
-                    RequestConfig requestConfig = entry.getValue();
+                    SecurityConfig requestConfig = entry.getValue();
                     setRequestConfig(Optional.of(filterName), Optional.of(requestConfig.getConfig()));
-                    requestConfig.getItermConfigs().stream().forEach(itermConfig -> {
+                    requestConfig.getSecurityConfigIterms().stream().forEach(itermConfig -> {
                         setRequestItermConfig(Optional.of(filterName), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
                     });
                 });
@@ -460,12 +460,12 @@ public class ZkClusterService implements ClusterService {
         private static String responseCacheile = cachePath + "/response-config.json";
         private static String upstreamCacheFile = cachePath + "/upstream-config.json";
 
-        public static Map<String, RequestConfig> getRequestConfig() {
-            Map<String, RequestConfig> config = Maps.newHashMap();
+        public static Map<String, SecurityConfig> getRequestConfig() {
+            Map<String, SecurityConfig> config = Maps.newHashMap();
             File file = new File(requestCacheFile);
             if (file.exists()) {
                 try {
-                    config.putAll(JsonUtil.fromJson(FileUtils.readFileToString(file), new TypeReference<Map<String, RequestConfig>>() {
+                    config.putAll(JsonUtil.fromJson(FileUtils.readFileToString(file), new TypeReference<Map<String, SecurityConfig>>() {
                     }));
                 } catch (Exception e) {
                     file.delete();
@@ -476,7 +476,7 @@ public class ZkClusterService implements ClusterService {
             return config;
         }
 
-        public static void setRequestConfig(Map<String, RequestConfig> config) {
+        public static void setRequestConfig(Map<String, SecurityConfig> config) {
             try {
                 FileUtils.write(new File(requestCacheFile), JsonUtil.toJson(config, true));
             } catch (IOException e) {

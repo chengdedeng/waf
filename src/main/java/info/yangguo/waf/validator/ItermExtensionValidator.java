@@ -1,21 +1,21 @@
 package info.yangguo.waf.validator;
 
-import info.yangguo.waf.dto.RequestItermConfigDto;
-import info.yangguo.waf.request.CCHttpRequestFilter;
+import info.yangguo.waf.dto.SecurityConfigItermDto;
+import info.yangguo.waf.request.security.CCSecurityFilter;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class ItermExtensionValidator implements ConstraintValidator<CheckItermConfig, RequestItermConfigDto> {
+public class ItermExtensionValidator implements ConstraintValidator<CheckItermConfig, SecurityConfigItermDto> {
     @Override
     public void initialize(CheckItermConfig constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(RequestItermConfigDto config, ConstraintValidatorContext context) {
-        if (CCHttpRequestFilter.class.getName().equals(config.getFilterName())) {
-            if(config.getExtension()==null){
-                context.buildConstraintViolationWithTemplate("CCHttpRequestFilter extension value can't be null").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
+    public boolean isValid(SecurityConfigItermDto config, ConstraintValidatorContext context) {
+        if (CCSecurityFilter.class.getName().equals(config.getFilterName())) {
+            if (config.getExtension() == null) {
+                context.buildConstraintViolationWithTemplate("CCSecurityFilter extension value can't be null").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
                 return false;
             }
             boolean isMatch = config.getExtension().values().stream().anyMatch(value -> {
@@ -26,7 +26,7 @@ public class ItermExtensionValidator implements ConstraintValidator<CheckItermCo
 
             });
             if (isMatch) {
-                context.buildConstraintViolationWithTemplate("CCHttpRequestFilter extension value must be integer").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("CCSecurityFilter extension value must be integer").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
                 return false;
             }
 
@@ -37,7 +37,7 @@ public class ItermExtensionValidator implements ConstraintValidator<CheckItermCo
                     return false;
             });
             if (isPositive) {
-                context.buildConstraintViolationWithTemplate("CCHttpRequestFilter extension value must be positive").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("CCSecurityFilter extension value must be positive").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
                 return false;
             }
         }

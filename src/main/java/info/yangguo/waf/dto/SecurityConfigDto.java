@@ -14,12 +14,12 @@ import javax.validation.constraints.Pattern;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestConfigDto {
+public class SecurityConfigDto {
     @NotEmpty
-    @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\..*HttpRequestFilter")
-    @ApiModelProperty(value = "request拦截器名称", required = true)
+    @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\.security\\..*SecurityFilter")
+    @ApiModelProperty(value = "Security拦截器名称。", required = true)
     private String filterName;
     @NotNull
-    @ApiModelProperty(value = "是否开启，true启用，false关闭")
+    @ApiModelProperty(value = "是否开启，true启用，false关闭。")
     private Boolean isStart;
 }
