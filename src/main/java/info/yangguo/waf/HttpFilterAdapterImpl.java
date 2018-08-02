@@ -145,10 +145,10 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus);
 
         //support CORS
-        List<String> originHeader = Constant.getHeaderValues(originalRequest, "Origin");
-        if (originHeader.size() > 0) {
+        String origin = originalRequest.headers().getAsString(HttpHeaderNames.ORIGIN);
+        if (origin != null) {
             httpHeaders.set("Access-Control-Allow-Credentials", "true");
-            httpHeaders.set("Access-Control-Allow-Origin", originHeader.get(0));
+            httpHeaders.set("Access-Control-Allow-Origin", origin);
         }
         httpResponse.headers().add(httpHeaders);
         return httpResponse;

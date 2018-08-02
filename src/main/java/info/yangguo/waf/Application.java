@@ -93,48 +93,47 @@ public class Application {
                         .withSslEngineSource(new WafSelfSignedSslEngineSource());
             }
             httpProxyServerBootstrap
-                    //XFF设置
+                    //xff设置
                     .plusActivityTracker(new ActivityTrackerAdapter() {
                         @Override
                         public void requestReceivedFromClient(FlowContext flowContext,
                                                               HttpRequest httpRequest) {
 
-                            String xffKey = "X-Forwarded-For";
                             StringBuilder xff = new StringBuilder();
-                            List<String> headerValues1 = Constant.getHeaderValues(httpRequest, xffKey);
+                            List<String> headerValues1 = httpRequest.headers().getAll(WafHttpHeaderNames.X_FORWARDED_FOR);
                             if (headerValues1.size() > 0 && headerValues1.get(0) != null) {
                                 //逗号面一定要带一个空格
                                 xff.append(headerValues1.get(0)).append(", ");
                             }
                             xff.append(NetUtils.getLocalHost());
-                            httpRequest.headers().set(xffKey, xff.toString());
+                            httpRequest.headers().set(WafHttpHeaderNames.X_FORWARDED_FOR, xff.toString());
                         }
                     })
-                    //X-Real-IP设置
+                    //x-real-ip设置
                     .plusActivityTracker(
                             new ActivityTrackerAdapter() {
                                 @Override
                                 public void requestReceivedFromClient(FlowContext flowContext,
                                                                       HttpRequest httpRequest) {
-                                    List<String> headerValues2 = Constant.getHeaderValues(httpRequest, "X-Real-Ip");
-                                    if (headerValues2.size() == 0) {
+                                    String realIp = httpRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP);
+                                    if (realIp == null) {
                                         String remoteAddress = flowContext.getClientAddress().getAddress().getHostAddress();
-                                        httpRequest.headers().add("X-Real-Ip", remoteAddress);
+                                        httpRequest.headers().add(WafHttpHeaderNames.X_REAL_IP, remoteAddress);
                                     }
                                 }
                             }
                     )
-                    //X-Waf-Host-Port设置
+                    //x-waf-route设置
                     .plusActivityTracker(
                             new ActivityTrackerAdapter() {
                                 @Override
                                 public void requestReceivedFromClient(FlowContext flowContext,
                                                                       HttpRequest httpRequest) {
-                                    if (httpRequest.headers().get("X-Waf-Route") == null) {
+                                    if (httpRequest.headers().get(WafHttpHeaderNames.X_WAF_ROUTE) == null) {
                                         //Host包含多个值，只取第一个
                                         List<String> hosts = httpRequest.headers().getAll(HttpHeaderNames.HOST);
                                         if (hosts != null && !hosts.isEmpty()) {
-                                            httpRequest.headers().add("X-Waf-Route", hosts.get(0));
+                                            httpRequest.headers().add(WafHttpHeaderNames.X_WAF_ROUTE, hosts.get(0));
                                         }
                                     }
                                 }

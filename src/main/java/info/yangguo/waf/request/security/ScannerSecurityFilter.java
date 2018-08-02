@@ -1,6 +1,7 @@
 package info.yangguo.waf.request.security;
 
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
@@ -50,19 +51,19 @@ public class ScannerSecurityFilter extends SecurityFilter {
             Matcher matcher3 = pattern3.matcher(httpRequest.uri());
 
             if (acunetixAspect || acunetixAspectPassword || acunetixAspectQueries) {
-                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "scanner", "Acunetix Web Vulnerability");
+                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "scanner", "Acunetix Web Vulnerability");
                 return true;
             } else if (xScanMemo || xRequestMemo || xRequestManagerMemo || xWIPP) {
-                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "scanner", "HP WebInspect");
+                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "scanner", "HP WebInspect");
                 return true;
             } else if (matcher1.find()) {
-                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "scanner", "Appscan");
+                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "scanner", "Appscan");
                 return true;
             } else if (matcher2) {
-                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "scanner", "Bugscan");
+                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "scanner", "Bugscan");
                 return true;
             } else if (matcher3.find()) {
-                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "scanner", "Netsparker");
+                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "scanner", "Netsparker");
                 return true;
             }
         }

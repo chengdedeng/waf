@@ -17,7 +17,7 @@ import javax.validation.constraints.*;
 @NoArgsConstructor
 public class UpstreamServerConfigDto {
     @NotEmpty
-    @ApiModelProperty(value = "X-Waf-Route，路由标志。", required = true)
+    @ApiModelProperty(value = "x-waf-route，路由标志。", required = true)
     private String wafRoute;
     @NotEmpty
     @ApiModelProperty(value = "IP地址。", required = true)

@@ -7,36 +7,36 @@ import java.util.Optional;
 
 public interface ClusterService {
     /**
-     * 获取所有request filter配置信息
+     * 获取security配置信息
      *
      * @return
      */
-    Map<String, SecurityConfig> getRequestConfigs();
+    Map<String, SecurityConfig> getSecurityConfigs();
 
     /**
-     * 设置request filter开关
+     * 设置security filter开关
      *
      * @param filterName
      * @param config
      */
-    void setRequestConfig(Optional<String> filterName, Optional<BasicConfig> config);
+    void setSecurityConfig(Optional<String> filterName, Optional<BasicConfig> config);
 
     /**
-     * 设置request rule开关
+     * 设置security iterm
      *
      * @param filterName
      * @param iterm
      * @param config
      */
-    void setRequestItermConfig(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config);
+    void setSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config);
 
     /**
-     * 删除request iterm
+     * 删除security iterm
      *
      * @param filterName
      * @param iterm
      */
-    void deleteRequestIterm(Optional<String> filterName, Optional<String> iterm);
+    void deleteSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm);
 
     /**
      * 获取response filter配置信息

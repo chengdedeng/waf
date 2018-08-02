@@ -2,8 +2,10 @@ package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
@@ -29,7 +31,7 @@ public class CookieSecurityFilter extends SecurityFilter {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            List<String> headerValues = Constant.getHeaderValues(originalRequest, "Cookie");
+            List<String> headerValues = originalRequest.headers().getAll(HttpHeaderNames.COOKIE);
             if (headerValues.size() > 0 && headerValues.get(0) != null) {
                 String[] cookies = headerValues.get(0).split(";");
                 for (String cookie : cookies) {
@@ -41,7 +43,7 @@ public class CookieSecurityFilter extends SecurityFilter {
                                 Pattern pattern = Pattern.compile(iterm.getName());
                                 Matcher matcher = pattern.matcher(cookie.toLowerCase());
                                 if (matcher.find()) {
-                                    hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Cookie", iterm.getName());
+                                    hackLog(logger, httpRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Cookie", iterm.getName());
                                     return true;
                                 }
                             } finally {

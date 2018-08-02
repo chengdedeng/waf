@@ -1,6 +1,7 @@
 package org.littleshoot.proxy.impl;
 
 import com.google.common.io.BaseEncoding;
+import info.yangguo.waf.WafHttpHeaderNames;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -1274,8 +1275,7 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
     private String identifyHostAndPort(HttpRequest httpRequest) {
         String hostAndPort = ProxyUtils.parseHostAndPort(httpRequest);
         if (StringUtils.isBlank(hostAndPort)) {
-            String xWafRoute = httpRequest.headers().getAsString(
-                    "X-Waf-Route");
+            String xWafRoute = httpRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE);
             hostAndPort = xWafRoute;
         }
 

@@ -44,7 +44,7 @@ public class SecurityFilterChain {
             Timer filterTimer = Constant.metrics.timer(filter.getClass().getName());
             Timer.Context filterContext = filterTimer.time();
             try {
-                SecurityConfig config = clusterService.getRequestConfigs().get(filter.getClass().getName());
+                SecurityConfig config = clusterService.getSecurityConfigs().get(filter.getClass().getName());
                 if (config.getConfig().getIsStart()) {
                     boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getSecurityConfigIterms());
                     if (result && filter.isBlacklist()) {

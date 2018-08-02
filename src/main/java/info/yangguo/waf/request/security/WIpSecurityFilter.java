@@ -2,6 +2,7 @@ package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
@@ -40,9 +41,9 @@ public class WIpSecurityFilter extends SecurityFilter {
                     Timer.Context itermContext = itermTimer.time();
                     try {
                         Pattern pattern = Pattern.compile(iterm.getName());
-                        Matcher matcher = pattern.matcher(Constant.getRealIp(httpRequest, channelHandlerContext));
+                        Matcher matcher = pattern.matcher(originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP));
                         if (matcher.find()) {
-                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "WIp", iterm.getName());
+                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "WIp", iterm.getName());
                             return true;
                         }
                     } finally {

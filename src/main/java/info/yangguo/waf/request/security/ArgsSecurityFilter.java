@@ -2,6 +2,7 @@ package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
@@ -53,7 +54,7 @@ public class ArgsSecurityFilter extends SecurityFilter {
                                         Pattern pattern = Pattern.compile(iterm.getName());
                                         Matcher matcher = pattern.matcher(kv[1].toLowerCase());
                                         if (matcher.find()) {
-                                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Args", iterm.getName());
+                                            hackLog(logger, httpRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Args", iterm.getName());
                                             return true;
                                         }
                                     } finally {

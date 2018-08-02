@@ -34,7 +34,7 @@ public class ConfigController {
         resultDto.setCode(HttpStatus.OK.value());
         List<SecurityConfig> value = ContextHolder
                 .getClusterService()
-                .getRequestConfigs()
+                .getSecurityConfigs()
                 .entrySet()
                 .stream()
                 .map(entry -> entry.getValue())
@@ -117,7 +117,7 @@ public class ConfigController {
     public ResultDto setRequestConfig(@RequestBody @Validated SecurityConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().setRequestConfig(Optional.of(dto.getFilterName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+        ContextHolder.getClusterService().setSecurityConfig(Optional.of(dto.getFilterName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
         return resultDto;
     }
 
@@ -132,7 +132,7 @@ public class ConfigController {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
 
-        ContextHolder.getClusterService().setRequestItermConfig(Optional.of(dto.getFilterName()),
+        ContextHolder.getClusterService().setSecurityConfigIterm(Optional.of(dto.getFilterName()),
                 Optional.of(dto.getName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(dto.getExtension()).build()));
 
         return resultDto;
@@ -148,7 +148,7 @@ public class ConfigController {
     public ResultDto deleteRequestIterm(@RequestBody @Validated(NotExistSequence.class) SecurityConfigItermDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteRequestIterm(Optional.of(dto.getFilterName()), Optional.of(dto.getName()));
+        ContextHolder.getClusterService().deleteSecurityConfigIterm(Optional.of(dto.getFilterName()), Optional.of(dto.getName()));
         return resultDto;
     }
 

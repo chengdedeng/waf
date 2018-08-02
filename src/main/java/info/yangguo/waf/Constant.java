@@ -29,30 +29,5 @@ public class Constant {
     public static int ProxyToServerWorkerThreads = Integer.parseInt(wafConfs.get("waf.proxyToServerWorkerThreads"));
     public static int ServerPort = Integer.parseInt(wafConfs.get("waf.serverPort"));
     public static int IdleConnectionTimeout = Integer.valueOf(wafConfs.get("waf.idleConnectionTimeout"));
-    public static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
-
-    public static String getRealIp(HttpRequest httpRequest, ChannelHandlerContext channelHandlerContext) {
-        List<String> headerValues = getHeaderValues(httpRequest, "X-Real-Ip");
-        return headerValues.get(0);
-    }
-
-    /**
-     * RFC7230/RFC7231/RFC7232/RFC7233/RFC7234
-     * Each header field consists of a case-insensitive field name followed
-     * by a colon (":"), optional leading whitespace, the field value, and
-     * optional trailing whitespace.
-     *
-     * @param httpMessage
-     * @param headerName
-     * @return headerValue
-     */
-    public static List<String> getHeaderValues(HttpMessage httpMessage, String headerName) {
-        List<String> list = Lists.newArrayList();
-        for (Map.Entry<String, String> header : httpMessage.headers().entries()) {
-            if (header.getKey().toLowerCase().equals(headerName.toLowerCase())) {
-                list.add(header.getValue());
-            }
-        }
-        return list;
-    }
+    public final static X_Frame_Options X_Frame_Option = X_Frame_Options.SAMEORIGIN;
 }

@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ZkClusterService implements ClusterService {
     private static Logger LOGGER = LoggerFactory.getLogger(ZkClusterService.class);
     private static final String separator = "/";
-    private static final String requestPath = "/waf/config/request";
+    private static final String securityPath = "/waf/config/request/security";
     private static final String responsePath = "/waf/config/response";
     private static final String upstreamPath = "/waf/config/upstream";
     private static final String ENC = "UTF-8";
@@ -90,14 +90,14 @@ public class ZkClusterService implements ClusterService {
         });
 
 
-        TreeCache requestTreeCache = TreeCache.newBuilder(client, requestPath).setCacheData(true).build();
+        TreeCache requestTreeCache = TreeCache.newBuilder(client, securityPath).setCacheData(true).build();
         requestTreeCache.start();
         requestTreeCache.getListenable().addListener((client, event) -> {
             if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())
                     || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
                     || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
                     || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
-                requestTreeCache.getCurrentChildren(requestPath).entrySet().stream().forEach(requestEntry -> {
+                requestTreeCache.getCurrentChildren(securityPath).entrySet().stream().forEach(requestEntry -> {
                     String filterName = requestEntry.getKey();
                     String filterPath = requestEntry.getValue().getPath();
                     BasicConfig filterConfig = (BasicConfig) JsonUtil.fromJson(new String(requestEntry.getValue().getData()), BasicConfig.class);
@@ -182,15 +182,15 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public Map<String, SecurityConfig> getRequestConfigs() {
+    public Map<String, SecurityConfig> getSecurityConfigs() {
         return requestConfigMap;
     }
 
     @Override
-    public void setRequestConfig(Optional<String> filterName, Optional<BasicConfig> config) {
+    public void setSecurityConfig(Optional<String> filterName, Optional<BasicConfig> config) {
         try {
             if (filterName.isPresent() && config.isPresent()) {
-                String path = requestPath + separator + filterName.get();
+                String path = securityPath + separator + filterName.get();
                 if (client.checkExists().forPath(path) != null) {
                     String data = JsonUtil.toJson(config.get(), false);
                     client.setData().forPath(path, data.getBytes());
@@ -205,10 +205,10 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void setRequestItermConfig(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config) {
+    public void setSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config) {
         try {
             if (filterName.isPresent() && iterm.isPresent() && config.isPresent()) {
-                String filterPath = requestPath + separator + filterName.get();
+                String filterPath = securityPath + separator + filterName.get();
                 if (client.checkExists().forPath(filterPath) == null) {
                     LOGGER.warn("Path[{}] not exist.", filterPath);
                 } else {
@@ -229,10 +229,10 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void deleteRequestIterm(Optional<String> filterName, Optional<String> iterm) {
+    public void deleteSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm) {
         try {
             if (filterName.isPresent() && iterm.isPresent()) {
-                String itermPath = requestPath + separator + filterName.get() + separator + URLEncoder.encode(iterm.get(), ENC);
+                String itermPath = securityPath + separator + filterName.get() + separator + URLEncoder.encode(iterm.get(), ENC);
                 if (client.checkExists().forPath(itermPath) != null) {
                     client.delete().forPath(itermPath);
                     LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itermPath, iterm.get());
@@ -356,7 +356,7 @@ public class ZkClusterService implements ClusterService {
     private void initFilter(Class filterClass) {
         String path;
         if (SecurityFilter.class.isAssignableFrom(filterClass)) {
-            path = requestPath + separator + filterClass.getName();
+            path = securityPath + separator + filterClass.getName();
         } else if (HttpResponseFilter.class.isAssignableFrom(filterClass)) {
             path = responsePath + separator + filterClass.getName();
         } else {
@@ -381,8 +381,8 @@ public class ZkClusterService implements ClusterService {
                 .filter(entry -> {
                     boolean pass = false;
                     try {
-                        if (client.checkExists().forPath(requestPath) == null) {
-                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(requestPath + separator + entry.getKey());
+                        if (client.checkExists().forPath(securityPath) == null) {
+                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(securityPath + separator + entry.getKey());
                             pass = true;
                         }
                     } catch (Exception e) {
@@ -393,9 +393,9 @@ public class ZkClusterService implements ClusterService {
                 .forEach(entry -> {
                     String filterName = entry.getKey();
                     SecurityConfig requestConfig = entry.getValue();
-                    setRequestConfig(Optional.of(filterName), Optional.of(requestConfig.getConfig()));
+                    setSecurityConfig(Optional.of(filterName), Optional.of(requestConfig.getConfig()));
                     requestConfig.getSecurityConfigIterms().stream().forEach(itermConfig -> {
-                        setRequestItermConfig(Optional.of(filterName), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
+                        setSecurityConfigIterm(Optional.of(filterName), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
                     });
                 });
         ConfigLocalCache

@@ -2,8 +2,10 @@ package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
@@ -29,17 +31,17 @@ public class UaSecurityFilter extends SecurityFilter {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            List<String> headerValues = Constant.getHeaderValues(originalRequest, "User-Agent");
-            if (headerValues.size() > 0 && headerValues.get(0) != null) {
+            String userAgent = originalRequest.headers().getAsString(HttpHeaderNames.USER_AGENT);
+            if (userAgent != null) {
                 for (SecurityConfigIterm iterm : iterms) {
                     if (iterm.getConfig().getIsStart()) {
                         Timer itermTimer = Constant.metrics.timer("UaSecurityFilter[" + iterm.getName() + "]");
                         Timer.Context itermContext = itermTimer.time();
                         try {
                             Pattern pattern = Pattern.compile(iterm.getName());
-                            Matcher matcher = pattern.matcher(headerValues.get(0));
+                            Matcher matcher = pattern.matcher(userAgent);
                             if (matcher.find()) {
-                                hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "UserAgent", iterm.getName());
+                                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "UserAgent", iterm.getName());
                                 return true;
                             }
                         } finally {

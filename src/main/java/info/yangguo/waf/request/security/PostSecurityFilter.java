@@ -2,10 +2,12 @@ package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
@@ -31,9 +33,9 @@ public class PostSecurityFilter extends SecurityFilter {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
                 String contentBody = null;
-                List<String> headerValues = Constant.getHeaderValues(originalRequest, "Content-Type");
-                if (headerValues.size() > 0 && headerValues.get(0) != null) {
-                    if (Constant.getHeaderValues(originalRequest, "Content-Type") != null && headerValues.get(0).startsWith("multipart/form-data")) {
+                String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
+                if (contentType!=null) {
+                    if (contentType.startsWith("multipart/form-data")) {
                         contentBody = new String(Unpooled.copiedBuffer(httpContent.content()).array());
                     } else {
                         try {
@@ -53,7 +55,7 @@ public class PostSecurityFilter extends SecurityFilter {
                                     Pattern pattern = Pattern.compile(iterm.getName());
                                     Matcher matcher = pattern.matcher(contentBody.toLowerCase());
                                     if (matcher.find()) {
-                                        hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", iterm.getName());
+                                        hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Post", iterm.getName());
                                         return true;
                                     }
                                 } finally {

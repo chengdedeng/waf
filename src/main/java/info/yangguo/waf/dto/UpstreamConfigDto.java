@@ -18,7 +18,7 @@ import javax.validation.constraints.Null;
 @NoArgsConstructor
 public class UpstreamConfigDto {
     @NotEmpty
-    @ApiModelProperty(value = "X-Waf-Route，路由标志。", required = true)
+    @ApiModelProperty(value = "x-waf-route，路由标志。", required = true)
     private String wafRoute;
     @NotNull(groups = Exist.class)
     @Null(groups = NotExist.class)

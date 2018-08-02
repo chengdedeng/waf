@@ -2,6 +2,7 @@ package info.yangguo.waf.request.security;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
@@ -28,8 +29,6 @@ public class IpSecurityFilter extends SecurityFilter {
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
-            HttpRequest httpRequest = (HttpRequest) httpObject;
-            String realIp = Constant.getRealIp(httpRequest, channelHandlerContext);
 
             for (SecurityConfigIterm iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {
@@ -37,9 +36,9 @@ public class IpSecurityFilter extends SecurityFilter {
                     Timer.Context itermContext = itermTimer.time();
                     try {
                         Pattern pattern = Pattern.compile(iterm.getName());
-                        Matcher matcher = pattern.matcher(realIp);
+                        Matcher matcher = pattern.matcher(originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP));
                         if (matcher.find()) {
-                            hackLog(logger, Constant.getRealIp(httpRequest, channelHandlerContext), "Ip", iterm.getName());
+                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Ip", iterm.getName());
                             return true;
                         }
                     } finally {
