@@ -126,9 +126,7 @@ public class ConfigController {
                             .map(iterm -> {
                                 StringBuilder stringBuilder = new StringBuilder();
                                 stringBuilder.append(iterm.getKey()).append(" ");
-                                List parts = (List) iterm.getValue();
-                                stringBuilder.append(parts.get(0)).append(" ");
-                                stringBuilder.append(parts.get(1));
+                                stringBuilder.append(iterm.getValue());
                                 return stringBuilder.toString();
                             }).collect(Collectors.toList());
                     rewriteConfigDto.setIterms(iterms);
@@ -275,7 +273,7 @@ public class ConfigController {
                     String[] parts = iterm.split(" +");
                     return parts;
                 })
-                .collect(Collectors.toMap(parts -> parts[0], parts -> new String[]{parts[1], parts[2]}));
+                .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1]));
         ContextHolder.getClusterService().setRewriteConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(extensions).build()));
 
         return resultDto;

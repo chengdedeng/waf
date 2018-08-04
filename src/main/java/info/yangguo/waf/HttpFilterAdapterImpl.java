@@ -2,6 +2,7 @@ package info.yangguo.waf;
 
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
+import info.yangguo.waf.request.rewrite.RewriteFilter;
 import info.yangguo.waf.request.security.SecurityFilter;
 import info.yangguo.waf.request.security.SecurityFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
@@ -19,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 
 /**
  * @author:杨果
@@ -41,13 +41,19 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
         HttpResponse httpResponse = null;
         try {
+            RewriteFilter.doFilter(originalRequest, httpObject);
+        } catch (Exception e) {
+            httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
+            logger.error("client's request failed when rewrite", e.getCause());
+        }
+        try {
             ImmutablePair<Boolean, SecurityFilter> immutablePair = SECURITY_FILTER_CHAIN.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
             if (immutablePair.left) {
                 httpResponse = createResponse(immutablePair.right.getHttpResponseStatus(), originalRequest);
             }
         } catch (Exception e) {
             httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
-            logger.error("client's request failed", e.getCause());
+            logger.error("client's request failed when security filter", e.getCause());
         }
         return httpResponse;
     }

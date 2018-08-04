@@ -204,9 +204,9 @@ public class ZkClusterService implements ClusterService {
                 Set<String> wafRoutes = Sets.newHashSet();
                 rewriteTreeCache.getCurrentChildren(rewritePath).entrySet().stream().forEach(hostEntry -> {
                     String wafRoute = hostEntry.getKey();
-                    BasicConfig hostBasicConfig = (BasicConfig) JsonUtil.fromJson(new String(hostEntry.getValue().getData()), BasicConfig.class);
+                    BasicConfig basicConfig = (BasicConfig) JsonUtil.fromJson(new String(hostEntry.getValue().getData()), BasicConfig.class);
 
-                    rewriteConfigrMap.put(wafRoute, hostBasicConfig);
+                    rewriteConfigrMap.put(wafRoute, basicConfig);
                     wafRoutes.add(wafRoute);
                 });
                 //将已经删除的节点从rewriteConfigrMap中剔除掉
