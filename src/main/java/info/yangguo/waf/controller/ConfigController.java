@@ -107,6 +107,38 @@ public class ConfigController {
     }
 
 
+    @ApiOperation(value = "获取Rewrite配置")
+    @ResponseBody
+    @GetMapping(value = "rewrite")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto<List<RewriteConfigDto>> getRewriteConfigs() {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        List<RewriteConfigDto> value = ContextHolder.getClusterService().getRewriteConfigs()
+                .entrySet().stream()
+                .map(entry -> {
+                    RewriteConfigDto rewriteConfigDto = RewriteConfigDto.builder().wafRoute(entry.getKey())
+                            .isStart(entry.getValue().getIsStart()).build();
+                    List<String> iterms = entry.getValue().getExtension().entrySet().stream()
+                            .map(iterm -> {
+                                StringBuilder stringBuilder = new StringBuilder();
+                                stringBuilder.append(iterm.getKey()).append(" ");
+                                List parts = (List) iterm.getValue();
+                                stringBuilder.append(parts.get(0)).append(" ");
+                                stringBuilder.append(parts.get(1));
+                                return stringBuilder.toString();
+                            }).collect(Collectors.toList());
+                    rewriteConfigDto.setIterms(iterms);
+                    return rewriteConfigDto;
+                }).collect(Collectors.toList());
+        resultDto.setValue(value);
+        return resultDto;
+    }
+
+
     @ApiOperation(value = "设置SecurityFilter")
     @ResponseBody
     @PutMapping(value = "security")
@@ -224,6 +256,42 @@ public class ConfigController {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
         ContextHolder.getClusterService().deleteUpstreamServer(Optional.of(dto.getWafRoute()), Optional.of(dto.getIp()), Optional.of(dto.getPort()));
+        return resultDto;
+    }
+
+
+    @ApiOperation(value = "设置rewrite")
+    @ResponseBody
+    @PutMapping(value = "rewrite")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto setRewriteConfig(@RequestBody @Validated(ExistSequence.class) RewriteConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        Map<String, Object> extensions = dto.getIterms().stream()
+                .map(iterm -> {
+                    String[] parts = iterm.split(" +");
+                    return parts;
+                })
+                .collect(Collectors.toMap(parts -> parts[0], parts -> new String[]{parts[1], parts[2]}));
+        ContextHolder.getClusterService().setRewriteConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(extensions).build()));
+
+        return resultDto;
+    }
+
+    @ApiOperation(value = "删除rewrite")
+    @ResponseBody
+    @DeleteMapping(value = "rewrite")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto deleteRewrite(@RequestBody @Validated(NotExistSequence.class) RewriteConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().deleteRewrite(Optional.of(dto.getWafRoute()));
         return resultDto;
     }
 }

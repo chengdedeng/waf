@@ -93,4 +93,26 @@ public interface ClusterService {
      * @param portOptional
      */
     void deleteUpstreamServer(Optional<String> hostOptional, Optional<String> ipOptional, Optional<Integer> portOptional);
+
+    /**
+     * 获取rewrite配置信息
+     *
+     * @return
+     */
+    Map<String, BasicConfig> getRewriteConfigs();
+
+    /**
+     * 设置rewrite配置
+     *
+     * @param wafRoute
+     * @param config
+     */
+    void setRewriteConfig(Optional<String> wafRoute, Optional<BasicConfig> config);
+
+    /**
+     * 删除rewrite配置
+     *
+     * @param wafRoute
+     */
+    void deleteRewrite(Optional<String> wafRoute);
 }

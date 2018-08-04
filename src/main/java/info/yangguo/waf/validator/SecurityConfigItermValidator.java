@@ -6,9 +6,9 @@ import info.yangguo.waf.request.security.CCSecurityFilter;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class ItermExtensionValidator implements ConstraintValidator<CheckItermConfig, SecurityConfigItermDto> {
+public class SecurityConfigItermValidator implements ConstraintValidator<CheckSecurityConfigIterm, SecurityConfigItermDto> {
     @Override
-    public void initialize(CheckItermConfig constraintAnnotation) {
+    public void initialize(CheckSecurityConfigIterm constraintAnnotation) {
     }
 
     @Override

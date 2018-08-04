@@ -7,8 +7,8 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = {ItermExtensionValidator.class})
-public @interface CheckItermConfig {
+@Constraint(validatedBy = {SecurityConfigItermValidator.class})
+public @interface CheckSecurityConfigIterm {
     String message() default "iterm extension is illegal";
 
     Class<?>[] groups() default {};

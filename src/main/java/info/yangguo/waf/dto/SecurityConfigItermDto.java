@@ -1,6 +1,6 @@
 package info.yangguo.waf.dto;
 
-import info.yangguo.waf.validator.CheckItermConfig;
+import info.yangguo.waf.validator.CheckSecurityConfigIterm;
 import info.yangguo.waf.validator.Exist;
 import info.yangguo.waf.validator.NotExist;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,7 +19,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@CheckItermConfig(groups = Exist.class)
+@CheckSecurityConfigIterm(groups = Exist.class)
 public class SecurityConfigItermDto {
     @NotEmpty
     @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\.security\\..*SecurityFilter")

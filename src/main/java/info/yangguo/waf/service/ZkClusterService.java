@@ -36,12 +36,14 @@ public class ZkClusterService implements ClusterService {
     private static final String securityPath = "/waf/config/request/security";
     private static final String responsePath = "/waf/config/response";
     private static final String upstreamPath = "/waf/config/upstream";
+    private static final String rewritePath = "/waf/config/rewrite";
     private static final String ENC = "UTF-8";
 
     private static CuratorFramework client;
     Map<String, SecurityConfig> requestConfigMap = Maps.newHashMap();
     Map<String, ResponseConfig> responseConfigMap = Maps.newHashMap();
     Map<String, WeightedRoundRobinScheduling> upstreamServerMap = Maps.newHashMap();
+    Map<String, BasicConfig> rewriteConfigrMap = Maps.newHashMap();
 
     public ZkClusterService() throws Exception {
         ClusterProperties.ZkProperty zkProperty = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getZk();
@@ -90,6 +92,9 @@ public class ZkClusterService implements ClusterService {
         });
 
 
+        if (client.checkExists().forPath(securityPath) == null) {
+            client.create().forPath(securityPath);
+        }
         TreeCache requestTreeCache = TreeCache.newBuilder(client, securityPath).setCacheData(true).build();
         requestTreeCache.start();
         requestTreeCache.getListenable().addListener((client, event) -> {
@@ -120,6 +125,10 @@ public class ZkClusterService implements ClusterService {
             }
         });
 
+
+        if (client.checkExists().forPath(responsePath) == null) {
+            client.create().forPath(responsePath);
+        }
         TreeCache responseTreeCache = TreeCache.newBuilder(client, responsePath).setCacheData(true).build();
         responseTreeCache.start();
         responseTreeCache.getListenable().addListener((client, event) -> {
@@ -135,6 +144,7 @@ public class ZkClusterService implements ClusterService {
                 ConfigLocalCache.setResponseConfig(responseConfigMap);
             }
         });
+
 
         if (client.checkExists().forPath(upstreamPath) == null) {
             client.create().forPath(upstreamPath);
@@ -177,6 +187,34 @@ public class ZkClusterService implements ClusterService {
                         upstreamServerMap.remove(key);
                 });
                 ConfigLocalCache.setUpstreamConfig(upstreamServerMap);
+            }
+        });
+
+
+        if (client.checkExists().forPath(rewritePath) == null) {
+            client.create().forPath(rewritePath);
+        }
+        TreeCache rewriteTreeCache = TreeCache.newBuilder(client, rewritePath).setCacheData(true).build();
+        rewriteTreeCache.start();
+        rewriteTreeCache.getListenable().addListener((client, event) -> {
+            if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
+                    || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                Set<String> wafRoutes = Sets.newHashSet();
+                rewriteTreeCache.getCurrentChildren(rewritePath).entrySet().stream().forEach(hostEntry -> {
+                    String wafRoute = hostEntry.getKey();
+                    BasicConfig hostBasicConfig = (BasicConfig) JsonUtil.fromJson(new String(hostEntry.getValue().getData()), BasicConfig.class);
+
+                    rewriteConfigrMap.put(wafRoute, hostBasicConfig);
+                    wafRoutes.add(wafRoute);
+                });
+                //将已经删除的节点从rewriteConfigrMap中剔除掉
+                rewriteConfigrMap.keySet().stream().collect(Collectors.toList()).stream().forEach(key -> {
+                    if (!wafRoutes.contains(key))
+                        rewriteConfigrMap.remove(key);
+                });
+                ConfigLocalCache.setRewriteConfig(rewriteConfigrMap);
             }
         });
     }
@@ -353,6 +391,48 @@ public class ZkClusterService implements ClusterService {
         }
     }
 
+    @Override
+    public Map<String, BasicConfig> getRewriteConfigs() {
+        return rewriteConfigrMap;
+    }
+
+    @Override
+    public void setRewriteConfig(Optional<String> wafRoute, Optional<BasicConfig> config) {
+        try {
+            if (wafRoute.isPresent() && config.isPresent()) {
+                String path = rewritePath + separator + wafRoute.get();
+                if (client.checkExists().forPath(path) == null) {
+                    client.create().creatingParentsIfNeeded().forPath(path);
+                }
+                String data = JsonUtil.toJson(config.get(), false);
+                client.setData().forPath(path, data.getBytes());
+                LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteRewrite(Optional<String> wafRoute) {
+        wafRoute.ifPresent(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                String wafRoutePath = rewritePath + separator + wafRoute.get();
+                try {
+                    if (client.checkExists().forPath(wafRoutePath) != null) {
+                        client.delete().deletingChildrenIfNeeded().forPath(wafRoutePath);
+                        LOGGER.info("Path[{}] has been deleted.", wafRoutePath);
+                    } else {
+                        LOGGER.warn("Path[{}] not exist.", wafRoutePath);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
     private void initFilter(Class filterClass) {
         String path;
         if (SecurityFilter.class.isAssignableFrom(filterClass)) {
@@ -448,6 +528,27 @@ public class ZkClusterService implements ClusterService {
                                 setUpstreamServerConfig(Optional.of(host), Optional.of(serverConfig.getIp()), Optional.of(serverConfig.getPort()), Optional.of(serverConfig.getConfig()));
                             });
                 });
+        ConfigLocalCache
+                .getRewriteConfig()
+                .entrySet()
+                .stream()
+                .filter(entry -> {
+                    boolean pass = false;
+                    try {
+                        if (client.checkExists().forPath(rewritePath) == null) {
+                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(rewritePath + separator + entry.getKey());
+                            pass = true;
+                        }
+                    } catch (Exception e) {
+                        LOGGER.warn("rewrite config sync fail");
+                    }
+                    return pass;
+                })
+                .forEach(entry -> {
+                    String wafRoute = entry.getKey();
+                    BasicConfig basicConfig = entry.getValue();
+                    setRewriteConfig(Optional.of(wafRoute), Optional.of(basicConfig));
+                });
     }
 
 
@@ -459,6 +560,7 @@ public class ZkClusterService implements ClusterService {
         private static String requestCacheFile = cachePath + "/request-config.json";
         private static String responseCacheile = cachePath + "/response-config.json";
         private static String upstreamCacheFile = cachePath + "/upstream-config.json";
+        private static String rewriteCacheFile = cachePath + "/rewrite-config.json";
 
         public static Map<String, SecurityConfig> getRequestConfig() {
             Map<String, SecurityConfig> config = Maps.newHashMap();
@@ -493,7 +595,7 @@ public class ZkClusterService implements ClusterService {
                     }));
                 } catch (Exception e) {
                     file.delete();
-                    LOGGER.warn("format of request local config is incorrect", e);
+                    LOGGER.warn("format of response local config is incorrect", e);
                 }
             }
 
@@ -517,7 +619,7 @@ public class ZkClusterService implements ClusterService {
                     }));
                 } catch (Exception e) {
                     file.delete();
-                    LOGGER.warn("format of request local config is incorrect", e);
+                    LOGGER.warn("format of upstream local config is incorrect", e);
                 }
             }
 
@@ -530,6 +632,31 @@ public class ZkClusterService implements ClusterService {
                 FileUtils.write(new File(upstreamCacheFile), JsonUtil.toJson(config, true));
             } catch (IOException e) {
                 LOGGER.error("upstream local cache setting is fail", e);
+            }
+        }
+
+        public static Map<String, BasicConfig> getRewriteConfig() {
+            Map<String, BasicConfig> config = Maps.newHashMap();
+            File file = new File(rewriteCacheFile);
+            if (file.exists()) {
+                try {
+                    config.putAll(JsonUtil.fromJson(FileUtils.readFileToString(file), new TypeReference<Map<String, BasicConfig>>() {
+                    }));
+                } catch (Exception e) {
+                    file.delete();
+                    LOGGER.warn("format of rewrite local config is incorrect", e);
+                }
+            }
+
+            return config;
+
+        }
+
+        public static void setRewriteConfig(Map<String, BasicConfig> config) {
+            try {
+                FileUtils.write(new File(rewriteCacheFile), JsonUtil.toJson(config, true));
+            } catch (IOException e) {
+                LOGGER.error("rewrite local cache setting is fail", e);
             }
         }
     }
