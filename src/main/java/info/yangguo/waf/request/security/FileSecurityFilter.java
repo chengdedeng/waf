@@ -10,16 +10,23 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URLDecoder;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.netty.util.CharsetUtil.UTF_8;
+
+/**
+ * 目前这个比较粗糙，只是对multipart/form-data上传的文件名进行了检测。
+ * 文件类型应该去读文件头
+ * 二进制流上传目前也没有处理
+ */
 public class FileSecurityFilter extends SecurityFilter {
-    private static Logger logger = LoggerFactory.getLogger(PostSecurityFilter.class);
+    private static Logger logger = LoggerFactory.getLogger(FileSecurityFilter.class);
     private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
@@ -27,19 +34,10 @@ public class FileSecurityFilter extends SecurityFilter {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
-                String contentBody = null;
                 String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
-                if (contentType != null) {
-                    if (contentType.startsWith("multipart/form-data")) {
-                        contentBody = new String(Unpooled.copiedBuffer(httpContent.content()).array());
-                    } else {
-                        try {
-                            String contentStr = new String(Unpooled.copiedBuffer(httpContent.content()).array()).replaceAll("%", "%25");
-                            contentBody = URLDecoder.decode(contentStr, "UTF-8");
-                        } catch (Exception e) {
-                            logger.warn("URL:{} POST body is inconsistent with the iterms", originalRequest.uri(), e);
-                        }
-                    }
+                if (contentType != null
+                        && contentType.startsWith(ContentType.MULTIPART_FORM_DATA.getMimeType())) {
+                    String contentBody = Unpooled.copiedBuffer(httpContent.content()).toString(UTF_8);
 
                     if (contentBody != null) {
                         Matcher fileMatcher = filePattern.matcher(contentBody);
