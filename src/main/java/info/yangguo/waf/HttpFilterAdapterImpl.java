@@ -1,8 +1,12 @@
 package info.yangguo.waf;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import info.yangguo.waf.request.rewrite.RewriteFilter;
+import info.yangguo.waf.request.security.CCSecurityFilter;
+import info.yangguo.waf.request.security.PostSecurityFilter;
 import info.yangguo.waf.request.security.SecurityFilter;
 import info.yangguo.waf.request.security.SecurityFilterChain;
 import info.yangguo.waf.response.HttpResponseFilterChain;
@@ -31,7 +35,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
     private static final SecurityFilterChain SECURITY_FILTER_CHAIN = new SecurityFilterChain();
     private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain();
-
+    private final Cache<Object, Object> postReponseCache = CacheBuilder.newBuilder().maximumSize(10000).build();
 
     public HttpFilterAdapterImpl(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
@@ -49,7 +53,14 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         try {
             ImmutablePair<Boolean, SecurityFilter> immutablePair = SECURITY_FILTER_CHAIN.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
             if (immutablePair.left) {
-                httpResponse = createResponse(immutablePair.right.getHttpResponseStatus(), originalRequest);
+                if (immutablePair.right instanceof CCSecurityFilter) {
+                    httpResponse = createResponse(HttpResponseStatus.SERVICE_UNAVAILABLE, originalRequest);
+                } else if (immutablePair.right instanceof PostSecurityFilter) {
+                    httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
+                    postReponseCache.put(ctx.channel().id().asLongText(), httpResponse);
+                } else {
+                    httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
+                }
             }
         } catch (Exception e) {
             httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
@@ -103,7 +114,12 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
             try {
-                httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
+                if (postReponseCache.getIfPresent(ctx.channel().id().asLongText()) != null) {
+                    httpObject = (HttpResponse) postReponseCache.getIfPresent(ctx.channel().id().asLongText());
+                    postReponseCache.invalidate(ctx.channel().id().asLongText());
+                } else {
+                    httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
+                }
             } catch (Exception e) {
                 logger.error("response filter failed", e.getCause());
             }
@@ -148,6 +164,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static HttpResponse createResponse(HttpResponseStatus httpResponseStatus, HttpRequest originalRequest) {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add("Transfer-Encoding", "chunked");
+        httpHeaders.add("Connection", "close");
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus);
 
         //support CORS
