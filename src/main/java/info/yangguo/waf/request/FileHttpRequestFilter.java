@@ -25,7 +25,7 @@ import static io.netty.util.CharsetUtil.UTF_8;
  * 二进制流上传目前也没有处理
  */
 public class FileHttpRequestFilter extends HttpRequestFilter {
-    private static Logger logger = LoggerFactory.getLogger(PostHttpRequestFilter.class);
+    private static Logger logger = LoggerFactory.getLogger(FileHttpRequestFilter.class);
     private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
