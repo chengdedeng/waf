@@ -164,7 +164,8 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static HttpResponse createResponse(HttpResponseStatus httpResponseStatus, HttpRequest originalRequest) {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add("Transfer-Encoding", "chunked");
-        httpHeaders.add("Connection", "close");
+        httpHeaders.add("Connection", "close");//如果不关闭，下游的server接收到部分数据会一直等待知道超时，会报如下大概异常
+        //I/O error while reading input message; nested exception is java.net.SocketTimeoutException
         HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus);
 
         //support CORS
