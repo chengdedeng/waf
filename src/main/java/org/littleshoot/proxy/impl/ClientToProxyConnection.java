@@ -368,10 +368,17 @@ public class ClientToProxyConnection extends ProxyConnection<HttpRequest> {
 
     @Override
     protected void readHTTPChunk(HttpContent chunk) {
-        currentFilters.clientToProxyRequest(chunk);
-        currentFilters.proxyToServerRequest(chunk);
+        HttpResponse clientToProxyFilterResponse = currentFilters.clientToProxyRequest(chunk);
 
-        currentServerConnection.write(chunk);
+        if (clientToProxyFilterResponse != null) {
+            LOG.debug("Responding to client with short-circuit response from filter: {}", clientToProxyFilterResponse);
+
+            respondWithShortCircuitResponse(clientToProxyFilterResponse);
+        }else {
+            currentFilters.proxyToServerRequest(chunk);
+
+            currentServerConnection.write(chunk);
+        }
     }
 
     @Override
