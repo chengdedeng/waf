@@ -7,10 +7,12 @@ import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,36 +33,25 @@ public class ArgsSecurityFilter extends SecurityFilter {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
-            String url = null;
-            try {
-                String uri = httpRequest.uri().replaceAll("%", "%25");
-                url = URLDecoder.decode(uri, "UTF-8");
-            } catch (Exception e) {
-                logger.warn("URL:{} is inconsistent with the iterms", httpRequest.uri(), e);
-            }
-            if (url != null) {
-                int index = url.indexOf("?");
-                if (index > -1) {
-                    String argsStr = url.substring(index + 1);
-                    String[] args = argsStr.split("&");
-                    for (String arg : args) {
-                        String[] kv = arg.split("=");
-                        if (kv.length == 2) {
-                            for (SecurityConfigIterm iterm : iterms) {
-                                if (iterm.getConfig().getIsStart()) {
-                                    Timer itermTimer = Constant.metrics.timer("ArgsSecurityFilter[" + iterm.getName() + "]");
-                                    Timer.Context itermContext = itermTimer.time();
-                                    try {
-                                        Pattern pattern = Pattern.compile(iterm.getName());
-                                        Matcher matcher = pattern.matcher(kv[1].toLowerCase());
-                                        if (matcher.find()) {
-                                            hackLog(logger, httpRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Args", iterm.getName());
-                                            return true;
-                                        }
-                                    } finally {
-                                        itermContext.stop();
-                                    }
+
+            int index = httpRequest.uri().indexOf("?");
+            if (index > -1) {
+                String argsStr = httpRequest.uri().substring(index + 1);
+                List<NameValuePair> args = URLEncodedUtils.parse(argsStr, Charset.forName("UTF-8"));
+                for (NameValuePair arg : args) {
+                    for (SecurityConfigIterm iterm : iterms) {
+                        if (iterm.getConfig().getIsStart() && arg.getValue() != null) {
+                            Timer itermTimer = Constant.metrics.timer("ArgsHttpRequestFilter[" + iterm.getName() + "]");
+                            Timer.Context itermContext = itermTimer.time();
+                            try {
+                                Pattern pattern = Pattern.compile(iterm.getName());
+                                Matcher matcher = pattern.matcher(arg.getValue().toLowerCase());
+                                if (matcher.find()) {
+                                    hackLog(logger, httpRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Args", iterm.getName());
+                                    return true;
                                 }
+                            } finally {
+                                itermContext.stop();
                             }
                         }
                     }
