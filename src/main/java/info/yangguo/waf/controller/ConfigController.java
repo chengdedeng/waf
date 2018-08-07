@@ -136,6 +136,35 @@ public class ConfigController {
         return resultDto;
     }
 
+    @ApiOperation(value = "获取Redirect配置")
+    @ResponseBody
+    @GetMapping(value = "redirect")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto<List<RedirectConfigDto>> getRedirectConfigs() {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        List<RedirectConfigDto> value = ContextHolder.getClusterService().getRedirectConfigs()
+                .entrySet().stream()
+                .map(entry -> {
+                    RedirectConfigDto rewriteConfigDto = RedirectConfigDto.builder().wafRoute(entry.getKey())
+                            .isStart(entry.getValue().getIsStart()).build();
+                    List<String> iterms = entry.getValue().getExtension().entrySet().stream()
+                            .map(iterm -> {
+                                StringBuilder stringBuilder = new StringBuilder();
+                                stringBuilder.append(iterm.getKey()).append(" ");
+                                stringBuilder.append(iterm.getValue());
+                                return stringBuilder.toString();
+                            }).collect(Collectors.toList());
+                    rewriteConfigDto.setIterms(iterms);
+                    return rewriteConfigDto;
+                }).collect(Collectors.toList());
+        resultDto.setValue(value);
+        return resultDto;
+    }
+
 
     @ApiOperation(value = "设置SecurityFilter")
     @ResponseBody
@@ -290,6 +319,42 @@ public class ConfigController {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
         ContextHolder.getClusterService().deleteRewrite(Optional.of(dto.getWafRoute()));
+        return resultDto;
+    }
+
+
+    @ApiOperation(value = "设置redirect")
+    @ResponseBody
+    @PutMapping(value = "redirect")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto setRedirectConfig(@RequestBody @Validated(ExistSequence.class) RedirectConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        Map<String, Object> extensions = dto.getIterms().stream()
+                .map(iterm -> {
+                    String[] parts = iterm.split(" +");
+                    return parts;
+                })
+                .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1]));
+        ContextHolder.getClusterService().setRedirectConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(extensions).build()));
+
+        return resultDto;
+    }
+
+    @ApiOperation(value = "删除redirect")
+    @ResponseBody
+    @DeleteMapping(value = "redirect")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto deleteRedirect(@RequestBody @Validated(NotExistSequence.class) RedirectConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().deleteRedirect(Optional.of(dto.getWafRoute()));
         return resultDto;
     }
 }

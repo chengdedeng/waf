@@ -33,10 +33,11 @@ import java.util.stream.Collectors;
 public class ZkClusterService implements ClusterService {
     private static Logger LOGGER = LoggerFactory.getLogger(ZkClusterService.class);
     private static final String separator = "/";
-    private static final String securityPath = "/waf/config/request/security";
+    private static final String securityPath = "/waf/config/security";
     private static final String responsePath = "/waf/config/response";
     private static final String upstreamPath = "/waf/config/upstream";
     private static final String rewritePath = "/waf/config/rewrite";
+    private static final String redirectPath = "/waf/config/redirect";
     private static final String ENC = "UTF-8";
 
     private static CuratorFramework client;
@@ -44,6 +45,7 @@ public class ZkClusterService implements ClusterService {
     Map<String, ResponseConfig> responseConfigMap = Maps.newHashMap();
     Map<String, WeightedRoundRobinScheduling> upstreamServerMap = Maps.newHashMap();
     Map<String, BasicConfig> rewriteConfigrMap = Maps.newHashMap();
+    Map<String, BasicConfig> redirectConfigrMap = Maps.newHashMap();
 
     public ZkClusterService() throws Exception {
         ClusterProperties.ZkProperty zkProperty = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getZk();
@@ -217,6 +219,34 @@ public class ZkClusterService implements ClusterService {
                 ConfigLocalCache.setRewriteConfig(rewriteConfigrMap);
             }
         });
+
+
+        if (client.checkExists().forPath(redirectPath) == null) {
+            client.create().forPath(redirectPath);
+        }
+        TreeCache redirectTreeCache = TreeCache.newBuilder(client, redirectPath).setCacheData(true).build();
+        redirectTreeCache.start();
+        redirectTreeCache.getListenable().addListener((client, event) -> {
+            if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
+                    || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                Set<String> wafRoutes = Sets.newHashSet();
+                redirectTreeCache.getCurrentChildren(redirectPath).entrySet().stream().forEach(hostEntry -> {
+                    String wafRoute = hostEntry.getKey();
+                    BasicConfig basicConfig = (BasicConfig) JsonUtil.fromJson(new String(hostEntry.getValue().getData()), BasicConfig.class);
+
+                    redirectConfigrMap.put(wafRoute, basicConfig);
+                    wafRoutes.add(wafRoute);
+                });
+                //将已经删除的节点从redirectConfigrMap中剔除掉
+                redirectConfigrMap.keySet().stream().collect(Collectors.toList()).stream().forEach(key -> {
+                    if (!wafRoutes.contains(key))
+                        redirectConfigrMap.remove(key);
+                });
+                ConfigLocalCache.setRedirectConfig(redirectConfigrMap);
+            }
+        });
     }
 
     @Override
@@ -321,7 +351,7 @@ public class ZkClusterService implements ClusterService {
                     client.setData().forPath(path, data.getBytes());
                     LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
                 } else {
-                    client.create().forPath(path, data.getBytes());
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
                     LOGGER.info("Path[{}]|Data[{}] has been created.", path, data);
                 }
             }
@@ -344,7 +374,7 @@ public class ZkClusterService implements ClusterService {
                         client.setData().forPath(serverPath, data.getBytes());
                         LOGGER.info("Path[{}]|Data[{}] has been set.", serverPath, data);
                     } else {
-                        client.create().forPath(serverPath, data.getBytes());
+                        client.create().withMode(CreateMode.PERSISTENT).forPath(serverPath, data.getBytes());
                         LOGGER.info("Path[{}]|Data[{}] has been created.", serverPath, data);
                     }
                 }
@@ -401,11 +431,12 @@ public class ZkClusterService implements ClusterService {
         try {
             if (wafRoute.isPresent() && config.isPresent()) {
                 String path = rewritePath + separator + wafRoute.get();
-                if (client.checkExists().forPath(path) == null) {
-                    client.create().creatingParentsIfNeeded().forPath(path);
-                }
                 String data = JsonUtil.toJson(config.get(), false);
-                client.setData().forPath(path, data.getBytes());
+                if (client.checkExists().forPath(path) == null) {
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                } else {
+                    client.setData().forPath(path, data.getBytes());
+                }
                 LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
             }
         } catch (Exception e) {
@@ -419,6 +450,49 @@ public class ZkClusterService implements ClusterService {
             @Override
             public void accept(String s) {
                 String wafRoutePath = rewritePath + separator + wafRoute.get();
+                try {
+                    if (client.checkExists().forPath(wafRoutePath) != null) {
+                        client.delete().deletingChildrenIfNeeded().forPath(wafRoutePath);
+                        LOGGER.info("Path[{}] has been deleted.", wafRoutePath);
+                    } else {
+                        LOGGER.warn("Path[{}] not exist.", wafRoutePath);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    @Override
+    public Map<String, BasicConfig> getRedirectConfigs() {
+        return redirectConfigrMap;
+    }
+
+    @Override
+    public void setRedirectConfig(Optional<String> wafRoute, Optional<BasicConfig> config) {
+        try {
+            if (wafRoute.isPresent() && config.isPresent()) {
+                String path = redirectPath + separator + wafRoute.get();
+                String data = JsonUtil.toJson(config.get(), false);
+                if (client.checkExists().forPath(path) == null) {
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                } else {
+                    client.setData().forPath(path, data.getBytes());
+                }
+                LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteRedirect(Optional<String> wafRoute) {
+        wafRoute.ifPresent(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                String wafRoutePath = redirectPath + separator + wafRoute.get();
                 try {
                     if (client.checkExists().forPath(wafRoutePath) != null) {
                         client.delete().deletingChildrenIfNeeded().forPath(wafRoutePath);
@@ -549,6 +623,27 @@ public class ZkClusterService implements ClusterService {
                     BasicConfig basicConfig = entry.getValue();
                     setRewriteConfig(Optional.of(wafRoute), Optional.of(basicConfig));
                 });
+        ConfigLocalCache
+                .getRedirectConfig()
+                .entrySet()
+                .stream()
+                .filter(entry -> {
+                    boolean pass = false;
+                    try {
+                        if (client.checkExists().forPath(redirectPath) == null) {
+                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(redirectPath + separator + entry.getKey());
+                            pass = true;
+                        }
+                    } catch (Exception e) {
+                        LOGGER.warn("rewrite config sync fail");
+                    }
+                    return pass;
+                })
+                .forEach(entry -> {
+                    String wafRoute = entry.getKey();
+                    BasicConfig basicConfig = entry.getValue();
+                    setRedirectConfig(Optional.of(wafRoute), Optional.of(basicConfig));
+                });
     }
 
 
@@ -561,6 +656,7 @@ public class ZkClusterService implements ClusterService {
         private static String responseCacheile = cachePath + "/response-config.json";
         private static String upstreamCacheFile = cachePath + "/upstream-config.json";
         private static String rewriteCacheFile = cachePath + "/rewrite-config.json";
+        private static String redirectCacheFile = cachePath + "/redirect-config.json";
 
         public static Map<String, SecurityConfig> getRequestConfig() {
             Map<String, SecurityConfig> config = Maps.newHashMap();
@@ -657,6 +753,32 @@ public class ZkClusterService implements ClusterService {
                 FileUtils.write(new File(rewriteCacheFile), JsonUtil.toJson(config, true));
             } catch (IOException e) {
                 LOGGER.error("rewrite local cache setting is fail", e);
+            }
+        }
+
+
+        public static Map<String, BasicConfig> getRedirectConfig() {
+            Map<String, BasicConfig> config = Maps.newHashMap();
+            File file = new File(redirectCacheFile);
+            if (file.exists()) {
+                try {
+                    config.putAll(JsonUtil.fromJson(FileUtils.readFileToString(file), new TypeReference<Map<String, BasicConfig>>() {
+                    }));
+                } catch (Exception e) {
+                    file.delete();
+                    LOGGER.warn("format of redirect local config is incorrect", e);
+                }
+            }
+
+            return config;
+
+        }
+
+        public static void setRedirectConfig(Map<String, BasicConfig> config) {
+            try {
+                FileUtils.write(new File(redirectCacheFile), JsonUtil.toJson(config, true));
+            } catch (IOException e) {
+                LOGGER.error("redirect local cache setting is fail", e);
             }
         }
     }

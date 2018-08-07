@@ -115,4 +115,26 @@ public interface ClusterService {
      * @param wafRoute
      */
     void deleteRewrite(Optional<String> wafRoute);
+
+    /**
+     * 获取redirect配置信息
+     *
+     * @return
+     */
+    Map<String, BasicConfig> getRedirectConfigs();
+
+    /**
+     * 设置redirect配置
+     *
+     * @param wafRoute
+     * @param config
+     */
+    void setRedirectConfig(Optional<String> wafRoute, Optional<BasicConfig> config);
+
+    /**
+     * 删除redirect配置
+     *
+     * @param wafRoute
+     */
+    void deleteRedirect(Optional<String> wafRoute);
 }
