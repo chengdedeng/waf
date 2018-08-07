@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
-import info.yangguo.waf.request.rewrite.RewriteFilter;
+import info.yangguo.waf.request.RewriteFilter;
 import info.yangguo.waf.request.security.CCSecurityFilter;
 import info.yangguo.waf.request.security.PostSecurityFilter;
 import info.yangguo.waf.request.security.SecurityFilter;

@@ -1,4 +1,4 @@
-package info.yangguo.waf.request.rewrite;
+package info.yangguo.waf.request;
 
 import com.google.common.collect.Lists;
 import info.yangguo.waf.WafHttpHeaderNames;
