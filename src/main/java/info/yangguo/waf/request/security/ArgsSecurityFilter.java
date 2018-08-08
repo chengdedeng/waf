@@ -25,6 +25,9 @@ import static io.netty.util.CharsetUtil.UTF_8;
  * Description:
  * <p>
  * URL参数黑名单参数拦截
+ * <p>
+ * 此处最好别用URI匹配正则，最好拆成NameValuePair一一匹配，这样精准一点。
+ * 例如设置了一个<script>拦截，如果参数为a=中国&b=<script>&c=!@$%^&*()_+{}|就拦截失败
  */
 public class ArgsSecurityFilter extends SecurityFilter {
     private static final Logger logger = LoggerFactory.getLogger(ArgsSecurityFilter.class);

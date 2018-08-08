@@ -39,28 +39,28 @@ public class PostSecurityFilter extends SecurityFilter {
                 String contentBody = Unpooled.copiedBuffer(httpContent.content()).toString(UTF_8);
                 //application/x-www-form-urlencoded会对报文进行编码，所以需要解析出来再匹配。
                 String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
-                if (contentType != null && contentType.equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
-                    List<NameValuePair> args = URLEncodedUtils.parse(contentBody, UTF_8);
-                    for (NameValuePair pair : args) {
-                        for (SecurityConfigIterm iterm : iterms) {
-                            if (iterm.getConfig().getIsStart()) {
-                                Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");
-                                Timer.Context itermContext = itermTimer.time();
-                                try {
-                                    Pattern pattern = Pattern.compile(iterm.getName());
-                                    Matcher matcher = pattern.matcher(pair.getName().toLowerCase() + "=" + pair.getValue().toLowerCase());
-                                    if (matcher.find()) {
-                                        hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Post", iterm.getName());
-                                        return true;
+                if (contentBody != null) {
+                    if (ContentType.APPLICATION_FORM_URLENCODED.getMimeType().equals(contentType)) {
+                        List<NameValuePair> args = URLEncodedUtils.parse(contentBody, UTF_8);
+                        for (NameValuePair pair : args) {
+                            for (SecurityConfigIterm iterm : iterms) {
+                                if (iterm.getConfig().getIsStart()) {
+                                    Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");
+                                    Timer.Context itermContext = itermTimer.time();
+                                    try {
+                                        Pattern pattern = Pattern.compile(iterm.getName());
+                                        Matcher matcher = pattern.matcher(pair.getName().toLowerCase() + "=" + pair.getValue().toLowerCase());
+                                        if (matcher.find()) {
+                                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Post", iterm.getName());
+                                            return true;
+                                        }
+                                    } finally {
+                                        itermContext.stop();
                                     }
-                                } finally {
-                                    itermContext.stop();
                                 }
                             }
                         }
-                    }
-                } else {
-                    if (contentBody != null) {
+                    } else {
                         for (SecurityConfigIterm iterm : iterms) {
                             if (iterm.getConfig().getIsStart()) {
                                 Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");

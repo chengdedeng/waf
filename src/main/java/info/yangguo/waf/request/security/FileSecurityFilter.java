@@ -35,8 +35,7 @@ public class FileSecurityFilter extends SecurityFilter {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
                 String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
-                if (contentType != null
-                        && contentType.startsWith(ContentType.MULTIPART_FORM_DATA.getMimeType())) {
+                if (ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
                     String contentBody = Unpooled.copiedBuffer(httpContent.content()).toString(UTF_8);
 
                     if (contentBody != null) {
