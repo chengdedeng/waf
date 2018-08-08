@@ -35,14 +35,11 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
-                String contentBody = null;
-                List<String> headerValues = Constant.getHeaderValues(originalRequest, "Content-Type");
-                if (headerValues.size() > 0 && headerValues.get(0) != null) {
-
-                    contentBody = Unpooled.copiedBuffer(httpContent.content()).toString(UTF_8);
-                    //application/x-www-form-urlencoded会对报文进行编码，所以需要解析出来再匹配。
-                    String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
-                    if (contentType != null && contentType.equals(ContentType.APPLICATION_FORM_URLENCODED.getMimeType())) {
+                String contentBody = Unpooled.copiedBuffer(httpContent.content()).toString(UTF_8);
+                //application/x-www-form-urlencoded会对报文进行编码，所以需要解析出来再匹配。
+                String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
+                if (contentBody != null) {
+                    if (ContentType.APPLICATION_FORM_URLENCODED.getMimeType().equals(contentType)) {
                         List<NameValuePair> args = URLEncodedUtils.parse(contentBody, UTF_8);
                         for (NameValuePair pair : args) {
                             for (ItermConfig iterm : iterms) {
@@ -63,21 +60,19 @@ public class PostHttpRequestFilter extends HttpRequestFilter {
                             }
                         }
                     } else {
-                        if (contentBody != null) {
-                            for (ItermConfig iterm : iterms) {
-                                if (iterm.getConfig().getIsStart()) {
-                                    Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");
-                                    Timer.Context itermContext = itermTimer.time();
-                                    try {
-                                        Pattern pattern = Pattern.compile(iterm.getName());
-                                        Matcher matcher = pattern.matcher(contentBody.toLowerCase());
-                                        if (matcher.find()) {
-                                            hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", iterm.getName());
-                                            return true;
-                                        }
-                                    } finally {
-                                        itermContext.stop();
+                        for (ItermConfig iterm : iterms) {
+                            if (iterm.getConfig().getIsStart()) {
+                                Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");
+                                Timer.Context itermContext = itermTimer.time();
+                                try {
+                                    Pattern pattern = Pattern.compile(iterm.getName());
+                                    Matcher matcher = pattern.matcher(contentBody.toLowerCase());
+                                    if (matcher.find()) {
+                                        hackLog(logger, Constant.getRealIp(originalRequest, ctx), "Post", iterm.getName());
+                                        return true;
                                     }
+                                } finally {
+                                    itermContext.stop();
                                 }
                             }
                         }
