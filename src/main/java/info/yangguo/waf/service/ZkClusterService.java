@@ -259,12 +259,13 @@ public class ZkClusterService implements ClusterService {
         try {
             if (filterName.isPresent() && config.isPresent()) {
                 String path = securityPath + separator + filterName.get();
-                if (client.checkExists().forPath(path) != null) {
-                    String data = JsonUtil.toJson(config.get(), false);
+                String data = JsonUtil.toJson(config.get(), false);
+                if (client.checkExists().forPath(path) == null) {
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, data);
+                } else {
                     client.setData().forPath(path, data.getBytes());
                     LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
-                } else {
-                    LOGGER.warn("Path[{}] not exist.", path);
                 }
             }
         } catch (Exception e) {
@@ -278,17 +279,18 @@ public class ZkClusterService implements ClusterService {
             if (filterName.isPresent() && iterm.isPresent() && config.isPresent()) {
                 String filterPath = securityPath + separator + filterName.get();
                 if (client.checkExists().forPath(filterPath) == null) {
-                    LOGGER.warn("Path[{}] not exist.", filterPath);
+                    String data = JsonUtil.toJson(BasicConfig.builder().isStart(false).build(), false);
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(filterPath, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", filterPath, data);
+                }
+                String rulePath = filterPath + separator + URLEncoder.encode(iterm.get(), ENC);
+                String data = JsonUtil.toJson(config.get(), false);
+                if (client.checkExists().forPath(rulePath) == null) {
+                    client.create().forPath(rulePath, data.getBytes());
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, iterm.get(), data);
                 } else {
-                    String rulePath = filterPath + separator + URLEncoder.encode(iterm.get(), ENC);
-                    String data = JsonUtil.toJson(config.get(), false);
-                    if (client.checkExists().forPath(rulePath) == null) {
-                        client.create().forPath(rulePath, data.getBytes());
-                        LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, iterm.get(), data);
-                    } else {
-                        client.setData().forPath(rulePath, data.getBytes());
-                        LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, iterm.get(), data);
-                    }
+                    client.setData().forPath(rulePath, data.getBytes());
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, iterm.get(), data);
                 }
             }
         } catch (Exception e) {
@@ -304,8 +306,6 @@ public class ZkClusterService implements ClusterService {
                 if (client.checkExists().forPath(itermPath) != null) {
                     client.delete().forPath(itermPath);
                     LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itermPath, iterm.get());
-                } else {
-                    LOGGER.warn("Path[{}]|Regex[{}] not exist.", itermPath, iterm.get());
                 }
             }
         } catch (Exception e) {
@@ -323,12 +323,13 @@ public class ZkClusterService implements ClusterService {
         try {
             if (filterName.isPresent() && config.isPresent()) {
                 String path = responsePath + separator + filterName.get();
-                if (client.checkExists().forPath(path) != null) {
-                    String data = JsonUtil.toJson(config.get(), false);
+                String data = JsonUtil.toJson(config.get(), false);
+                if (client.checkExists().forPath(path) == null) {
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, data);
+                } else {
                     client.setData().forPath(path, data.getBytes());
                     LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
-                } else {
-                    LOGGER.warn("Path[{}] not exist.", path);
                 }
             }
         } catch (Exception e) {
@@ -366,17 +367,17 @@ public class ZkClusterService implements ClusterService {
             if (hostOptional.isPresent() && ipOptional.isPresent() && portOptional.isPresent() && config.isPresent()) {
                 String hostPath = upstreamPath + separator + hostOptional.get();
                 if (client.checkExists().forPath(hostPath) == null) {
-                    LOGGER.warn("Path[{}] not exist.", hostPath);
+                    String data = JsonUtil.toJson(BasicConfig.builder().isStart(false).build(), false);
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(hostPath, data.getBytes());
+                }
+                String serverPath = hostPath + separator + ipOptional.get() + ":" + portOptional.get();
+                String data = JsonUtil.toJson(config.get(), false);
+                if (client.checkExists().forPath(serverPath) != null) {
+                    client.setData().forPath(serverPath, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", serverPath, data);
                 } else {
-                    String serverPath = hostPath + separator + ipOptional.get() + ":" + portOptional.get();
-                    String data = JsonUtil.toJson(config.get(), false);
-                    if (client.checkExists().forPath(serverPath) != null) {
-                        client.setData().forPath(serverPath, data.getBytes());
-                        LOGGER.info("Path[{}]|Data[{}] has been set.", serverPath, data);
-                    } else {
-                        client.create().withMode(CreateMode.PERSISTENT).forPath(serverPath, data.getBytes());
-                        LOGGER.info("Path[{}]|Data[{}] has been created.", serverPath, data);
-                    }
+                    client.create().withMode(CreateMode.PERSISTENT).forPath(serverPath, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", serverPath, data);
                 }
             }
         } catch (Exception e) {
@@ -394,8 +395,6 @@ public class ZkClusterService implements ClusterService {
                     if (client.checkExists().forPath(hostPath) != null) {
                         client.delete().deletingChildrenIfNeeded().forPath(hostPath);
                         LOGGER.info("Path[{}] has been deleted.", hostPath);
-                    } else {
-                        LOGGER.warn("Path[{}] not exist.", hostPath);
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -412,8 +411,6 @@ public class ZkClusterService implements ClusterService {
                 if (client.checkExists().forPath(serverPath) != null) {
                     client.delete().forPath(serverPath);
                     LOGGER.info("Path[{}] has been deleted.", serverPath);
-                } else {
-                    LOGGER.warn("Path[{}] not exist.", serverPath);
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -434,10 +431,11 @@ public class ZkClusterService implements ClusterService {
                 String data = JsonUtil.toJson(config.get(), false);
                 if (client.checkExists().forPath(path) == null) {
                     client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, data);
                 } else {
                     client.setData().forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
                 }
-                LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -454,8 +452,6 @@ public class ZkClusterService implements ClusterService {
                     if (client.checkExists().forPath(wafRoutePath) != null) {
                         client.delete().deletingChildrenIfNeeded().forPath(wafRoutePath);
                         LOGGER.info("Path[{}] has been deleted.", wafRoutePath);
-                    } else {
-                        LOGGER.warn("Path[{}] not exist.", wafRoutePath);
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -477,10 +473,11 @@ public class ZkClusterService implements ClusterService {
                 String data = JsonUtil.toJson(config.get(), false);
                 if (client.checkExists().forPath(path) == null) {
                     client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, data);
                 } else {
                     client.setData().forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
                 }
-                LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -497,8 +494,6 @@ public class ZkClusterService implements ClusterService {
                     if (client.checkExists().forPath(wafRoutePath) != null) {
                         client.delete().deletingChildrenIfNeeded().forPath(wafRoutePath);
                         LOGGER.info("Path[{}] has been deleted.", wafRoutePath);
-                    } else {
-                        LOGGER.warn("Path[{}] not exist.", wafRoutePath);
                     }
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -528,122 +523,96 @@ public class ZkClusterService implements ClusterService {
     }
 
     private void syncConfig() {
-        ConfigLocalCache
-                .getRequestConfig()
-                .entrySet()
-                .stream()
-                .filter(entry -> {
-                    boolean pass = false;
-                    try {
-                        if (client.checkExists().forPath(securityPath) == null) {
-                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(securityPath + separator + entry.getKey());
-                            pass = true;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("request config sync fail");
-                    }
-                    return pass;
-                })
-                .forEach(entry -> {
-                    String filterName = entry.getKey();
-                    SecurityConfig requestConfig = entry.getValue();
-                    setSecurityConfig(Optional.of(filterName), Optional.of(requestConfig.getConfig()));
-                    requestConfig.getSecurityConfigIterms().stream().forEach(itermConfig -> {
-                        setSecurityConfigIterm(Optional.of(filterName), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
-                    });
-                });
-        ConfigLocalCache
-                .getResponseConfig()
-                .entrySet()
-                .stream()
-                .filter(entry -> {
-                    boolean pass = false;
-                    try {
-                        if (client.checkExists().forPath(responsePath) == null) {
-                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(responsePath + separator + entry.getKey());
-                            pass = true;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("response config sync fail");
-                    }
-                    return pass;
-                })
-                .forEach(entry -> {
-                    String filterName = entry.getKey();
-                    ResponseConfig responseConfig = entry.getValue();
-                    setResponseConfig(Optional.of(filterName), Optional.of(responseConfig.getConfig()));
-                });
-        ConfigLocalCache
-                .getUpstreamConfig()
-                .entrySet()
-                .stream()
-                .filter(entry -> {
-                    boolean pass = false;
-                    try {
-                        if (client.checkExists().forPath(upstreamPath) == null) {
-                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(upstreamPath + separator + entry.getKey());
-                            pass = true;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("upstream config sync fail");
-                    }
-                    return pass;
-                })
-                .forEach(entry1 -> {
-                    String host = entry1.getKey();
-                    WeightedRoundRobinScheduling weightedRoundRobinScheduling = entry1.getValue();
-                    setUpstreamConfig(Optional.of(host), Optional.of(weightedRoundRobinScheduling.getBasicConfig()));
-                    weightedRoundRobinScheduling
-                            .getServersMap()
-                            .entrySet()
-                            .stream()
-                            .forEach(entry2 -> {
-                                ServerConfig serverConfig = entry2.getValue();
-                                setUpstreamServerConfig(Optional.of(host), Optional.of(serverConfig.getIp()), Optional.of(serverConfig.getPort()), Optional.of(serverConfig.getConfig()));
+        try {
+            if (client.checkExists().forPath(securityPath) == null) {
+                ConfigLocalCache
+                        .getRequestConfig()
+                        .entrySet()
+                        .stream()
+                        .forEach(entry -> {
+                            String filterName = entry.getKey();
+                            SecurityConfig requestConfig = entry.getValue();
+                            setSecurityConfig(Optional.of(filterName), Optional.of(requestConfig.getConfig()));
+                            requestConfig.getSecurityConfigIterms().stream().forEach(itermConfig -> {
+                                setSecurityConfigIterm(Optional.of(filterName), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
                             });
-                });
-        ConfigLocalCache
-                .getRewriteConfig()
-                .entrySet()
-                .stream()
-                .filter(entry -> {
-                    boolean pass = false;
-                    try {
-                        if (client.checkExists().forPath(rewritePath) == null) {
-                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(rewritePath + separator + entry.getKey());
-                            pass = true;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("rewrite config sync fail");
-                    }
-                    return pass;
-                })
-                .forEach(entry -> {
-                    String wafRoute = entry.getKey();
-                    BasicConfig basicConfig = entry.getValue();
-                    setRewriteConfig(Optional.of(wafRoute), Optional.of(basicConfig));
-                });
-        ConfigLocalCache
-                .getRedirectConfig()
-                .entrySet()
-                .stream()
-                .filter(entry -> {
-                    boolean pass = false;
-                    try {
-                        if (client.checkExists().forPath(redirectPath) == null) {
-                            client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(redirectPath + separator + entry.getKey());
-                            pass = true;
-                        }
-                    } catch (Exception e) {
-                        LOGGER.warn("rewrite config sync fail");
-                    }
-                    return pass;
-                })
-                .forEach(entry -> {
-                    String wafRoute = entry.getKey();
-                    BasicConfig basicConfig = entry.getValue();
-                    setRedirectConfig(Optional.of(wafRoute), Optional.of(basicConfig));
-                });
+                        });
+            }
+        } catch (Exception e) {
+            LOGGER.warn("security config sync fail");
+        }
+
+        try {
+            if (client.checkExists().forPath(responsePath) == null) {
+                ConfigLocalCache
+                        .getResponseConfig()
+                        .entrySet()
+                        .stream()
+                        .forEach(entry -> {
+                            String filterName = entry.getKey();
+                            ResponseConfig responseConfig = entry.getValue();
+                            setResponseConfig(Optional.of(filterName), Optional.of(responseConfig.getConfig()));
+                        });
+            }
+        } catch (Exception e) {
+            LOGGER.warn("response config sync fail");
+        }
+
+        try {
+            if (client.checkExists().forPath(upstreamPath) == null) {
+                ConfigLocalCache
+                        .getUpstreamConfig()
+                        .entrySet()
+                        .stream()
+                        .forEach(entry1 -> {
+                            String wafRoute = entry1.getKey();
+                            WeightedRoundRobinScheduling weightedRoundRobinScheduling = entry1.getValue();
+                            setUpstreamConfig(Optional.of(wafRoute), Optional.of(weightedRoundRobinScheduling.getBasicConfig()));
+                            weightedRoundRobinScheduling
+                                    .getServersMap()
+                                    .entrySet()
+                                    .stream()
+                                    .forEach(entry2 -> {
+                                        ServerConfig serverConfig = entry2.getValue();
+                                        setUpstreamServerConfig(Optional.of(wafRoute), Optional.of(serverConfig.getIp()), Optional.of(serverConfig.getPort()), Optional.of(serverConfig.getConfig()));
+                                    });
+                        });
+            }
+        } catch (Exception e) {
+            LOGGER.warn("upstream config sync fail");
+        }
+
+        try {
+            if (client.checkExists().forPath(rewritePath) == null) {
+                ConfigLocalCache
+                        .getRewriteConfig()
+                        .entrySet()
+                        .stream()
+                        .forEach(entry -> {
+                            String wafRoute = entry.getKey();
+                            BasicConfig basicConfig = entry.getValue();
+                            setRewriteConfig(Optional.of(wafRoute), Optional.of(basicConfig));
+                        });
+            }
+        } catch (Exception e) {
+            LOGGER.warn("rewrite config sync fail");
+        }
+
+        try {
+            if (client.checkExists().forPath(redirectPath) == null) {
+                ConfigLocalCache
+                        .getRedirectConfig()
+                        .entrySet()
+                        .stream()
+                        .forEach(entry -> {
+                            String wafRoute = entry.getKey();
+                            BasicConfig basicConfig = entry.getValue();
+                            setRedirectConfig(Optional.of(wafRoute), Optional.of(basicConfig));
+                        });
+            }
+        } catch (Exception e) {
+            LOGGER.warn("redirect config sync fail");
+        }
     }
 
 
