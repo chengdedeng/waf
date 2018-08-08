@@ -338,7 +338,7 @@ public class ConfigController {
                     String[] parts = iterm.split(" +");
                     return parts;
                 })
-                .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1]));
+                .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1] + " " + parts[2]));
         ContextHolder.getClusterService().setRedirectConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(extensions).build()));
 
         return resultDto;
