@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
  * <p>
  * IP白名单拦截
  */
-public class WIpSecurityFilter extends SecurityFilter {
-    private static final Logger logger = LoggerFactory.getLogger(WIpSecurityFilter.class);
+public class WIpSecurity extends Security {
+    private static final Logger logger = LoggerFactory.getLogger(WIpSecurity.class);
 
     @Override
     public boolean isBlacklist() {
@@ -37,7 +37,7 @@ public class WIpSecurityFilter extends SecurityFilter {
             HttpRequest httpRequest = (HttpRequest) httpObject;
             for (SecurityConfigIterm iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {
-                    Timer itermTimer = Constant.metrics.timer("WIpSecurityFilter[" + iterm.getName() + "]");
+                    Timer itermTimer = Constant.metrics.timer("WIpSecurity[" + iterm.getName() + "]");
                     Timer.Context itermContext = itermTimer.time();
                     try {
                         Pattern pattern = Pattern.compile(iterm.getName());

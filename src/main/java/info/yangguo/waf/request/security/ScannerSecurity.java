@@ -1,6 +1,5 @@
 package info.yangguo.waf.request.security;
 
-import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,8 +18,8 @@ import java.util.regex.Pattern;
  * <p>
  * Description:
  */
-public class ScannerSecurityFilter extends SecurityFilter {
-    private static final Logger logger = LoggerFactory.getLogger(ScannerSecurityFilter.class);
+public class ScannerSecurity extends Security {
+    private static final Logger logger = LoggerFactory.getLogger(ScannerSecurity.class);
 
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {

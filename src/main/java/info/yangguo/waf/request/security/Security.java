@@ -17,7 +17,7 @@ import java.util.List;
  * <p>
  * HTTP Request拦截器抽象类
  */
-public abstract class SecurityFilter {
+public abstract class Security {
     /**
      * httpRequest拦截逻辑
      *

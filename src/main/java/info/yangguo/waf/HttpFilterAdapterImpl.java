@@ -4,10 +4,10 @@ import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import info.yangguo.waf.request.RedirectFilter;
 import info.yangguo.waf.request.RewriteFilter;
-import info.yangguo.waf.request.security.CCSecurityFilter;
-import info.yangguo.waf.request.security.SecurityFilter;
-import info.yangguo.waf.request.security.SecurityFilterChain;
-import info.yangguo.waf.response.HttpResponseFilterChain;
+import info.yangguo.waf.request.security.CCSecurity;
+import info.yangguo.waf.request.security.Security;
+import info.yangguo.waf.request.SecurityFilter;
+import info.yangguo.waf.response.HttpResponseFilter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.*;
@@ -31,8 +31,8 @@ import java.net.InetSocketAddress;
  */
 public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
-    private static final SecurityFilterChain httpSecurityFilterChain = new SecurityFilterChain();
-    private final HttpResponseFilterChain httpResponseFilterChain = new HttpResponseFilterChain();
+    private static final SecurityFilter HTTP_SECURITY_FILTER = new SecurityFilter();
+    private final HttpResponseFilter HTTP_RESPONSE_FILTER = new HttpResponseFilter();
 
     public HttpFilterAdapterImpl(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
@@ -60,9 +60,9 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
             return httpResponse;
 
         try {
-            ImmutablePair<Boolean, SecurityFilter> immutablePair = httpSecurityFilterChain.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
+            ImmutablePair<Boolean, Security> immutablePair = HTTP_SECURITY_FILTER.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
             if (immutablePair.left) {
-                if (immutablePair.right instanceof CCSecurityFilter)
+                if (immutablePair.right instanceof CCSecurity)
                     httpResponse = createResponse(HttpResponseStatus.SERVICE_UNAVAILABLE, originalRequest);
                 else
                     httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
@@ -119,7 +119,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
         if (httpObject instanceof HttpResponse) {
             try {
-                httpResponseFilterChain.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
+                HTTP_RESPONSE_FILTER.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
             } catch (Exception e) {
                 logger.error("response filter failed", e.getCause());
             }

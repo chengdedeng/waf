@@ -28,8 +28,8 @@ import static io.netty.util.CharsetUtil.UTF_8;
  * <p>
  * Description:
  */
-public class PostSecurityFilter extends SecurityFilter {
-    private static Logger logger = LoggerFactory.getLogger(PostSecurityFilter.class);
+public class PostSecurity extends Security {
+    private static Logger logger = LoggerFactory.getLogger(PostSecurity.class);
 
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<SecurityConfigIterm> iterms) {

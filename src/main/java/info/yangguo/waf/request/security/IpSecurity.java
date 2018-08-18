@@ -16,39 +16,29 @@ import java.util.regex.Pattern;
 
 /**
  * @author:杨果
- * @date:2017/5/15 上午9:27
+ * @date:2017/5/12 上午10:34
  * <p>
  * Description:
+ * <p>
+ * IP黑名单拦截
  */
-public class WUrlSecurityFilter extends SecurityFilter {
-    private static final Logger logger = LoggerFactory.getLogger(WUrlSecurityFilter.class);
-
-    @Override
-    public boolean isBlacklist() {
-        return false;
-    }
+public class IpSecurity extends Security {
+    private static final Logger logger = LoggerFactory.getLogger(IpSecurity.class);
 
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
-            HttpRequest httpRequest = (HttpRequest) httpObject;
-            String url;
-            int index = httpRequest.uri().indexOf("?");
-            if (index > -1) {
-                url = httpRequest.uri().substring(0, index);
-            } else {
-                url = httpRequest.uri();
-            }
+
             for (SecurityConfigIterm iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {
-                    Timer itermTimer = Constant.metrics.timer("WUrlSecurityFilter[" + iterm.getName() + "]");
+                    Timer itermTimer = Constant.metrics.timer("IpSecurity[" + iterm.getName() + "]");
                     Timer.Context itermContext = itermTimer.time();
                     try {
                         Pattern pattern = Pattern.compile(iterm.getName());
-                        Matcher matcher = pattern.matcher(url);
+                        Matcher matcher = pattern.matcher(originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP));
                         if (matcher.find()) {
-                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "WUrl", iterm.getName());
+                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Ip", iterm.getName());
                             return true;
                         }
                     } finally {

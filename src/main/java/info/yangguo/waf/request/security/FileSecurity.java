@@ -25,8 +25,8 @@ import static io.netty.util.CharsetUtil.UTF_8;
  * 文件类型应该去读文件头
  * 二进制流上传目前也没有处理
  */
-public class FileSecurityFilter extends SecurityFilter {
-    private static Logger logger = LoggerFactory.getLogger(FileSecurityFilter.class);
+public class FileSecurity extends Security {
+    private static Logger logger = LoggerFactory.getLogger(FileSecurity.class);
     private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
@@ -44,7 +44,7 @@ public class FileSecurityFilter extends SecurityFilter {
                             String fileExt = fileMatcher.group(3);
                             for (SecurityConfigIterm iterm : iterms) {
                                 if (iterm.getConfig().getIsStart()) {
-                                    Timer itermTimer = Constant.metrics.timer("FileSecurityFilter[" + iterm.getName() + "]");
+                                    Timer itermTimer = Constant.metrics.timer("FileSecurity[" + iterm.getName() + "]");
                                     Timer.Context itermContext = itermTimer.time();
                                     try {
                                         Pattern pattern = Pattern.compile(iterm.getName());

@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
  * <p>
  * User-Agent黑名单拦截
  */
-public class UaSecurityFilter extends SecurityFilter {
-    private static final Logger logger = LoggerFactory.getLogger(UaSecurityFilter.class);
+public class UaSecurity extends Security {
+    private static final Logger logger = LoggerFactory.getLogger(UaSecurity.class);
 
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
@@ -35,7 +35,7 @@ public class UaSecurityFilter extends SecurityFilter {
             if (userAgent != null) {
                 for (SecurityConfigIterm iterm : iterms) {
                     if (iterm.getConfig().getIsStart()) {
-                        Timer itermTimer = Constant.metrics.timer("UaSecurityFilter[" + iterm.getName() + "]");
+                        Timer itermTimer = Constant.metrics.timer("UaSecurity[" + iterm.getName() + "]");
                         Timer.Context itermContext = itermTimer.time();
                         try {
                             Pattern pattern = Pattern.compile(iterm.getName());

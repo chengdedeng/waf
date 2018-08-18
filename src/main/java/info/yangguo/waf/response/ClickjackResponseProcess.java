@@ -10,7 +10,7 @@ import io.netty.handler.codec.http.HttpResponse;
  * <p>
  * Description:
  */
-public class ClickjackHttpResponseFilter implements HttpResponseFilter {
+public class ClickjackResponseProcess implements ResponseProcess {
     @Override
     public HttpResponse doFilter(HttpRequest originalRequest, HttpResponse httpResponse) {
         httpResponse.headers().add("X-FRAME-OPTIONS", Constant.X_Frame_Option);

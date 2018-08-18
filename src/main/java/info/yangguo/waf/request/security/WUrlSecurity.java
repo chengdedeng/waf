@@ -16,14 +16,17 @@ import java.util.regex.Pattern;
 
 /**
  * @author:杨果
- * @date:2017/5/11 下午2:24
+ * @date:2017/5/15 上午9:27
  * <p>
  * Description:
- * <p>
- * URL路径黑名单拦截
  */
-public class UrlSecurityFilter extends SecurityFilter {
-    private static final Logger logger = LoggerFactory.getLogger(UrlSecurityFilter.class);
+public class WUrlSecurity extends Security {
+    private static final Logger logger = LoggerFactory.getLogger(WUrlSecurity.class);
+
+    @Override
+    public boolean isBlacklist() {
+        return false;
+    }
 
     @Override
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
@@ -39,13 +42,13 @@ public class UrlSecurityFilter extends SecurityFilter {
             }
             for (SecurityConfigIterm iterm : iterms) {
                 if (iterm.getConfig().getIsStart()) {
-                    Timer itermTimer = Constant.metrics.timer("UrlSecurityFilter[" + iterm.getName() + "]");
+                    Timer itermTimer = Constant.metrics.timer("WUrlSecurity[" + iterm.getName() + "]");
                     Timer.Context itermContext = itermTimer.time();
                     try {
                         Pattern pattern = Pattern.compile(iterm.getName());
                         Matcher matcher = pattern.matcher(url);
                         if (matcher.find()) {
-                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Url", iterm.getName());
+                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "WUrl", iterm.getName());
                             return true;
                         }
                     } finally {

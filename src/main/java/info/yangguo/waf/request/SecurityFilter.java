@@ -1,8 +1,9 @@
-package info.yangguo.waf.request.security;
+package info.yangguo.waf.request;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.SecurityConfig;
+import info.yangguo.waf.request.security.*;
 import info.yangguo.waf.service.ClusterService;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
@@ -20,27 +21,27 @@ import java.util.List;
  * <p>
  * 拦截器链
  */
-public class SecurityFilterChain {
-    public List<SecurityFilter> filters = new ArrayList<>();
+public class SecurityFilter {
+    public List<Security> filters = new ArrayList<>();
 
-    public SecurityFilterChain() {
+    public SecurityFilter() {
         //要注意顺序，是从上向下执行的
-        filters.add(new WIpSecurityFilter());
-        filters.add(new IpSecurityFilter());
-        filters.add(new CCSecurityFilter());
-        filters.add(new ScannerSecurityFilter());
-        filters.add(new WUrlSecurityFilter());
-        filters.add(new UaSecurityFilter());
-        filters.add(new UrlSecurityFilter());
-        filters.add(new ArgsSecurityFilter());
-        filters.add(new CookieSecurityFilter());
-        filters.add(new PostSecurityFilter());
-        filters.add(new FileSecurityFilter());
-        filters.add(new ScriptSecurityFilter());
+        filters.add(new WIpSecurity());
+        filters.add(new IpSecurity());
+        filters.add(new CCSecurity());
+        filters.add(new ScannerSecurity());
+        filters.add(new WUrlSecurity());
+        filters.add(new UaSecurity());
+        filters.add(new UrlSecurity());
+        filters.add(new ArgsSecurity());
+        filters.add(new CookieSecurity());
+        filters.add(new PostSecurity());
+        filters.add(new FileSecurity());
+        filters.add(new ScriptSecurity());
     }
 
-    public ImmutablePair<Boolean, SecurityFilter> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ClusterService clusterService) {
-        for (SecurityFilter filter : filters) {
+    public ImmutablePair<Boolean, Security> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ClusterService clusterService) {
+        for (Security filter : filters) {
             Timer filterTimer = Constant.metrics.timer(filter.getClass().getName());
             Timer.Context filterContext = filterTimer.time();
             try {

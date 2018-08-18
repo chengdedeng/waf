@@ -22,7 +22,7 @@ import java.util.Map;
 @CheckSecurityConfigIterm(groups = Exist.class)
 public class SecurityConfigItermDto {
     @NotEmpty
-    @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\.security\\..*SecurityFilter")
+    @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\.security\\..*Security")
     @ApiModelProperty(value = "Security拦截器名称。", required = true)
     private String filterName;
     @NotEmpty

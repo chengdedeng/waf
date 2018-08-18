@@ -8,8 +8,8 @@ import info.yangguo.waf.config.ClusterProperties;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.*;
 import info.yangguo.waf.request.security.*;
-import info.yangguo.waf.response.ClickjackHttpResponseFilter;
-import info.yangguo.waf.response.HttpResponseFilter;
+import info.yangguo.waf.response.ClickjackResponseProcess;
+import info.yangguo.waf.response.ResponseProcess;
 import info.yangguo.waf.util.JsonUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.curator.framework.CuratorFramework;
@@ -78,19 +78,19 @@ public class ZkClusterService implements ClusterService {
         syncConfig();
 
         Arrays.stream(new Class[]{
-                ArgsSecurityFilter.class,
-                CCSecurityFilter.class,
-                CookieSecurityFilter.class,
-                IpSecurityFilter.class,
-                PostSecurityFilter.class,
-                FileSecurityFilter.class,
-                ScannerSecurityFilter.class,
-                UaSecurityFilter.class,
-                UrlSecurityFilter.class,
-                WIpSecurityFilter.class,
-                WUrlSecurityFilter.class,
-                ScriptSecurityFilter.class,
-                ClickjackHttpResponseFilter.class
+                ArgsSecurity.class,
+                CCSecurity.class,
+                CookieSecurity.class,
+                IpSecurity.class,
+                PostSecurity.class,
+                FileSecurity.class,
+                ScannerSecurity.class,
+                UaSecurity.class,
+                UrlSecurity.class,
+                WIpSecurity.class,
+                WUrlSecurity.class,
+                ScriptSecurity.class,
+                ClickjackResponseProcess.class
         }).forEach(filterClass -> {
             initFilter(filterClass);
         });
@@ -605,9 +605,9 @@ public class ZkClusterService implements ClusterService {
 
     private void initFilter(Class filterClass) {
         String path;
-        if (SecurityFilter.class.isAssignableFrom(filterClass)) {
+        if (Security.class.isAssignableFrom(filterClass)) {
             path = securityPath + separator + filterClass.getName();
-        } else if (HttpResponseFilter.class.isAssignableFrom(filterClass)) {
+        } else if (ResponseProcess.class.isAssignableFrom(filterClass)) {
             path = responsePath + separator + filterClass.getName();
         } else {
             throw new RuntimeException("Filter class:[" + filterClass.getName() + "] has error when to initialize filter.");

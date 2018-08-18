@@ -1,7 +1,7 @@
 package info.yangguo.waf.validator;
 
 import info.yangguo.waf.dto.SecurityConfigItermDto;
-import info.yangguo.waf.request.security.CCSecurityFilter;
+import info.yangguo.waf.request.security.CCSecurity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -13,9 +13,9 @@ public class SecurityConfigItermValidator implements ConstraintValidator<CheckSe
 
     @Override
     public boolean isValid(SecurityConfigItermDto config, ConstraintValidatorContext context) {
-        if (CCSecurityFilter.class.getName().equals(config.getFilterName())) {
+        if (CCSecurity.class.getName().equals(config.getFilterName())) {
             if (config.getExtension() == null) {
-                context.buildConstraintViolationWithTemplate("CCSecurityFilter extension value can't be null").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("CCSecurity extension value can't be null").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
                 return false;
             }
             boolean isMatch = config.getExtension().values().stream().anyMatch(value -> {
@@ -26,7 +26,7 @@ public class SecurityConfigItermValidator implements ConstraintValidator<CheckSe
 
             });
             if (isMatch) {
-                context.buildConstraintViolationWithTemplate("CCSecurityFilter extension value must be integer").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("CCSecurity extension value must be integer").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
                 return false;
             }
 
@@ -37,7 +37,7 @@ public class SecurityConfigItermValidator implements ConstraintValidator<CheckSe
                     return false;
             });
             if (isPositive) {
-                context.buildConstraintViolationWithTemplate("CCSecurityFilter extension value must be positive").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
+                context.buildConstraintViolationWithTemplate("CCSecurity extension value must be positive").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();
                 return false;
             }
         }

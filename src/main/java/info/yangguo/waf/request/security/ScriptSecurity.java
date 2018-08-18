@@ -23,12 +23,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ScriptSecurityFilter extends SecurityFilter {
-    private static final Logger logger = LoggerFactory.getLogger(ScannerSecurityFilter.class);
+public class ScriptSecurity extends Security {
+    private static final Logger logger = LoggerFactory.getLogger(ScannerSecurity.class);
     private ScriptEntry scriptEntry;
     private Map<String, String> scripts;
 
-    public ScriptSecurityFilter() {
+    public ScriptSecurity() {
         this.scriptEntry = new ScriptEntry();
         this.scripts = Maps.newHashMap();
 
@@ -65,7 +65,7 @@ public class ScriptSecurityFilter extends SecurityFilter {
     public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
         AtomicBoolean result = new AtomicBoolean(false);
         scripts.entrySet().parallelStream().anyMatch(entry -> {
-            Timer itermTimer = Constant.metrics.timer("ScriptSecurityFilter[" + entry.getKey() + "]");
+            Timer itermTimer = Constant.metrics.timer("ScriptSecurity[" + entry.getKey() + "]");
             Timer.Context itermContext = itermTimer.time();
             try {
                 scriptEntry.execute(originalRequest, httpObject, result, entry.getValue());

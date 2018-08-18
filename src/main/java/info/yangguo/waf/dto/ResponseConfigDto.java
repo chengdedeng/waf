@@ -16,7 +16,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 public class ResponseConfigDto {
     @NotEmpty
-    @Pattern(regexp = "info\\.yangguo\\.waf\\.response\\..*HttpResponseFilter")
+    @Pattern(regexp = "info\\.yangguo\\.waf\\.response\\..*ResponseProcess")
     @ApiModelProperty(value = "Response拦截器名称。", required = true)
     private String filterName;
     @NotNull

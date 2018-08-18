@@ -31,12 +31,12 @@ import java.util.regex.Pattern;
  * Description:
  * cc拦截
  */
-public class CCSecurityFilter extends SecurityFilter {
-    private static final Logger logger = LoggerFactory.getLogger(CCSecurityFilter.class);
+public class CCSecurity extends Security {
+    private static final Logger logger = LoggerFactory.getLogger(CCSecurity.class);
     private LoadingCache<String, RateLimiter> loadingCache;
 
 
-    public CCSecurityFilter() {
+    public CCSecurity() {
         loadingCache = CacheBuilder.newBuilder()
                 .maximumSize(1000)
                 .removalListener(notification -> {
@@ -73,7 +73,7 @@ public class CCSecurityFilter extends SecurityFilter {
                 Optional<Map.Entry<String, Object>> matching = ContextHolder
                         .getClusterService()
                         .getSecurityConfigs()
-                        .get(CCSecurityFilter.class.getName())
+                        .get(CCSecurity.class.getName())
                         .getSecurityConfigIterms()
                         .parallelStream()
                         .filter(iterm -> {
@@ -85,7 +85,7 @@ public class CCSecurityFilter extends SecurityFilter {
                         .flatMap(iterm -> {
                             return iterm.getConfig().getExtension().entrySet().parallelStream();
                         }).filter(entry -> {
-                            Timer itermTimer = Constant.metrics.timer("CCSecurityFilter[" + entry.getKey() + "]");
+                            Timer itermTimer = Constant.metrics.timer("CCSecurity[" + entry.getKey() + "]");
                             Timer.Context itermContext = itermTimer.time();
                             try {
                                 Pattern pattern = Pattern.compile(entry.getKey());
