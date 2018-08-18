@@ -23,6 +23,7 @@ public class Constant {
     }
 
     public static final MetricRegistry metrics = new MetricRegistry();
+    public static Map<String, String> wafWebConfs = PropertiesUtil.getProperty("application.properties");
     public static Map<String, String> wafConfs = PropertiesUtil.getProperty("waf.properties");
     public static int AcceptorThreads = Integer.parseInt(wafConfs.get("waf.acceptorThreads"));
     public static int ClientToProxyWorkerThreads = Integer.parseInt(wafConfs.get("waf.clientToProxyWorkerThreads"));

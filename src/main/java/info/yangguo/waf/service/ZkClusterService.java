@@ -38,6 +38,7 @@ public class ZkClusterService implements ClusterService {
     private static final String upstreamPath = "/waf/config/upstream";
     private static final String rewritePath = "/waf/config/rewrite";
     private static final String redirectPath = "/waf/config/redirect";
+    private static final String forwardPath = "/waf/config/forward";
     private static final String ENC = "UTF-8";
 
     private static CuratorFramework client;
@@ -46,6 +47,7 @@ public class ZkClusterService implements ClusterService {
     Map<String, WeightedRoundRobinScheduling> upstreamServerMap = Maps.newHashMap();
     Map<String, BasicConfig> rewriteConfigrMap = Maps.newHashMap();
     Map<String, BasicConfig> redirectConfigrMap = Maps.newHashMap();
+    Map<String, ForwardConfig> forwardConfigMap = Maps.newHashMap();
 
     public ZkClusterService() throws Exception {
         ClusterProperties.ZkProperty zkProperty = ((ClusterProperties) ContextHolder.applicationContext.getBean("clusterProperties")).getZk();
@@ -247,6 +249,41 @@ public class ZkClusterService implements ClusterService {
                 ConfigLocalCache.setRedirectConfig(redirectConfigrMap);
             }
         });
+
+
+        if (client.checkExists().forPath(forwardPath) == null) {
+            client.create().forPath(forwardPath);
+        }
+        TreeCache forwardTreeCache = TreeCache.newBuilder(client, forwardPath).setCacheData(true).build();
+        forwardTreeCache.start();
+        forwardTreeCache.getListenable().addListener((client, event) -> {
+            if (TreeCacheEvent.Type.NODE_UPDATED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
+                    || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
+                    || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                forwardTreeCache.getCurrentChildren(forwardPath).entrySet().stream().forEach(forwardEntry -> {
+                    String forwardConfigKey = forwardEntry.getKey();
+                    String forwardConfigPath = forwardEntry.getValue().getPath();
+                    BasicConfig forwardConfig = (BasicConfig) JsonUtil.fromJson(new String(forwardEntry.getValue().getData()), BasicConfig.class);
+
+                    List<ForwardConfigIterm> forwardConfigIterms = Lists.newArrayList();
+                    forwardTreeCache.getCurrentChildren(forwardConfigPath).entrySet().stream().forEach(itermEntry -> {
+                        String regex = null;
+                        try {
+                            regex = URLDecoder.decode(itermEntry.getKey(), ENC);
+                        } catch (UnsupportedEncodingException e) {
+                            LOGGER.error("Decode regex:[{}] ", itermEntry.getKey());
+                        }
+                        BasicConfig regexConfig = (BasicConfig) JsonUtil.fromJson(new String(itermEntry.getValue().getData()), BasicConfig.class);
+                        forwardConfigIterms.add(ForwardConfigIterm.builder().name(regex).config(regexConfig).build());
+                    });
+
+                    forwardConfigMap.put(forwardConfigKey, ForwardConfig.builder().wafRoute(forwardConfigKey).config(forwardConfig).forwardConfigIterms(forwardConfigIterms).build());
+                });
+                ConfigLocalCache.setForwardConfig(forwardConfigMap);
+            }
+        });
+
     }
 
     @Override
@@ -502,6 +539,70 @@ public class ZkClusterService implements ClusterService {
         });
     }
 
+    @Override
+    public Map<String, ForwardConfig> getForwardConfigs() {
+        return forwardConfigMap;
+    }
+
+    @Override
+    public void setForwardConfig(Optional<String> wafRoute, Optional<BasicConfig> config) {
+        try {
+            if (wafRoute.isPresent() && config.isPresent()) {
+                String path = forwardPath + separator + wafRoute.get();
+                String data = JsonUtil.toJson(config.get(), false);
+                if (client.checkExists().forPath(path) == null) {
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", path, data);
+                } else {
+                    client.setData().forPath(path, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been set.", path, data);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void setForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config) {
+        try {
+            if (wafRoute.isPresent() && iterm.isPresent() && config.isPresent()) {
+                String wafRoutePath = forwardPath + separator + wafRoute.get();
+                if (client.checkExists().forPath(wafRoutePath) == null) {
+                    String data = JsonUtil.toJson(BasicConfig.builder().isStart(false).build(), false);
+                    client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(wafRoutePath, data.getBytes());
+                    LOGGER.info("Path[{}]|Data[{}] has been created.", wafRoutePath, data);
+                }
+                String rulePath = wafRoutePath + separator + URLEncoder.encode(iterm.get(), ENC);
+                String data = JsonUtil.toJson(config.get(), false);
+                if (client.checkExists().forPath(rulePath) == null) {
+                    client.create().forPath(rulePath, data.getBytes());
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, iterm.get(), data);
+                } else {
+                    client.setData().forPath(rulePath, data.getBytes());
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, iterm.get(), data);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm) {
+        try {
+            if (wafRoute.isPresent() && iterm.isPresent()) {
+                String itermPath = forwardPath + separator + wafRoute.get() + separator + URLEncoder.encode(iterm.get(), ENC);
+                if (client.checkExists().forPath(itermPath) != null) {
+                    client.delete().forPath(itermPath);
+                    LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itermPath, iterm.get());
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void initFilter(Class filterClass) {
         String path;
         if (SecurityFilter.class.isAssignableFrom(filterClass)) {
@@ -613,6 +714,25 @@ public class ZkClusterService implements ClusterService {
         } catch (Exception e) {
             LOGGER.warn("redirect config sync fail");
         }
+
+        try {
+            if (client.checkExists().forPath(forwardPath) == null) {
+                ConfigLocalCache
+                        .getForwardConfig()
+                        .entrySet()
+                        .stream()
+                        .forEach(entry -> {
+                            String wafRoute = entry.getKey();
+                            ForwardConfig forwardConfig = entry.getValue();
+                            setForwardConfig(Optional.of(wafRoute), Optional.of(forwardConfig.getConfig()));
+                            forwardConfig.getForwardConfigIterms().stream().forEach(itermConfig -> {
+                                setForwardConfigIterm(Optional.of(wafRoute), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
+                            });
+                        });
+            }
+        } catch (Exception e) {
+            LOGGER.warn("security config sync fail");
+        }
     }
 
 
@@ -626,6 +746,7 @@ public class ZkClusterService implements ClusterService {
         private static String upstreamCacheFile = cachePath + "/upstream-config.json";
         private static String rewriteCacheFile = cachePath + "/rewrite-config.json";
         private static String redirectCacheFile = cachePath + "/redirect-config.json";
+        private static String forwardCacheFile = cachePath + "/forward-config.json";
 
         public static Map<String, SecurityConfig> getRequestConfig() {
             Map<String, SecurityConfig> config = Maps.newHashMap();
@@ -749,6 +870,30 @@ public class ZkClusterService implements ClusterService {
             } catch (IOException e) {
                 LOGGER.error("redirect local cache setting is fail", e);
             }
+        }
+
+        public static void setForwardConfig(Map<String, ForwardConfig> config) {
+            try {
+                FileUtils.write(new File(forwardCacheFile), JsonUtil.toJson(config, true));
+            } catch (IOException e) {
+                LOGGER.error("forward local cache setting is fail", e);
+            }
+        }
+
+        public static Map<String, ForwardConfig> getForwardConfig() {
+            Map<String, ForwardConfig> config = Maps.newHashMap();
+            File file = new File(forwardCacheFile);
+            if (file.exists()) {
+                try {
+                    config.putAll(JsonUtil.fromJson(FileUtils.readFileToString(file), new TypeReference<Map<String, ForwardConfig>>() {
+                    }));
+                } catch (Exception e) {
+                    file.delete();
+                    LOGGER.warn("format of forward local config is incorrect", e);
+                }
+            }
+
+            return config;
         }
     }
 }

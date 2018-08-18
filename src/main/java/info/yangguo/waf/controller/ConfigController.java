@@ -1,5 +1,6 @@
 package info.yangguo.waf.controller;
 
+import com.google.common.collect.Maps;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.dto.*;
 import info.yangguo.waf.model.*;
@@ -357,4 +358,75 @@ public class ConfigController {
         ContextHolder.getClusterService().deleteRedirect(Optional.of(dto.getWafRoute()));
         return resultDto;
     }
+
+
+    @ApiOperation(value = "设置forward config")
+    @ResponseBody
+    @PutMapping(value = "forward")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto setForwardConfig(@RequestBody @Validated ForwardConfigDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().setForwardConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+        return resultDto;
+    }
+
+
+    @ApiOperation(value = "获取forward配置")
+    @ResponseBody
+    @GetMapping(value = "forward")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto<List<ForwardConfig>> getForwardConfigs() {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        List<ForwardConfig> value = ContextHolder
+                .getClusterService()
+                .getForwardConfigs()
+                .entrySet()
+                .stream()
+                .map(entry -> entry.getValue())
+                .collect(Collectors.toList());
+        resultDto.setValue(value);
+        return resultDto;
+    }
+
+    @ApiOperation(value = "设置forward config iterm")
+    @ResponseBody
+    @PutMapping(value = "forward/iterm")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto setForwardConfigIterm(@RequestBody @Validated(ExistSequence.class) ForwardConfigItermDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+
+        Map<String,Object> extension=Maps.newHashMap();
+        extension.put("type",dto.getType().name());
+        ContextHolder.getClusterService().setForwardConfigIterm(Optional.of(dto.getWafRoute()),
+                Optional.of(dto.getName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(extension).build()));
+
+        return resultDto;
+    }
+
+    @ApiOperation(value = "删除forward config iterm")
+    @ResponseBody
+    @DeleteMapping(value = "forward/iterm")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto deleteForwardConfigIterm(@RequestBody @Validated(NotExistSequence.class) ForwardConfigItermDto dto) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().deleteForwardConfigIterm(Optional.of(dto.getWafRoute()), Optional.of(dto.getName()));
+        return resultDto;
+    }
+
 }

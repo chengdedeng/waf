@@ -137,4 +137,36 @@ public interface ClusterService {
      * @param wafRoute
      */
     void deleteRedirect(Optional<String> wafRoute);
+
+    /**
+     * 获取forward配置信息
+     *
+     * @return
+     */
+    Map<String, ForwardConfig> getForwardConfigs();
+
+    /**
+     * 设置forward config
+     *
+     * @param wafRoute
+     * @param config
+     */
+    void setForwardConfig(Optional<String> wafRoute, Optional<BasicConfig> config);
+
+    /**
+     * 设置forward config iterm
+     *
+     * @param wafRoute
+     * @param iterm
+     * @param config
+     */
+    void setForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config);
+
+    /**
+     * 删除forward config iterm
+     *
+     * @param wafRoute
+     * @param iterm
+     */
+    void deleteForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm);
 }
