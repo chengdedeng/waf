@@ -2,7 +2,6 @@ package info.yangguo.waf.request.security;
 
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ public class ScannerSecurity extends Security {
     private static final Logger logger = LoggerFactory.getLogger(ScannerSecurity.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;

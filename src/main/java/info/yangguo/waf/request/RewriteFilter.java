@@ -6,6 +6,7 @@ import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.BasicConfig;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriUtils;
@@ -18,22 +19,22 @@ import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.CharEncoding.UTF_8;
 
-public class RewriteFilter {
-    private static Logger logger = LoggerFactory.getLogger(RewriteFilter.class);
+public class RewriteFilter implements RequestFilter {
+    private static Logger LOGGER = LoggerFactory.getLogger(RewriteFilter.class);
 
-    public static void doFilter(HttpRequest originalRequest, HttpObject httpObject) {
+    public HttpResponse doFilter(HttpRequest originalRequest, HttpObject httpObject) {
         if (httpObject instanceof HttpRequest) {
             String wafRoute = originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE);
             String oldUri = originalRequest.uri();
             try {
                 oldUri = UriUtils.decode(originalRequest.uri(), UTF_8);
             } catch (Exception e) {
-                logger.warn("uri decode is failed.", e);
+                LOGGER.warn("uri decode is failed.", e);
             }
 
 
             Map<String, BasicConfig> rewriteConfig = ContextHolder.getClusterService().getRewriteConfigs();
-            if (rewriteConfig.containsKey(wafRoute)) {
+            if (rewriteConfig.containsKey(wafRoute) && rewriteConfig.get(wafRoute).getIsStart()) {
                 String newUri = null;
                 for (Map.Entry<String, Object> entry : rewriteConfig.get(wafRoute).getExtension().entrySet()) {
                     Pattern oldUriPattern = Pattern.compile(entry.getKey());
@@ -71,5 +72,6 @@ public class RewriteFilter {
                 }
             }
         }
+        return null;
     }
 }

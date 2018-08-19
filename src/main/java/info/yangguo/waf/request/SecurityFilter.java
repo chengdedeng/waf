@@ -2,13 +2,16 @@ package info.yangguo.waf.request;
 
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
+import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.SecurityConfig;
 import info.yangguo.waf.request.security.*;
-import info.yangguo.waf.service.ClusterService;
-import io.netty.channel.ChannelHandlerContext;
+import info.yangguo.waf.util.ResponseUtil;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,7 @@ import java.util.List;
  * <p>
  * 拦截器链
  */
-public class SecurityFilter {
+public class SecurityFilter implements RequestFilter {
     public List<Security> filters = new ArrayList<>();
 
     public SecurityFilter() {
@@ -40,16 +43,20 @@ public class SecurityFilter {
         filters.add(new ScriptSecurity());
     }
 
-    public ImmutablePair<Boolean, Security> doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, ClusterService clusterService) {
+    @Override
+    public HttpResponse doFilter(HttpRequest originalRequest, HttpObject httpObject) {
+        HttpResponse httpResponse = null;
+        Pair<Boolean, Security> pair = null;
         for (Security filter : filters) {
             Timer filterTimer = Constant.metrics.timer(filter.getClass().getName());
             Timer.Context filterContext = filterTimer.time();
             try {
-                SecurityConfig config = clusterService.getSecurityConfigs().get(filter.getClass().getName());
+                SecurityConfig config = ContextHolder.getClusterService().getSecurityConfigs().get(filter.getClass().getName());
                 if (config.getConfig().getIsStart()) {
-                    boolean result = filter.doFilter(originalRequest, httpObject, channelHandlerContext, config.getSecurityConfigIterms());
+                    boolean result = filter.doFilter(originalRequest, httpObject, config.getSecurityConfigIterms());
                     if (result && filter.isBlacklist()) {
-                        return new ImmutablePair<>(filter.isBlacklist(), filter);
+                        pair = new ImmutablePair<>(filter.isBlacklist(), filter);
+                        break;
                     } else if (result && !filter.isBlacklist()) {
                         break;
                     }
@@ -58,6 +65,15 @@ public class SecurityFilter {
                 filterContext.stop();
             }
         }
-        return new ImmutablePair<>(false, null);
+
+        if (pair != null) {
+            if (pair.getLeft()) {
+                if (pair.getRight() instanceof CCSecurity)
+                    httpResponse = ResponseUtil.createResponse(HttpResponseStatus.SERVICE_UNAVAILABLE, originalRequest, null);
+                else
+                    httpResponse = ResponseUtil.createResponse(HttpResponseStatus.FORBIDDEN, originalRequest, null);
+            }
+        }
+        return httpResponse;
     }
 }

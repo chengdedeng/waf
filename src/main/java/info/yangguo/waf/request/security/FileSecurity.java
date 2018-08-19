@@ -5,7 +5,6 @@ import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
@@ -30,7 +29,7 @@ public class FileSecurity extends Security {
     private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext ctx, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;

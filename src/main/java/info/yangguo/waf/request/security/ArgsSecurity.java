@@ -4,7 +4,6 @@ import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.apache.http.NameValuePair;
@@ -33,7 +32,7 @@ public class ArgsSecurity extends Security {
     private static final Logger logger = LoggerFactory.getLogger(ArgsSecurity.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;

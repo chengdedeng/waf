@@ -10,7 +10,6 @@ import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.SecurityConfigIterm;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -57,7 +56,7 @@ public class CCSecurity extends Security {
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;

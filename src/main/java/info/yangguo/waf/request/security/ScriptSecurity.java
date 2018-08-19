@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.model.SecurityConfigIterm;
 import info.yangguo.waf.script.ScriptEntry;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.apache.commons.io.FileUtils;
@@ -62,7 +61,7 @@ public class ScriptSecurity extends Security {
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, ChannelHandlerContext channelHandlerContext, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
         AtomicBoolean result = new AtomicBoolean(false);
         scripts.entrySet().parallelStream().anyMatch(entry -> {
             Timer itermTimer = Constant.metrics.timer("ScriptSecurity[" + entry.getKey() + "]");

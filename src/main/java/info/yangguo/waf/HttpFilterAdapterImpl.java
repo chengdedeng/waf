@@ -1,19 +1,16 @@
 package info.yangguo.waf;
 
+import com.google.common.collect.Lists;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
-import info.yangguo.waf.request.RedirectFilter;
-import info.yangguo.waf.request.RewriteFilter;
-import info.yangguo.waf.request.security.CCSecurity;
-import info.yangguo.waf.request.security.Security;
-import info.yangguo.waf.request.SecurityFilter;
+import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.HttpResponseFilter;
+import info.yangguo.waf.util.ResponseUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.*;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.littleshoot.proxy.HttpFiltersAdapter;
 import org.littleshoot.proxy.impl.ClientToProxyConnection;
 import org.littleshoot.proxy.impl.ProxyConnection;
@@ -22,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author:杨果
@@ -31,47 +30,37 @@ import java.net.InetSocketAddress;
  */
 public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
-    private static final SecurityFilter HTTP_SECURITY_FILTER = new SecurityFilter();
+    private static final List<RequestFilter> REQUEST_FILTERS = Lists.newArrayList();
     private final HttpResponseFilter HTTP_RESPONSE_FILTER = new HttpResponseFilter();
 
     public HttpFilterAdapterImpl(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
+        //注意顺序
+        REQUEST_FILTERS.add(new RewriteFilter());
+        REQUEST_FILTERS.add(new RedirectFilter());
+        REQUEST_FILTERS.add(new SecurityFilter());
+        REQUEST_FILTERS.add(new ForwardFilter());
     }
 
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-        HttpResponse httpResponse = null;
-        try {
-            RewriteFilter.doFilter(originalRequest, httpObject);
-        } catch (Exception e) {
-            httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
-            logger.error("client's request failed when rewrite", e.getCause());
-        }
-        if (httpResponse != null)
-            return httpResponse;
-
-        try {
-            httpResponse = RedirectFilter.doFilter(originalRequest, httpObject);
-        } catch (Exception e) {
-            httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
-            logger.error("client's request failed when rewrite", e.getCause());
-        }
-        if (httpResponse != null)
-            return httpResponse;
-
-        try {
-            ImmutablePair<Boolean, Security> immutablePair = HTTP_SECURITY_FILTER.doFilter(originalRequest, httpObject, ctx, ContextHolder.getClusterService());
-            if (immutablePair.left) {
-                if (immutablePair.right instanceof CCSecurity)
-                    httpResponse = createResponse(HttpResponseStatus.SERVICE_UNAVAILABLE, originalRequest);
-                else
-                    httpResponse = createResponse(HttpResponseStatus.FORBIDDEN, originalRequest);
+        AtomicReference<HttpResponse> httpResponse = new AtomicReference<>();
+        REQUEST_FILTERS.stream().anyMatch(filter -> {
+            HttpResponse tmp = null;
+            try {
+                tmp = filter.doFilter(originalRequest, httpObject);
+            } catch (Exception e) {
+                tmp = ResponseUtil.createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest, null);
             }
-        } catch (Exception e) {
-            httpResponse = createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest);
-            logger.error("client's request failed when security filter", e.getCause());
-        }
-        return httpResponse;
+            if (tmp != null) {
+                httpResponse.compareAndSet(null, tmp);
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        return httpResponse.get();
     }
 
     @Override
@@ -80,7 +69,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         if (resolvedRemoteAddress == null) {
             //在使用 Channel 写数据之前，建议使用 isWritable() 方法来判断一下当前 ChannelOutboundBuffer 里的写缓存水位，防止 OOM 发生。不过实践下来，正常的通信过程不太会 OOM，但当网络环境不好，同时传输报文很大时，确实会出现限流的情况。
             if (ctx.channel().isWritable()) {
-                ctx.writeAndFlush(createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest));
+                ctx.writeAndFlush(ResponseUtil.createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest, null));
             }
         }
     }
@@ -159,22 +148,5 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
             pipeline.remove("aggregator");
         }
         super.proxyToServerConnectionSucceeded(serverCtx);
-    }
-
-    private static HttpResponse createResponse(HttpResponseStatus httpResponseStatus, HttpRequest originalRequest) {
-        HttpHeaders httpHeaders = new DefaultHttpHeaders();
-        httpHeaders.add("Transfer-Encoding", "chunked");
-        httpHeaders.add("Connection", "close");//如果不关闭，下游的server接收到部分数据会一直等待知道超时，会报如下大概异常
-        //I/O error while reading input message; nested exception is java.net.SocketTimeoutException
-        HttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, httpResponseStatus);
-
-        //support CORS
-        String origin = originalRequest.headers().getAsString(HttpHeaderNames.ORIGIN);
-        if (origin != null) {
-            httpHeaders.set("Access-Control-Allow-Credentials", "true");
-            httpHeaders.set("Access-Control-Allow-Origin", origin);
-        }
-        httpResponse.headers().add(httpHeaders);
-        return httpResponse;
     }
 }
