@@ -2,6 +2,7 @@ package info.yangguo.waf;
 
 import com.google.common.collect.Lists;
 import info.yangguo.waf.config.ContextHolder;
+import info.yangguo.waf.model.ForwardConfig;
 import info.yangguo.waf.model.WeightedRoundRobinScheduling;
 import info.yangguo.waf.request.*;
 import info.yangguo.waf.response.HttpResponseFilter;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -139,13 +141,17 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public void proxyToServerConnectionSucceeded(final ChannelHandlerContext serverCtx) {
-        ChannelPipeline pipeline = serverCtx.pipeline();
-        //当没有修改getMaximumResponseBufferSizeInBytes中buffer默认的大小时,下面两个handler是不存在的
-        if (pipeline.get("inflater") != null) {
-            pipeline.remove("inflater");
-        }
-        if (pipeline.get("aggregator") != null) {
-            pipeline.remove("aggregator");
+        Map<String, ForwardConfig> forwardConfigMap = ContextHolder.getClusterService().getForwardConfigs();
+        //forward的时候牵涉到协议转换，所以必须要是FullHttpRequest，所以我们必须要使用aggregator
+        if (!forwardConfigMap.containsKey(originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE))) {
+            ChannelPipeline pipeline = serverCtx.pipeline();
+            //当没有修改getMaximumResponseBufferSizeInBytes中buffer默认的大小时,下面两个handler是不存在的
+            if (pipeline.get("inflater") != null) {
+                pipeline.remove("inflater");
+            }
+            if (pipeline.get("aggregator") != null) {
+                pipeline.remove("aggregator");
+            }
         }
         super.proxyToServerConnectionSucceeded(serverCtx);
     }

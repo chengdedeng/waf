@@ -597,8 +597,8 @@ public class ProxyToServerConnection extends ProxyConnection<HttpResponse> {
             cb.handler(new ChannelInitializer<Channel>() {
                 protected void initChannel(Channel ch) throws Exception {
                     initChannelPipeline(ch.pipeline(), initialRequest);
-                    if ("on".equals(Constant.wafConfs.get("waf.gateway.forward.ss"))) {
-                        ch.pipeline().addFirst(new Socks5ProxyHandler(new InetSocketAddress(Constant.wafConfs.get("waf.gateway.forward.ss.server.host"), Integer.valueOf(Constant.wafConfs.get("waf.gateway.forward.ss.server.port")))));
+                    if ("on".equals(Constant.wafConfs.get("waf.gateway.forward.http.ss"))) {
+                        ch.pipeline().addFirst(new Socks5ProxyHandler(new InetSocketAddress(Constant.wafConfs.get("waf.gateway.forward.http.ss.server.host"), Integer.valueOf(Constant.wafConfs.get("waf.gateway.forward.http.ss.server.port")))));
                     }
                 }
             });

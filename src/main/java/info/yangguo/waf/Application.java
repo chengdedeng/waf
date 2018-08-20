@@ -144,10 +144,14 @@ public class Application {
                         public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
                             return new HttpFilterAdapterImpl(originalRequest, ctx);
                         }
+                        @Override
+                        public int getMaximumRequestBufferSizeInBytes() {
+                            return Integer.parseInt(Constant.wafConfs.get("waf.gateway.forward.maximum_request_buffer_size_bytes"));
+                        }
                     })
                     .start();
             ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(1);
-            scheduledThreadPoolExecutor.scheduleAtFixedRate(new ServerCheckTask(), Integer.parseInt(Constant.wafConfs.get("waf.gateway.forward.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.gateway.forward.fail_timeout")), TimeUnit.SECONDS);
+            scheduledThreadPoolExecutor.scheduleAtFixedRate(new ServerCheckTask(), Integer.parseInt(Constant.wafConfs.get("waf.gateway.forward.http.fail_timeout")), Integer.parseInt(Constant.wafConfs.get("waf.gateway.forward.http.fail_timeout")), TimeUnit.SECONDS);
         } else if (proxyMitm) {
             logger.info("mitm模式开启");
             WafSelfSignedSslEngineSource wafSelfSignedSslEngineSource = new WafSelfSignedSslEngineSource();

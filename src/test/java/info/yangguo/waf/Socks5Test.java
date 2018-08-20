@@ -1,7 +1,6 @@
 package info.yangguo.waf;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -43,9 +42,12 @@ public class Socks5Test {
                             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                                 if (msg instanceof FullHttpResponse) {
                                     FullHttpResponse httpResp = (FullHttpResponse) msg;
-                                    ByteBuf content = httpResp.content();
-                                    String strContent = content.toString(UTF_8);
-                                    System.out.println("body: " + strContent);
+                                    try {
+                                        String strContent = httpResp.content().toString(UTF_8);
+                                        System.out.println("body: " + strContent);
+                                    } finally {
+                                        httpResp.content().release();
+                                    }
                                 }
                                 super.channelRead(ctx, msg);
                             }

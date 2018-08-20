@@ -4,7 +4,6 @@ import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.model.SecurityConfigIterm;
-import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
@@ -35,7 +34,12 @@ public class FileSecurity extends Security {
                 HttpContent httpContent = (HttpContent) httpObject;
                 String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
                 if (ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
-                    String contentBody = Unpooled.copiedBuffer(httpContent.content()).toString(UTF_8);
+                    String contentBody = null;
+                    try {
+                        contentBody = httpContent.content().toString(UTF_8);
+                    } finally {
+                        httpContent.content().release();
+                    }
 
                     if (contentBody != null) {
                         Matcher fileMatcher = filePattern.matcher(contentBody);
