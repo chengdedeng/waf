@@ -1,6 +1,6 @@
 package info.yangguo.waf.dto;
 
-import info.yangguo.waf.validator.CheckSecurityConfigIterm;
+import info.yangguo.waf.model.ForwardType;
 import info.yangguo.waf.validator.Exist;
 import info.yangguo.waf.validator.NotExist;
 import io.swagger.annotations.ApiModelProperty;
@@ -31,13 +31,4 @@ public class ForwardConfigItermDto {
     @Null(groups = NotExist.class)
     @ApiModelProperty(value = "Iterm扩展信息，目前只在CCSecurityFilter有使用。")
     private ForwardType type;
-
-
-    public enum ForwardType{
-        HTTP,
-        DUBBO,
-        GRPC,
-        THRIFT,
-        SOFA
-    }
 }

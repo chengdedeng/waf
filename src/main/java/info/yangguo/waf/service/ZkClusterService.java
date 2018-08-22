@@ -38,7 +38,7 @@ public class ZkClusterService implements ClusterService {
     private static final String upstreamPath = "/waf/config/upstream";
     private static final String rewritePath = "/waf/config/rewrite";
     private static final String redirectPath = "/waf/config/redirect";
-    private static final String forwardPath = "/waf/config/forward";
+    private static final String forwardPath = "/waf/config/translate";
     private static final String ENC = "UTF-8";
 
     private static CuratorFramework client;
@@ -261,6 +261,7 @@ public class ZkClusterService implements ClusterService {
                     || TreeCacheEvent.Type.NODE_ADDED.equals(event.getType())
                     || TreeCacheEvent.Type.NODE_REMOVED.equals(event.getType())
                     || TreeCacheEvent.Type.INITIALIZED.equals(event.getType())) {
+                Set<String> wafRoutes = Sets.newHashSet();
                 forwardTreeCache.getCurrentChildren(forwardPath).entrySet().stream().forEach(forwardEntry -> {
                     String forwardConfigKey = forwardEntry.getKey();
                     String forwardConfigPath = forwardEntry.getValue().getPath();
@@ -279,6 +280,12 @@ public class ZkClusterService implements ClusterService {
                     });
 
                     forwardConfigMap.put(forwardConfigKey, ForwardConfig.builder().wafRoute(forwardConfigKey).config(forwardConfig).forwardConfigIterms(forwardConfigIterms).build());
+                    wafRoutes.add(forwardConfigKey);
+                });
+                //将已经删除的节点从redirectConfigrMap中剔除掉
+                forwardConfigMap.keySet().stream().collect(Collectors.toList()).stream().forEach(key -> {
+                    if (!wafRoutes.contains(key))
+                        forwardConfigMap.remove(key);
                 });
                 ConfigLocalCache.setForwardConfig(forwardConfigMap);
             }
@@ -601,6 +608,24 @@ public class ZkClusterService implements ClusterService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void deleteForwardConfig(Optional<String> wafRoute) {
+        wafRoute.ifPresent(new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                String forwardPath = ZkClusterService.forwardPath + separator + wafRoute.get();
+                try {
+                    if (client.checkExists().forPath(forwardPath) != null) {
+                        client.delete().forPath(forwardPath);
+                        LOGGER.info("Path[{}] has been deleted.", forwardPath);
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 
     private void initFilter(Class filterClass) {

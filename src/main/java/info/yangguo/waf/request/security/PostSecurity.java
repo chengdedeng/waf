@@ -34,12 +34,7 @@ public class PostSecurity extends Security {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
-                String contentBody = null;
-                try {
-                    contentBody = httpContent.content().toString(UTF_8);
-                } finally {
-                    httpContent.content().release();
-                }
+                String contentBody = httpContent.content().toString(UTF_8);
                 //application/x-www-form-urlencoded会对报文进行编码，所以需要解析出来再匹配。
                 String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
                 if (contentBody != null) {

@@ -360,9 +360,9 @@ public class ConfigController {
     }
 
 
-    @ApiOperation(value = "设置forward config")
+    @ApiOperation(value = "设置forward translate")
     @ResponseBody
-    @PutMapping(value = "forward")
+    @PutMapping(value = "forward/translate")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
@@ -375,9 +375,9 @@ public class ConfigController {
     }
 
 
-    @ApiOperation(value = "获取forward配置")
+    @ApiOperation(value = "获取forward translate配置")
     @ResponseBody
-    @GetMapping(value = "forward")
+    @GetMapping(value = "forward/translate")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
@@ -396,9 +396,9 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "设置forward config iterm")
+    @ApiOperation(value = "设置forward translate iterm")
     @ResponseBody
-    @PutMapping(value = "forward/iterm")
+    @PutMapping(value = "forward/translate/iterm")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
@@ -415,9 +415,9 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "删除forward config iterm")
+    @ApiOperation(value = "删除forward translate iterm")
     @ResponseBody
-    @DeleteMapping(value = "forward/iterm")
+    @DeleteMapping(value = "forward/translate/iterm")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
@@ -428,5 +428,17 @@ public class ConfigController {
         ContextHolder.getClusterService().deleteForwardConfigIterm(Optional.of(dto.getWafRoute()), Optional.of(dto.getName()));
         return resultDto;
     }
-
+    @ApiOperation(value = "删除forward translate")
+    @ResponseBody
+    @DeleteMapping(value = "forward/translate")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
+                    dataType = "string", paramType = "cookie")
+    })
+    public ResultDto deleteForwardConfig(@RequestBody String waf_route) {
+        ResultDto resultDto = new ResultDto();
+        resultDto.setCode(HttpStatus.OK.value());
+        ContextHolder.getClusterService().deleteForwardConfig(Optional.of(waf_route));
+        return resultDto;
+    }
 }

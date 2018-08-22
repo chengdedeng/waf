@@ -42,12 +42,8 @@ public class Socks5Test {
                             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                                 if (msg instanceof FullHttpResponse) {
                                     FullHttpResponse httpResp = (FullHttpResponse) msg;
-                                    try {
-                                        String strContent = httpResp.content().toString(UTF_8);
-                                        System.out.println("body: " + strContent);
-                                    } finally {
-                                        httpResp.content().release();
-                                    }
+                                    String strContent = httpResp.content().toString(UTF_8);
+                                    System.out.println("body: " + strContent);
                                 }
                                 super.channelRead(ctx, msg);
                             }

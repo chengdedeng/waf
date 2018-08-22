@@ -34,13 +34,7 @@ public class FileSecurity extends Security {
                 HttpContent httpContent = (HttpContent) httpObject;
                 String contentType = originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE);
                 if (ContentType.MULTIPART_FORM_DATA.getMimeType().equals(contentType)) {
-                    String contentBody = null;
-                    try {
-                        contentBody = httpContent.content().toString(UTF_8);
-                    } finally {
-                        httpContent.content().release();
-                    }
-
+                    String contentBody = httpContent.content().toString(UTF_8);
                     if (contentBody != null) {
                         Matcher fileMatcher = filePattern.matcher(contentBody);
                         if (fileMatcher.find()) {

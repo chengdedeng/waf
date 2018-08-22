@@ -40,10 +40,14 @@ public class Swagger2 implements ForwardProcess {
     }
 
     @Override
-    public HttpResponse execute(HttpRequest request, Map<String, Object> args) {
+    public String getWafRoutePattern() {
+        return ".*";
+    }
+
+    @Override
+    public HttpResponse execute(String wafRoute, String uri, Map<String, Object> args) {
         HttpResponse result = null;
         try {
-            String uri = request.uri();
             if (uri.endsWith("swagger-resources/configuration/ui")) {
                 String content = "{\"apisSorter\":\"alpha\",\"jsonEditor\":false,\"showRequestHeaders\":false,\"deepLinking\":true,\"displayOperationId\":false,\"defaultModelsExpandDepth\":1,\"defaultModelExpandDepth\":1,\"defaultModelRendering\":\"example\",\"displayRequestDuration\":false,\"docExpansion\":\"none\",\"filter\":false,\"operationsSorter\":\"alpha\",\"showExtensions\":false,\"tagsSorter\":\"alpha\"}";
                 result = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(content.getBytes()));
@@ -70,7 +74,7 @@ public class Swagger2 implements ForwardProcess {
         } catch (Exception e) {
             result = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
         }
-        if(result!=null){
+        if (result != null) {
             HttpHeaders httpHeaders = new DefaultHttpHeaders();
             httpHeaders.add("Transfer-Encoding", "chunked");
             result.headers().add(httpHeaders);

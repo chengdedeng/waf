@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author:杨果
@@ -46,23 +45,19 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
-        AtomicReference<HttpResponse> httpResponse = new AtomicReference<>();
-        REQUEST_FILTERS.stream().anyMatch(filter -> {
-            HttpResponse tmp = null;
+        HttpResponse response = null;
+        for (RequestFilter filter : REQUEST_FILTERS) {
             try {
-                tmp = filter.doFilter(originalRequest, httpObject);
+                response = filter.doFilter(originalRequest, httpObject);
             } catch (Exception e) {
-                tmp = ResponseUtil.createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest, null);
+                response = ResponseUtil.createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest, null);
             }
-            if (tmp != null) {
-                httpResponse.compareAndSet(null, tmp);
-                return true;
-            } else {
-                return false;
+            if (response != null) {
+                break;
             }
-        });
+        }
 
-        return httpResponse.get();
+        return response;
     }
 
     @Override

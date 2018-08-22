@@ -169,4 +169,11 @@ public interface ClusterService {
      * @param iterm
      */
     void deleteForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm);
+
+    /**
+     * 删除forward config
+     *
+     * @param wafRoute
+     */
+    void deleteForwardConfig(Optional<String> wafRoute);
 }
