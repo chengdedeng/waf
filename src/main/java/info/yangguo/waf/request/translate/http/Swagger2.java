@@ -1,7 +1,7 @@
-package info.yangguo.waf.request.forward.http;
+package info.yangguo.waf.request.translate.http;
 
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.request.forward.ForwardProcess;
+import info.yangguo.waf.request.translate.TranslateProcess;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.*;
 import org.apache.commons.io.IOUtils;
@@ -19,7 +19,7 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import java.io.InputStream;
 import java.util.Map;
 
-public class Swagger2 implements ForwardProcess {
+public class Swagger2 implements TranslateProcess {
     private static HttpClient httpClient;
 
     static {

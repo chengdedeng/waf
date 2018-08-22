@@ -287,7 +287,7 @@ public class ZkClusterService implements ClusterService {
                     if (!wafRoutes.contains(key))
                         forwardConfigMap.remove(key);
                 });
-                ConfigLocalCache.setForwardConfig(forwardConfigMap);
+                ConfigLocalCache.setTranslateConfig(forwardConfigMap);
             }
         });
 
@@ -547,12 +547,12 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public Map<String, ForwardConfig> getForwardConfigs() {
+    public Map<String, ForwardConfig> getTranslateConfigs() {
         return forwardConfigMap;
     }
 
     @Override
-    public void setForwardConfig(Optional<String> wafRoute, Optional<BasicConfig> config) {
+    public void setTranslateConfig(Optional<String> wafRoute, Optional<BasicConfig> config) {
         try {
             if (wafRoute.isPresent() && config.isPresent()) {
                 String path = forwardPath + separator + wafRoute.get();
@@ -571,7 +571,7 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void setForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config) {
+    public void setTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config) {
         try {
             if (wafRoute.isPresent() && iterm.isPresent() && config.isPresent()) {
                 String wafRoutePath = forwardPath + separator + wafRoute.get();
@@ -596,7 +596,7 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void deleteForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm) {
+    public void deleteTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm) {
         try {
             if (wafRoute.isPresent() && iterm.isPresent()) {
                 String itermPath = forwardPath + separator + wafRoute.get() + separator + URLEncoder.encode(iterm.get(), ENC);
@@ -611,7 +611,7 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void deleteForwardConfig(Optional<String> wafRoute) {
+    public void deleteTranslateConfig(Optional<String> wafRoute) {
         wafRoute.ifPresent(new Consumer<String>() {
             @Override
             public void accept(String s) {
@@ -743,15 +743,15 @@ public class ZkClusterService implements ClusterService {
         try {
             if (client.checkExists().forPath(forwardPath) == null) {
                 ConfigLocalCache
-                        .getForwardConfig()
+                        .getTranslateConfig()
                         .entrySet()
                         .stream()
                         .forEach(entry -> {
                             String wafRoute = entry.getKey();
                             ForwardConfig forwardConfig = entry.getValue();
-                            setForwardConfig(Optional.of(wafRoute), Optional.of(forwardConfig.getConfig()));
+                            setTranslateConfig(Optional.of(wafRoute), Optional.of(forwardConfig.getConfig()));
                             forwardConfig.getForwardConfigIterms().stream().forEach(itermConfig -> {
-                                setForwardConfigIterm(Optional.of(wafRoute), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
+                                setTranslateConfigIterm(Optional.of(wafRoute), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
                             });
                         });
             }
@@ -771,7 +771,7 @@ public class ZkClusterService implements ClusterService {
         private static String upstreamCacheFile = cachePath + "/upstream-config.json";
         private static String rewriteCacheFile = cachePath + "/rewrite-config.json";
         private static String redirectCacheFile = cachePath + "/redirect-config.json";
-        private static String forwardCacheFile = cachePath + "/forward-config.json";
+        private static String forwardCacheFile = cachePath + "/translate-config.json";
 
         public static Map<String, SecurityConfig> getRequestConfig() {
             Map<String, SecurityConfig> config = Maps.newHashMap();
@@ -897,15 +897,15 @@ public class ZkClusterService implements ClusterService {
             }
         }
 
-        public static void setForwardConfig(Map<String, ForwardConfig> config) {
+        public static void setTranslateConfig(Map<String, ForwardConfig> config) {
             try {
                 FileUtils.write(new File(forwardCacheFile), JsonUtil.toJson(config, true));
             } catch (IOException e) {
-                LOGGER.error("forward local cache setting is fail", e);
+                LOGGER.error("translate local cache setting is fail", e);
             }
         }
 
-        public static Map<String, ForwardConfig> getForwardConfig() {
+        public static Map<String, ForwardConfig> getTranslateConfig() {
             Map<String, ForwardConfig> config = Maps.newHashMap();
             File file = new File(forwardCacheFile);
             if (file.exists()) {
@@ -914,7 +914,7 @@ public class ZkClusterService implements ClusterService {
                     }));
                 } catch (Exception e) {
                     file.delete();
-                    LOGGER.warn("format of forward local config is incorrect", e);
+                    LOGGER.warn("format of translate local config is incorrect", e);
                 }
             }
 

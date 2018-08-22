@@ -143,7 +143,7 @@ public interface ClusterService {
      *
      * @return
      */
-    Map<String, ForwardConfig> getForwardConfigs();
+    Map<String, ForwardConfig> getTranslateConfigs();
 
     /**
      * 设置forward config
@@ -151,7 +151,7 @@ public interface ClusterService {
      * @param wafRoute
      * @param config
      */
-    void setForwardConfig(Optional<String> wafRoute, Optional<BasicConfig> config);
+    void setTranslateConfig(Optional<String> wafRoute, Optional<BasicConfig> config);
 
     /**
      * 设置forward config iterm
@@ -160,7 +160,7 @@ public interface ClusterService {
      * @param iterm
      * @param config
      */
-    void setForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config);
+    void setTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config);
 
     /**
      * 删除forward config iterm
@@ -168,12 +168,12 @@ public interface ClusterService {
      * @param wafRoute
      * @param iterm
      */
-    void deleteForwardConfigIterm(Optional<String> wafRoute, Optional<String> iterm);
+    void deleteTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm);
 
     /**
      * 删除forward config
      *
      * @param wafRoute
      */
-    void deleteForwardConfig(Optional<String> wafRoute);
+    void deleteTranslateConfig(Optional<String> wafRoute);
 }

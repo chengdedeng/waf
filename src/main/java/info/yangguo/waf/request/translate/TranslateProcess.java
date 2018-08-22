@@ -1,10 +1,10 @@
-package info.yangguo.waf.request.forward;
+package info.yangguo.waf.request.translate;
 
 import io.netty.handler.codec.http.HttpResponse;
 
 import java.util.Map;
 
-public interface ForwardProcess {
+public interface TranslateProcess {
     /**
      * 需要被处理的waf route正则表达式，匹配则进入该处理器进行处理，真正的处理逻辑
      * 在execute中。

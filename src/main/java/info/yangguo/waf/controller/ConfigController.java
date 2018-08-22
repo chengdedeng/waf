@@ -370,7 +370,7 @@ public class ConfigController {
     public ResultDto setForwardConfig(@RequestBody @Validated ForwardConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().setForwardConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
+        ContextHolder.getClusterService().setTranslateConfig(Optional.of(dto.getWafRoute()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).build()));
         return resultDto;
     }
 
@@ -387,7 +387,7 @@ public class ConfigController {
         resultDto.setCode(HttpStatus.OK.value());
         List<ForwardConfig> value = ContextHolder
                 .getClusterService()
-                .getForwardConfigs()
+                .getTranslateConfigs()
                 .entrySet()
                 .stream()
                 .map(entry -> entry.getValue())
@@ -409,7 +409,7 @@ public class ConfigController {
 
         Map<String,Object> extension=Maps.newHashMap();
         extension.put("type",dto.getType().name());
-        ContextHolder.getClusterService().setForwardConfigIterm(Optional.of(dto.getWafRoute()),
+        ContextHolder.getClusterService().setTranslateConfigIterm(Optional.of(dto.getWafRoute()),
                 Optional.of(dto.getName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(extension).build()));
 
         return resultDto;
@@ -425,7 +425,7 @@ public class ConfigController {
     public ResultDto deleteForwardConfigIterm(@RequestBody @Validated(NotExistSequence.class) ForwardConfigItermDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteForwardConfigIterm(Optional.of(dto.getWafRoute()), Optional.of(dto.getName()));
+        ContextHolder.getClusterService().deleteTranslateConfigIterm(Optional.of(dto.getWafRoute()), Optional.of(dto.getName()));
         return resultDto;
     }
     @ApiOperation(value = "删除forward translate")
@@ -438,7 +438,7 @@ public class ConfigController {
     public ResultDto deleteForwardConfig(@RequestBody String waf_route) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteForwardConfig(Optional.of(waf_route));
+        ContextHolder.getClusterService().deleteTranslateConfig(Optional.of(waf_route));
         return resultDto;
     }
 }

@@ -7,8 +7,8 @@ import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.ForwardConfig;
 import info.yangguo.waf.model.ForwardConfigIterm;
 import info.yangguo.waf.model.ForwardType;
-import info.yangguo.waf.request.forward.ForwardProcess;
-import info.yangguo.waf.request.forward.http.Swagger2;
+import info.yangguo.waf.request.translate.TranslateProcess;
+import info.yangguo.waf.request.translate.http.Swagger2;
 import info.yangguo.waf.util.JsonUtil;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.*;
@@ -26,12 +26,12 @@ import java.util.regex.Pattern;
 
 import static io.netty.util.CharsetUtil.UTF_8;
 
-public class ForwardFilter implements RequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ForwardFilter.class);
-    public Map<ForwardType, List<ForwardProcess>> processes = Maps.newHashMap();
+public class TranslateFilter implements RequestFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TranslateFilter.class);
+    public Map<ForwardType, List<TranslateProcess>> processes = Maps.newHashMap();
 
-    public ForwardFilter() {
-        List<ForwardProcess> httpForward = Lists.newArrayList();
+    public TranslateFilter() {
+        List<TranslateProcess> httpForward = Lists.newArrayList();
         httpForward.add(new Swagger2());
         processes.put(ForwardType.HTTP, httpForward);
     }
@@ -41,7 +41,7 @@ public class ForwardFilter implements RequestFilter {
         String wafRoute = originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE);
         HttpResponse response = null;
         //首先得要waf route匹配上
-        if (ContextHolder.getClusterService().getForwardConfigs().containsKey(wafRoute)) {
+        if (ContextHolder.getClusterService().getTranslateConfigs().containsKey(wafRoute)) {
             //其次必须要是full http request
             if (httpObject instanceof FullHttpRequest) {
                 FullHttpRequest request = (FullHttpRequest) httpObject;
@@ -59,22 +59,24 @@ public class ForwardFilter implements RequestFilter {
                         LOGGER.warn("uri decode is failed.", e);
                     }
 
-                    Optional<ForwardConfig> forwardConfig = Optional.ofNullable(ContextHolder.getClusterService().getForwardConfigs().get(wafRoute));
+                    Optional<ForwardConfig> translateConfig = Optional.ofNullable(ContextHolder.getClusterService().getTranslateConfigs().get(wafRoute));
                     String finalUri = uri;
 
-                    if (forwardConfig.isPresent() && forwardConfig.get().getConfig().getIsStart()) {
+                    if (translateConfig.isPresent() && translateConfig.get().getConfig().getIsStart()) {
                         Optional<ForwardType> forwardType = Optional.ofNullable(null);
-                        for (ForwardConfigIterm iterm : forwardConfig.get().getForwardConfigIterms()) {
-                            Pattern pattern = Pattern.compile(iterm.getName());
-                            Matcher matcher = pattern.matcher(finalUri);
-                            if (matcher.matches()) {
-                                //type这个参数有点魔法，因为我们在配置的扩展信息里面就用type作为key表示forward的类型
-                                forwardType = Optional.ofNullable(ForwardType.getType(String.valueOf(iterm.getConfig().getExtension().get("type"))));
-                                break;
+                        for (ForwardConfigIterm iterm : translateConfig.get().getForwardConfigIterms()) {
+                            if (iterm.getConfig().getIsStart()) {
+                                Pattern pattern = Pattern.compile(iterm.getName());
+                                Matcher matcher = pattern.matcher(finalUri);
+                                if (matcher.matches()) {
+                                    //type这个参数有点魔法，因为我们在配置的扩展信息里面就用type作为key表示forward的类型
+                                    forwardType = Optional.ofNullable(ForwardType.getType(String.valueOf(iterm.getConfig().getExtension().get("type"))));
+                                    break;
+                                }
                             }
                         }
                         if (forwardType.isPresent()) {
-                            for (ForwardProcess process : processes.get(forwardType.get())) {
+                            for (TranslateProcess process : processes.get(forwardType.get())) {
                                 Pattern pattern = Pattern.compile(process.getWafRoutePattern());
                                 Matcher matcher = pattern.matcher(wafRoute);
                                 if (matcher.matches()) {

@@ -40,7 +40,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
         REQUEST_FILTERS.add(new RewriteFilter());
         REQUEST_FILTERS.add(new RedirectFilter());
         REQUEST_FILTERS.add(new SecurityFilter());
-        REQUEST_FILTERS.add(new ForwardFilter());
+        REQUEST_FILTERS.add(new TranslateFilter());
     }
 
     @Override
@@ -136,7 +136,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public void proxyToServerConnectionSucceeded(final ChannelHandlerContext serverCtx) {
-        Map<String, ForwardConfig> forwardConfigMap = ContextHolder.getClusterService().getForwardConfigs();
+        Map<String, ForwardConfig> forwardConfigMap = ContextHolder.getClusterService().getTranslateConfigs();
         //forward的时候牵涉到协议转换，所以必须要是FullHttpRequest，所以我们必须要使用aggregator
         if (!forwardConfigMap.containsKey(originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE))) {
             ChannelPipeline pipeline = serverCtx.pipeline();
