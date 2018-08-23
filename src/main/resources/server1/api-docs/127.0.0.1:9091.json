@@ -1,0 +1,1617 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "DESCRIPTION",
+    "version": "VERSION",
+    "title": "TITLE",
+    "termsOfService": "https://github.com/chengdedeng/waf",
+    "license": {
+      "name": "Apache License 2.0",
+      "url": "https://en.wikipedia.org/wiki/Apache_License"
+    }
+  },
+  "host": "127.0.0.1:9091",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "config-controller",
+      "description": "配置相关的接口"
+    },
+    {
+      "name": "user-controller",
+      "description": "用户相关的接口"
+    }
+  ],
+  "paths": {
+    "/api/config/forward/http/upstream": {
+      "get": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "获取Upstream配置",
+        "operationId": "getUpstreamConfigsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果«List«UpstreamConfig»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置Upstream",
+        "operationId": "setUpstreamConfigUsingPUT_1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpstreamConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "删除Upstream",
+        "operationId": "deleteUpstreamUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpstreamConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/config/forward/http/upstream/server": {
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置Upstream Server",
+        "operationId": "setUpstreamConfigUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpstreamServerConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "删除Upstream Server",
+        "operationId": "deleteUpstreamServerUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpstreamServerConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/config/forward/translate": {
+      "get": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "获取forward translate配置",
+        "operationId": "getForwardConfigsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果«List«ForwardConfig»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置forward translate",
+        "operationId": "setForwardConfigUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ForwardConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "删除forward translate",
+        "operationId": "deleteForwardConfigUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "waf_route",
+            "description": "waf_route",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/config/forward/translate/iterm": {
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置forward translate iterm",
+        "operationId": "setForwardConfigItermUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ForwardConfigItermDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "删除forward translate iterm",
+        "operationId": "deleteForwardConfigItermUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ForwardConfigItermDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/config/redirect": {
+      "get": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "获取Redirect配置",
+        "operationId": "getRedirectConfigsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果«List«RedirectConfigDto»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置redirect",
+        "operationId": "setRedirectConfigUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RedirectConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "删除redirect",
+        "operationId": "deleteRedirectUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RedirectConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/config/response": {
+      "get": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "获取ResponseFilter配置",
+        "operationId": "getResponseConfigsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果«List«ResponseConfig»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置ResponseFilter",
+        "operationId": "setResponseConfigUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ResponseConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/config/rewrite": {
+      "get": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "获取Rewrite配置",
+        "operationId": "getRewriteConfigsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果«List«RewriteConfigDto»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置rewrite",
+        "operationId": "setRewriteConfigUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RewriteConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "删除rewrite",
+        "operationId": "deleteRewriteUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/RewriteConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/config/security": {
+      "get": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "获取SecurityFilter配置",
+        "operationId": "getSecurityConfigsUsingGET",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果«List«SecurityConfig»»"
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置SecurityFilter",
+        "operationId": "setRequestConfigUsingPUT_1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityConfigDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/config/security/iterm": {
+      "put": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "设置SecurityFilter Iterm",
+        "operationId": "setRequestConfigUsingPUT",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityConfigItermDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "config-controller"
+        ],
+        "summary": "删除SecurityFilter Iterm",
+        "operationId": "deleteRequestItermUsingDELETE",
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "dto",
+            "description": "dto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SecurityConfigItermDto"
+            }
+          },
+          {
+            "name": "WAFTOKEN",
+            "in": "cookie",
+            "description": "WAFTOKEN",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/api/user/login": {
+      "post": {
+        "tags": [
+          "user-controller"
+        ],
+        "summary": "登录",
+        "operationId": "loginUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "userDto",
+            "description": "userDto",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/响应结果"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BasicConfig": {
+      "type": "object",
+      "properties": {
+        "extension": {
+          "type": "object"
+        },
+        "isStart": {
+          "type": "boolean"
+        }
+      },
+      "title": "BasicConfig"
+    },
+    "ForwardConfig": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/BasicConfig"
+        },
+        "forwardConfigIterms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ForwardConfigIterm"
+          }
+        },
+        "wafRoute": {
+          "type": "string"
+        }
+      },
+      "title": "ForwardConfig"
+    },
+    "ForwardConfigDto": {
+      "type": "object",
+      "required": [
+        "wafRoute"
+      ],
+      "properties": {
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否开启，true启用，false关闭。",
+          "allowEmptyValue": false
+        },
+        "wafRoute": {
+          "type": "string",
+          "description": "x-waf-route，路由标志。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "ForwardConfigDto"
+    },
+    "ForwardConfigIterm": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/BasicConfig"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "title": "ForwardConfigIterm"
+    },
+    "ForwardConfigItermDto": {
+      "type": "object",
+      "required": [
+        "name",
+        "wafRoute"
+      ],
+      "properties": {
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否开启，true启用，false关闭。",
+          "allowEmptyValue": false
+        },
+        "name": {
+          "type": "string",
+          "description": "配置项名称。",
+          "allowEmptyValue": false
+        },
+        "type": {
+          "type": "string",
+          "description": "Iterm扩展信息，目前只在CCSecurityFilter有使用。",
+          "allowEmptyValue": false,
+          "enum": [
+            "HTTP",
+            "DUBBO",
+            "GRPC",
+            "THRIFT",
+            "SOFA"
+          ]
+        },
+        "wafRoute": {
+          "type": "string",
+          "description": "x-waf-route，路由标志。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "ForwardConfigItermDto"
+    },
+    "RedirectConfigDto": {
+      "type": "object",
+      "required": [
+        "wafRoute"
+      ],
+      "properties": {
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "开关，true启用，false关闭。",
+          "allowEmptyValue": false
+        },
+        "wafRoute": {
+          "type": "string",
+          "description": "x-waf-route，路由标志。",
+          "allowEmptyValue": false
+        },
+        "iterms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "RedirectConfigDto"
+    },
+    "ResponseConfig": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/BasicConfig"
+        },
+        "filterName": {
+          "type": "string"
+        }
+      },
+      "title": "ResponseConfig"
+    },
+    "ResponseConfigDto": {
+      "type": "object",
+      "required": [
+        "filterName"
+      ],
+      "properties": {
+        "filterName": {
+          "type": "string",
+          "description": "Response拦截器名称。",
+          "allowEmptyValue": false
+        },
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否开启，true启用，false关闭。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "ResponseConfigDto"
+    },
+    "RewriteConfigDto": {
+      "type": "object",
+      "required": [
+        "wafRoute"
+      ],
+      "properties": {
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "开关，true启用，false关闭。",
+          "allowEmptyValue": false
+        },
+        "wafRoute": {
+          "type": "string",
+          "description": "x-waf-route，路由标志。",
+          "allowEmptyValue": false
+        },
+        "iterms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "title": "RewriteConfigDto"
+    },
+    "SecurityConfig": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/BasicConfig"
+        },
+        "filterName": {
+          "type": "string"
+        },
+        "securityConfigIterms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SecurityConfigIterm"
+          }
+        }
+      },
+      "title": "SecurityConfig"
+    },
+    "SecurityConfigDto": {
+      "type": "object",
+      "required": [
+        "filterName"
+      ],
+      "properties": {
+        "filterName": {
+          "type": "string",
+          "description": "Security拦截器名称。",
+          "allowEmptyValue": false
+        },
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否开启，true启用，false关闭。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "SecurityConfigDto"
+    },
+    "SecurityConfigIterm": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/BasicConfig"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "title": "SecurityConfigIterm"
+    },
+    "SecurityConfigItermDto": {
+      "type": "object",
+      "required": [
+        "filterName",
+        "name"
+      ],
+      "properties": {
+        "extension": {
+          "type": "object",
+          "description": "Iterm扩展信息，目前只在CCSecurityFilter有使用。",
+          "allowEmptyValue": false
+        },
+        "filterName": {
+          "type": "string",
+          "description": "Security拦截器名称。",
+          "allowEmptyValue": false
+        },
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "是否开启，true启用，false关闭。",
+          "allowEmptyValue": false
+        },
+        "name": {
+          "type": "string",
+          "description": "配置项名称。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "SecurityConfigItermDto"
+    },
+    "ServerBasicConfig": {
+      "type": "object",
+      "properties": {
+        "extension": {
+          "type": "object"
+        },
+        "isStart": {
+          "type": "boolean"
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "ServerBasicConfig"
+    },
+    "ServerConfig": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/ServerBasicConfig"
+        },
+        "ip": {
+          "type": "string"
+        },
+        "isHealth": {
+          "type": "boolean"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "ServerConfig"
+    },
+    "UpstreamConfig": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "$ref": "#/definitions/BasicConfig"
+        },
+        "serverConfigs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ServerConfig"
+          }
+        },
+        "wafRoute": {
+          "type": "string"
+        }
+      },
+      "title": "UpstreamConfig"
+    },
+    "UpstreamConfigDto": {
+      "type": "object",
+      "required": [
+        "wafRoute"
+      ],
+      "properties": {
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "开关，true启用，false关闭。",
+          "allowEmptyValue": false
+        },
+        "wafRoute": {
+          "type": "string",
+          "description": "x-waf-route，路由标志。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "UpstreamConfigDto"
+    },
+    "UpstreamServerConfigDto": {
+      "type": "object",
+      "required": [
+        "ip",
+        "port",
+        "wafRoute"
+      ],
+      "properties": {
+        "ip": {
+          "type": "string",
+          "description": "IP地址。",
+          "allowEmptyValue": false
+        },
+        "isStart": {
+          "type": "boolean",
+          "example": false,
+          "description": "开关，true启用，false关闭。",
+          "allowEmptyValue": false
+        },
+        "port": {
+          "type": "integer",
+          "format": "int32",
+          "description": "端口。",
+          "allowEmptyValue": false
+        },
+        "wafRoute": {
+          "type": "string",
+          "description": "x-waf-route，路由标志。",
+          "allowEmptyValue": false
+        },
+        "weight": {
+          "type": "integer",
+          "format": "int32",
+          "description": "权重。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "UpstreamServerConfigDto"
+    },
+    "UserDto": {
+      "type": "object",
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "邮箱。",
+          "allowEmptyValue": false
+        },
+        "password": {
+          "type": "string",
+          "description": "密码。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "UserDto"
+    },
+    "响应结果": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "结果代码。",
+          "allowEmptyValue": false
+        },
+        "value": {
+          "type": "object",
+          "description": "结果对象。",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "响应结果"
+    },
+    "响应结果«List«ForwardConfig»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "结果代码。",
+          "allowEmptyValue": false
+        },
+        "value": {
+          "type": "array",
+          "description": "结果对象。",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/ForwardConfig"
+          }
+        }
+      },
+      "title": "响应结果«List«ForwardConfig»»"
+    },
+    "响应结果«List«RedirectConfigDto»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "结果代码。",
+          "allowEmptyValue": false
+        },
+        "value": {
+          "type": "array",
+          "description": "结果对象。",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/RedirectConfigDto"
+          }
+        }
+      },
+      "title": "响应结果«List«RedirectConfigDto»»"
+    },
+    "响应结果«List«ResponseConfig»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "结果代码。",
+          "allowEmptyValue": false
+        },
+        "value": {
+          "type": "array",
+          "description": "结果对象。",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/ResponseConfig"
+          }
+        }
+      },
+      "title": "响应结果«List«ResponseConfig»»"
+    },
+    "响应结果«List«RewriteConfigDto»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "结果代码。",
+          "allowEmptyValue": false
+        },
+        "value": {
+          "type": "array",
+          "description": "结果对象。",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/RewriteConfigDto"
+          }
+        }
+      },
+      "title": "响应结果«List«RewriteConfigDto»»"
+    },
+    "响应结果«List«SecurityConfig»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "结果代码。",
+          "allowEmptyValue": false
+        },
+        "value": {
+          "type": "array",
+          "description": "结果对象。",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/SecurityConfig"
+          }
+        }
+      },
+      "title": "响应结果«List«SecurityConfig»»"
+    },
+    "响应结果«List«UpstreamConfig»»": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "结果代码。",
+          "allowEmptyValue": false
+        },
+        "value": {
+          "type": "array",
+          "description": "结果对象。",
+          "allowEmptyValue": false,
+          "items": {
+            "$ref": "#/definitions/UpstreamConfig"
+          }
+        }
+      },
+      "title": "响应结果«List«UpstreamConfig»»"
+    }
+  }
+}

@@ -31,22 +31,24 @@ import java.util.Map;
  */
 public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
     private static Logger logger = LoggerFactory.getLogger(HttpFilterAdapterImpl.class);
-    private static final List<RequestFilter> REQUEST_FILTERS = Lists.newArrayList();
-    private final HttpResponseFilter HTTP_RESPONSE_FILTER = new HttpResponseFilter();
 
     public HttpFilterAdapterImpl(HttpRequest originalRequest, ChannelHandlerContext ctx) {
         super(originalRequest, ctx);
-        //注意顺序
-        REQUEST_FILTERS.add(new RewriteFilter());
-        REQUEST_FILTERS.add(new RedirectFilter());
-        REQUEST_FILTERS.add(new SecurityFilter());
-        REQUEST_FILTERS.add(new TranslateFilter());
     }
 
     @Override
     public HttpResponse clientToProxyRequest(HttpObject httpObject) {
+        //放到里面主要是为了线程安全，由于一条链路不断的情况下，多个请求过来都在一个ClientToProxy线程中，但是对于Filter来说确实多线程处理的，
+        //不放在里面就会报对List操作的操作异常。
+        List<RequestFilter> requestFilters = Lists.newArrayList();
+        //注意顺序
+        requestFilters.add(new RewriteFilter());
+        requestFilters.add(new RedirectFilter());
+        requestFilters.add(new SecurityFilter());
+        requestFilters.add(new TranslateFilter());
+
         HttpResponse response = null;
-        for (RequestFilter filter : REQUEST_FILTERS) {
+        for (RequestFilter filter : requestFilters) {
             try {
                 response = filter.doFilter(originalRequest, httpObject);
             } catch (Exception e) {
@@ -103,9 +105,10 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
 
     @Override
     public HttpObject proxyToClientResponse(HttpObject httpObject) {
+        HttpResponseFilter httpResponseFilter = new HttpResponseFilter();
         if (httpObject instanceof HttpResponse) {
             try {
-                HTTP_RESPONSE_FILTER.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
+                httpResponseFilter.doFilter(originalRequest, (HttpResponse) httpObject, ContextHolder.getClusterService());
             } catch (Exception e) {
                 logger.error("response filter failed", e.getCause());
             }

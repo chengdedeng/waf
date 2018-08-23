@@ -46,8 +46,7 @@ public class TranslateFilter implements RequestFilter {
             if (httpObject instanceof FullHttpRequest) {
                 FullHttpRequest request = (FullHttpRequest) httpObject;
                 //最后request decode必须要成功且content type要为json
-                if (request.decoderResult() == DecoderResult.SUCCESS
-                        && HttpHeaderValues.APPLICATION_JSON.toString().equals(originalRequest.headers().getAsString(HttpHeaderNames.CONTENT_TYPE))) {
+                if (request.decoderResult() == DecoderResult.SUCCESS) {
                     Map<String, Object> parameters = null;
                     String contentBody = request.content().toString(UTF_8);
                     if (StringUtils.isNotBlank(contentBody))
