@@ -1,17 +1,16 @@
 [![Join the chat at https://gitter.im/chengdedeng/waf](https://badges.gitter.im/chengdedeng/waf.svg)](https://gitter.im/chengdedeng/waf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-> 虽然笔者的初衷是研发一套Java版本的WAF,但是该项目可以作为统一的API Gateway,支持TLS/MITM,还支持下游代理为Socks5,对于需要访问国外被封SaaS服务的http请求来说非常方便.
-
+> WAF是使用Java开发的API Gateway，由于WAF构建在开源代理[LittleProxy](https://github.com/adamfisk/LittleProxy)之上，所以说WAF底层使用的是[Netty](https://github.com/netty/netty)。
 
 ### 特性
-1. 支持"hijacking" HTTPS connection using "Man in the Middle" style attack；
-2. 支持HTTP proxy， HTTPS through CONNECT；
-3. 支持非法参数拦截；
-4. CC攻击防护；
-5. 支持下游代理为Socks5；
-6. 集中式配置（2.0新增）；
-7. 引入Groovy脚本引擎，可以通过脚本实时编写拦截器，而且脚本是运行在受限的沙箱之中（2.0新增）。
-
+1. 安全拦截，支持各种分析检测，支持脚本（沙箱）；
+2. 流控/CC防护，支持IP粒度，可扩展；
+3. HTTP代理，支持"hijacking" HTTPS connection using "Man in the Middle" style attack；
+4. URL Rewrite；
+5. HTTP Redirect；
+6. Socks5；
+7. 集中式配置；
+8. 自定义协议转化，HTTP->DUBBO，HTTP->GRPC等（可导入swagger接口文档）；
 
 ### Quick Start
 
