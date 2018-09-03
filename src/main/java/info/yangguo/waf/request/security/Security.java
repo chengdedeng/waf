@@ -1,6 +1,6 @@
 package info.yangguo.waf.request.security;
 
-import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.model.SecurityConfigItem;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -24,7 +24,7 @@ public abstract class Security {
      * @param httpObject      http请求
      * @return true:正则匹配成功,false:正则匹配失败
      */
-    public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms);
+    public abstract boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigItem> items);
 
     /**
      * 是否是黑名单

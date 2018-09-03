@@ -5,23 +5,23 @@ import info.yangguo.waf.dto.RewriteConfigDto;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class RewriteConfigItermValidator implements ConstraintValidator<CheckRewriteConfigIterm, RewriteConfigDto> {
+public class RewriteConfigItemValidator implements ConstraintValidator<CheckRewriteConfigItem, RewriteConfigDto> {
     @Override
-    public void initialize(CheckRewriteConfigIterm constraintAnnotation) {
+    public void initialize(CheckRewriteConfigItem constraintAnnotation) {
     }
 
     @Override
     public boolean isValid(RewriteConfigDto config, ConstraintValidatorContext context) {
-        boolean match1 = config.getIterms().parallelStream()
-                .anyMatch(iterm -> {
-                    String[] parts = iterm.split(" +");
+        boolean match1 = config.getItems().parallelStream()
+                .anyMatch(item -> {
+                    String[] parts = item.split(" +");
                     if (parts.length != 2)
                         return true;
                     else
                         return false;
                 });
         if (match1) {
-            context.buildConstraintViolationWithTemplate("Rewrite iterm pattern is illegal").addPropertyNode("iterms").addBeanNode().inIterable().addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("Rewrite item pattern is illegal").addPropertyNode("items").addBeanNode().inIterable().addConstraintViolation();
             return false;
         }
 

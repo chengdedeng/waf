@@ -3,7 +3,7 @@ package info.yangguo.waf.request.security;
 import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
 import info.yangguo.waf.Constant;
-import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.model.SecurityConfigItem;
 import info.yangguo.waf.script.ScriptEntry;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -61,16 +61,16 @@ public class ScriptSecurity extends Security {
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigItem> items) {
         AtomicBoolean result = new AtomicBoolean(false);
         scripts.entrySet().parallelStream().anyMatch(entry -> {
-            Timer itermTimer = Constant.metrics.timer("ScriptSecurity[" + entry.getKey() + "]");
-            Timer.Context itermContext = itermTimer.time();
+            Timer itemTimer = Constant.metrics.timer("ScriptSecurity[" + entry.getKey() + "]");
+            Timer.Context itemContext = itemTimer.time();
             try {
                 scriptEntry.execute(originalRequest, httpObject, result, entry.getValue());
                 return result.get();
             } finally {
-                itermContext.stop();
+                itemContext.stop();
             }
         });
         return result.get();

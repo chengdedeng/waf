@@ -27,5 +27,5 @@ public class ForwardConfig implements Serializable {
     /**
      * 配置项
      */
-    private List<ForwardConfigIterm> forwardConfigIterms;
+    private List<ForwardConfigItem> forwardConfigItems;
 }

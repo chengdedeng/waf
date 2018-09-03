@@ -53,7 +53,7 @@ public class SecurityFilter implements RequestFilter {
             try {
                 SecurityConfig config = ContextHolder.getClusterService().getSecurityConfigs().get(filter.getClass().getName());
                 if (config.getConfig().getIsStart()) {
-                    boolean result = filter.doFilter(originalRequest, httpObject, config.getSecurityConfigIterms());
+                    boolean result = filter.doFilter(originalRequest, httpObject, config.getSecurityConfigItems());
                     if (result && filter.isBlacklist()) {
                         pair = new ImmutablePair<>(filter.isBlacklist(), filter);
                         break;

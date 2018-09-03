@@ -3,7 +3,7 @@ package info.yangguo.waf.request.security;
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
-import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.model.SecurityConfigItem;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
@@ -30,7 +30,7 @@ public class PostSecurity extends Security {
     private static Logger logger = LoggerFactory.getLogger(PostSecurity.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigItem> items) {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
@@ -41,37 +41,37 @@ public class PostSecurity extends Security {
                     if (ContentType.APPLICATION_FORM_URLENCODED.getMimeType().equals(contentType)) {
                         List<NameValuePair> args = URLEncodedUtils.parse(contentBody, UTF_8);
                         for (NameValuePair pair : args) {
-                            for (SecurityConfigIterm iterm : iterms) {
-                                if (iterm.getConfig().getIsStart()) {
-                                    Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");
-                                    Timer.Context itermContext = itermTimer.time();
+                            for (SecurityConfigItem item : items) {
+                                if (item.getConfig().getIsStart()) {
+                                    Timer itemTimer = Constant.metrics.timer("PostHttpRequestFilter[" + item.getName() + "]");
+                                    Timer.Context itemContext = itemTimer.time();
                                     try {
-                                        Pattern pattern = Pattern.compile(iterm.getName());
+                                        Pattern pattern = Pattern.compile(item.getName());
                                         Matcher matcher = pattern.matcher(pair.getName().toLowerCase() + "=" + pair.getValue().toLowerCase());
                                         if (matcher.find()) {
-                                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Post", iterm.getName());
+                                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Post", item.getName());
                                             return true;
                                         }
                                     } finally {
-                                        itermContext.stop();
+                                        itemContext.stop();
                                     }
                                 }
                             }
                         }
                     } else {
-                        for (SecurityConfigIterm iterm : iterms) {
-                            if (iterm.getConfig().getIsStart()) {
-                                Timer itermTimer = Constant.metrics.timer("PostHttpRequestFilter[" + iterm.getName() + "]");
-                                Timer.Context itermContext = itermTimer.time();
+                        for (SecurityConfigItem item : items) {
+                            if (item.getConfig().getIsStart()) {
+                                Timer itemTimer = Constant.metrics.timer("PostHttpRequestFilter[" + item.getName() + "]");
+                                Timer.Context itemContext = itemTimer.time();
                                 try {
-                                    Pattern pattern = Pattern.compile(iterm.getName());
+                                    Pattern pattern = Pattern.compile(item.getName());
                                     Matcher matcher = pattern.matcher(contentBody.toLowerCase());
                                     if (matcher.find()) {
-                                        hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Post", iterm.getName());
+                                        hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "Post", item.getName());
                                         return true;
                                     }
                                 } finally {
-                                    itermContext.stop();
+                                    itemContext.stop();
                                 }
                             }
                         }

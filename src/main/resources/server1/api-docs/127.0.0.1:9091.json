@@ -10,7 +10,7 @@
       "url": "https://en.wikipedia.org/wiki/Apache_License"
     }
   },
-  "host": "127.0.0.1:9091",
+  "host": "localhost:8081",
   "basePath": "/",
   "tags": [
     {
@@ -28,7 +28,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "获取Upstream配置",
+        "summary": "获取upstream配置",
         "operationId": "getUpstreamConfigsUsingGET",
         "produces": [
           "*/*"
@@ -64,7 +64,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "设置Upstream",
+        "summary": "设置upstream",
         "operationId": "setUpstreamConfigUsingPUT_1",
         "consumes": [
           "application/json"
@@ -115,7 +115,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "删除Upstream",
+        "summary": "删除upstream",
         "operationId": "deleteUpstreamUsingDELETE",
         "produces": [
           "*/*"
@@ -162,7 +162,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "设置Upstream Server",
+        "summary": "设置upstream server",
         "operationId": "setUpstreamConfigUsingPUT",
         "consumes": [
           "application/json"
@@ -213,7 +213,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "删除Upstream Server",
+        "summary": "删除upstream server",
         "operationId": "deleteUpstreamServerUsingDELETE",
         "produces": [
           "*/*"
@@ -389,13 +389,13 @@
         }
       }
     },
-    "/api/config/forward/translate/iterm": {
+    "/api/config/forward/translate/item": {
       "put": {
         "tags": [
           "config-controller"
         ],
-        "summary": "设置forward translate iterm",
-        "operationId": "setForwardConfigItermUsingPUT",
+        "summary": "设置forward translate item",
+        "operationId": "setForwardConfigItemUsingPUT",
         "consumes": [
           "application/json"
         ],
@@ -409,7 +409,7 @@
             "description": "dto",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ForwardConfigItermDto"
+              "$ref": "#/definitions/ForwardConfigItemDto"
             }
           },
           {
@@ -445,8 +445,8 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "删除forward translate iterm",
-        "operationId": "deleteForwardConfigItermUsingDELETE",
+        "summary": "删除forward translate item",
+        "operationId": "deleteForwardConfigItemUsingDELETE",
         "produces": [
           "*/*"
         ],
@@ -457,7 +457,7 @@
             "description": "dto",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ForwardConfigItermDto"
+              "$ref": "#/definitions/ForwardConfigItemDto"
             }
           },
           {
@@ -492,7 +492,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "获取Redirect配置",
+        "summary": "获取redirect配置",
         "operationId": "getRedirectConfigsUsingGET",
         "produces": [
           "*/*"
@@ -626,7 +626,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "获取ResponseFilter配置",
+        "summary": "获取response filter配置",
         "operationId": "getResponseConfigsUsingGET",
         "produces": [
           "*/*"
@@ -662,7 +662,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "设置ResponseFilter",
+        "summary": "设置response filter",
         "operationId": "setResponseConfigUsingPUT",
         "consumes": [
           "application/json"
@@ -715,7 +715,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "获取Rewrite配置",
+        "summary": "获取rewrite配置",
         "operationId": "getRewriteConfigsUsingGET",
         "produces": [
           "*/*"
@@ -849,7 +849,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "获取SecurityFilter配置",
+        "summary": "获取security filter配置",
         "operationId": "getSecurityConfigsUsingGET",
         "produces": [
           "*/*"
@@ -885,7 +885,7 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "设置SecurityFilter",
+        "summary": "设置security filter",
         "operationId": "setRequestConfigUsingPUT_1",
         "consumes": [
           "application/json"
@@ -933,12 +933,12 @@
         }
       }
     },
-    "/api/config/security/iterm": {
+    "/api/config/security/item": {
       "put": {
         "tags": [
           "config-controller"
         ],
-        "summary": "设置SecurityFilter Iterm",
+        "summary": "设置security filter item",
         "operationId": "setRequestConfigUsingPUT",
         "consumes": [
           "application/json"
@@ -953,7 +953,7 @@
             "description": "dto",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SecurityConfigItermDto"
+              "$ref": "#/definitions/SecurityConfigItemDto"
             }
           },
           {
@@ -989,8 +989,8 @@
         "tags": [
           "config-controller"
         ],
-        "summary": "删除SecurityFilter Iterm",
-        "operationId": "deleteRequestItermUsingDELETE",
+        "summary": "删除security filter item",
+        "operationId": "deleteRequestItemUsingDELETE",
         "produces": [
           "*/*"
         ],
@@ -1001,7 +1001,7 @@
             "description": "dto",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/SecurityConfigItermDto"
+              "$ref": "#/definitions/SecurityConfigItemDto"
             }
           },
           {
@@ -1097,10 +1097,10 @@
         "config": {
           "$ref": "#/definitions/BasicConfig"
         },
-        "forwardConfigIterms": {
+        "forwardConfigItems": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/ForwardConfigIterm"
+            "$ref": "#/definitions/ForwardConfigItem"
           }
         },
         "wafRoute": {
@@ -1129,7 +1129,7 @@
       },
       "title": "ForwardConfigDto"
     },
-    "ForwardConfigIterm": {
+    "ForwardConfigItem": {
       "type": "object",
       "properties": {
         "config": {
@@ -1139,9 +1139,9 @@
           "type": "string"
         }
       },
-      "title": "ForwardConfigIterm"
+      "title": "ForwardConfigItem"
     },
-    "ForwardConfigItermDto": {
+    "ForwardConfigItemDto": {
       "type": "object",
       "required": [
         "name",
@@ -1161,7 +1161,7 @@
         },
         "type": {
           "type": "string",
-          "description": "Iterm扩展信息，目前只在CCSecurityFilter有使用。",
+          "description": "item扩展信息，目前只在CCSecurityFilter有使用。",
           "allowEmptyValue": false,
           "enum": [
             "HTTP",
@@ -1177,7 +1177,7 @@
           "allowEmptyValue": false
         }
       },
-      "title": "ForwardConfigItermDto"
+      "title": "ForwardConfigItemDto"
     },
     "RedirectConfigDto": {
       "type": "object",
@@ -1196,7 +1196,7 @@
           "description": "x-waf-route，路由标志。",
           "allowEmptyValue": false
         },
-        "iterms": {
+        "items": {
           "type": "array",
           "items": {
             "type": "string"
@@ -1225,7 +1225,7 @@
       "properties": {
         "filterName": {
           "type": "string",
-          "description": "Response拦截器名称。",
+          "description": "response拦截器名称。",
           "allowEmptyValue": false
         },
         "isStart": {
@@ -1254,7 +1254,7 @@
           "description": "x-waf-route，路由标志。",
           "allowEmptyValue": false
         },
-        "iterms": {
+        "items": {
           "type": "array",
           "items": {
             "type": "string"
@@ -1272,10 +1272,10 @@
         "filterName": {
           "type": "string"
         },
-        "securityConfigIterms": {
+        "securityConfigItems": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/SecurityConfigIterm"
+            "$ref": "#/definitions/SecurityConfigItem"
           }
         }
       },
@@ -1289,7 +1289,7 @@
       "properties": {
         "filterName": {
           "type": "string",
-          "description": "Security拦截器名称。",
+          "description": "security拦截器名称。",
           "allowEmptyValue": false
         },
         "isStart": {
@@ -1301,7 +1301,7 @@
       },
       "title": "SecurityConfigDto"
     },
-    "SecurityConfigIterm": {
+    "SecurityConfigItem": {
       "type": "object",
       "properties": {
         "config": {
@@ -1311,9 +1311,9 @@
           "type": "string"
         }
       },
-      "title": "SecurityConfigIterm"
+      "title": "SecurityConfigItem"
     },
-    "SecurityConfigItermDto": {
+    "SecurityConfigItemDto": {
       "type": "object",
       "required": [
         "filterName",
@@ -1322,12 +1322,12 @@
       "properties": {
         "extension": {
           "type": "object",
-          "description": "Iterm扩展信息，目前只在CCSecurityFilter有使用。",
+          "description": "item扩展信息，目前只在CCSecurityFilter有使用。",
           "allowEmptyValue": false
         },
         "filterName": {
           "type": "string",
-          "description": "Security拦截器名称。",
+          "description": "security拦截器名称。",
           "allowEmptyValue": false
         },
         "isStart": {
@@ -1342,7 +1342,7 @@
           "allowEmptyValue": false
         }
       },
-      "title": "SecurityConfigItermDto"
+      "title": "SecurityConfigItemDto"
     },
     "ServerBasicConfig": {
       "type": "object",
@@ -1427,7 +1427,7 @@
       "properties": {
         "ip": {
           "type": "string",
-          "description": "IP地址。",
+          "description": "ip地址。",
           "allowEmptyValue": false
         },
         "isStart": {

@@ -3,7 +3,7 @@ package info.yangguo.waf.request.security;
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
-import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.model.SecurityConfigItem;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
@@ -26,25 +26,25 @@ public class UaSecurity extends Security {
     private static final Logger logger = LoggerFactory.getLogger(UaSecurity.class);
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigItem> items) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
             String userAgent = originalRequest.headers().getAsString(HttpHeaderNames.USER_AGENT);
             if (userAgent != null) {
-                for (SecurityConfigIterm iterm : iterms) {
-                    if (iterm.getConfig().getIsStart()) {
-                        Timer itermTimer = Constant.metrics.timer("UaSecurity[" + iterm.getName() + "]");
-                        Timer.Context itermContext = itermTimer.time();
+                for (SecurityConfigItem item : items) {
+                    if (item.getConfig().getIsStart()) {
+                        Timer itemTimer = Constant.metrics.timer("UaSecurity[" + item.getName() + "]");
+                        Timer.Context itemContext = itemTimer.time();
                         try {
-                            Pattern pattern = Pattern.compile(iterm.getName());
+                            Pattern pattern = Pattern.compile(item.getName());
                             Matcher matcher = pattern.matcher(userAgent);
                             if (matcher.find()) {
-                                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "UserAgent", iterm.getName());
+                                hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "UserAgent", item.getName());
                                 return true;
                             }
                         } finally {
-                            itermContext.stop();
+                            itemContext.stop();
                         }
                     }
                 }

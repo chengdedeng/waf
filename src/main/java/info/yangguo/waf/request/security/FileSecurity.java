@@ -3,7 +3,7 @@ package info.yangguo.waf.request.security;
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
-import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.model.SecurityConfigItem;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpObject;
@@ -28,7 +28,7 @@ public class FileSecurity extends Security {
     private static Pattern filePattern = Pattern.compile("Content-Disposition: form-data;(.+)filename=\"(.+)\\.(.*)\"");
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigItem> items) {
         if (originalRequest.method().name().equals("POST")) {
             if (httpObject instanceof HttpContent) {
                 HttpContent httpContent = (HttpContent) httpObject;
@@ -39,18 +39,18 @@ public class FileSecurity extends Security {
                         Matcher fileMatcher = filePattern.matcher(contentBody);
                         if (fileMatcher.find()) {
                             String fileExt = fileMatcher.group(3);
-                            for (SecurityConfigIterm iterm : iterms) {
-                                if (iterm.getConfig().getIsStart()) {
-                                    Timer itermTimer = Constant.metrics.timer("FileSecurity[" + iterm.getName() + "]");
-                                    Timer.Context itermContext = itermTimer.time();
+                            for (SecurityConfigItem item : items) {
+                                if (item.getConfig().getIsStart()) {
+                                    Timer itemTimer = Constant.metrics.timer("FileSecurity[" + item.getName() + "]");
+                                    Timer.Context itemContext = itemTimer.time();
                                     try {
-                                        Pattern pattern = Pattern.compile(iterm.getName());
+                                        Pattern pattern = Pattern.compile(item.getName());
                                         if (pattern.matcher(fileExt).matches()) {
-                                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "File", iterm.getName());
+                                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "File", item.getName());
                                             return true;
                                         }
                                     } finally {
-                                        itermContext.stop();
+                                        itemContext.stop();
                                     }
                                 }
                             }

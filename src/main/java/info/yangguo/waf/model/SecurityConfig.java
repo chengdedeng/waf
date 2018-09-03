@@ -28,5 +28,5 @@ public class SecurityConfig implements Serializable {
     /**
      * 配置项
      */
-    private List<SecurityConfigIterm> securityConfigIterms;
+    private List<SecurityConfigItem> securityConfigItems;
 }

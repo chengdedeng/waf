@@ -111,19 +111,19 @@ public class ZkClusterService implements ClusterService {
                     String filterPath = requestEntry.getValue().getPath();
                     BasicConfig filterConfig = (BasicConfig) JsonUtil.fromJson(new String(requestEntry.getValue().getData()), BasicConfig.class);
 
-                    List<SecurityConfigIterm> securityConfigIterms = Lists.newArrayList();
-                    requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(itermEntry -> {
+                    List<SecurityConfigItem> securityConfigItems = Lists.newArrayList();
+                    requestTreeCache.getCurrentChildren(filterPath).entrySet().stream().forEach(itemEntry -> {
                         String regex = null;
                         try {
-                            regex = URLDecoder.decode(itermEntry.getKey(), ENC);
+                            regex = URLDecoder.decode(itemEntry.getKey(), ENC);
                         } catch (UnsupportedEncodingException e) {
-                            LOGGER.error("Decode regex:[{}] ", itermEntry.getKey());
+                            LOGGER.error("Decode regex:[{}] ", itemEntry.getKey());
                         }
-                        BasicConfig regexConfig = (BasicConfig) JsonUtil.fromJson(new String(itermEntry.getValue().getData()), BasicConfig.class);
-                        securityConfigIterms.add(SecurityConfigIterm.builder().name(regex).config(regexConfig).build());
+                        BasicConfig regexConfig = (BasicConfig) JsonUtil.fromJson(new String(itemEntry.getValue().getData()), BasicConfig.class);
+                        securityConfigItems.add(SecurityConfigItem.builder().name(regex).config(regexConfig).build());
                     });
 
-                    requestConfigMap.put(filterName, SecurityConfig.builder().filterName(filterName).config(filterConfig).securityConfigIterms(securityConfigIterms).build());
+                    requestConfigMap.put(filterName, SecurityConfig.builder().filterName(filterName).config(filterConfig).securityConfigItems(securityConfigItems).build());
                 });
                 ConfigLocalCache.setRequestConfig(requestConfigMap);
             }
@@ -267,19 +267,19 @@ public class ZkClusterService implements ClusterService {
                     String forwardConfigPath = forwardEntry.getValue().getPath();
                     BasicConfig forwardConfig = (BasicConfig) JsonUtil.fromJson(new String(forwardEntry.getValue().getData()), BasicConfig.class);
 
-                    List<ForwardConfigIterm> forwardConfigIterms = Lists.newArrayList();
-                    forwardTreeCache.getCurrentChildren(forwardConfigPath).entrySet().stream().forEach(itermEntry -> {
+                    List<ForwardConfigItem> forwardConfigItems = Lists.newArrayList();
+                    forwardTreeCache.getCurrentChildren(forwardConfigPath).entrySet().stream().forEach(itemEntry -> {
                         String regex = null;
                         try {
-                            regex = URLDecoder.decode(itermEntry.getKey(), ENC);
+                            regex = URLDecoder.decode(itemEntry.getKey(), ENC);
                         } catch (UnsupportedEncodingException e) {
-                            LOGGER.error("Decode regex:[{}] ", itermEntry.getKey());
+                            LOGGER.error("Decode regex:[{}] ", itemEntry.getKey());
                         }
-                        BasicConfig regexConfig = (BasicConfig) JsonUtil.fromJson(new String(itermEntry.getValue().getData()), BasicConfig.class);
-                        forwardConfigIterms.add(ForwardConfigIterm.builder().name(regex).config(regexConfig).build());
+                        BasicConfig regexConfig = (BasicConfig) JsonUtil.fromJson(new String(itemEntry.getValue().getData()), BasicConfig.class);
+                        forwardConfigItems.add(ForwardConfigItem.builder().name(regex).config(regexConfig).build());
                     });
 
-                    forwardConfigMap.put(forwardConfigKey, ForwardConfig.builder().wafRoute(forwardConfigKey).config(forwardConfig).forwardConfigIterms(forwardConfigIterms).build());
+                    forwardConfigMap.put(forwardConfigKey, ForwardConfig.builder().wafRoute(forwardConfigKey).config(forwardConfig).forwardConfigItems(forwardConfigItems).build());
                     wafRoutes.add(forwardConfigKey);
                 });
                 //将已经删除的节点从redirectConfigrMap中剔除掉
@@ -318,23 +318,23 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void setSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config) {
+    public void setSecurityConfigItem(Optional<String> filterName, Optional<String> item, Optional<BasicConfig> config) {
         try {
-            if (filterName.isPresent() && iterm.isPresent() && config.isPresent()) {
+            if (filterName.isPresent() && item.isPresent() && config.isPresent()) {
                 String filterPath = securityPath + separator + filterName.get();
                 if (client.checkExists().forPath(filterPath) == null) {
                     String data = JsonUtil.toJson(BasicConfig.builder().isStart(false).build(), false);
                     client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(filterPath, data.getBytes());
                     LOGGER.info("Path[{}]|Data[{}] has been created.", filterPath, data);
                 }
-                String rulePath = filterPath + separator + URLEncoder.encode(iterm.get(), ENC);
+                String rulePath = filterPath + separator + URLEncoder.encode(item.get(), ENC);
                 String data = JsonUtil.toJson(config.get(), false);
                 if (client.checkExists().forPath(rulePath) == null) {
                     client.create().forPath(rulePath, data.getBytes());
-                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, iterm.get(), data);
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, item.get(), data);
                 } else {
                     client.setData().forPath(rulePath, data.getBytes());
-                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, iterm.get(), data);
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, item.get(), data);
                 }
             }
         } catch (Exception e) {
@@ -343,13 +343,13 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void deleteSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm) {
+    public void deleteSecurityConfigItem(Optional<String> filterName, Optional<String> item) {
         try {
-            if (filterName.isPresent() && iterm.isPresent()) {
-                String itermPath = securityPath + separator + filterName.get() + separator + URLEncoder.encode(iterm.get(), ENC);
-                if (client.checkExists().forPath(itermPath) != null) {
-                    client.delete().forPath(itermPath);
-                    LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itermPath, iterm.get());
+            if (filterName.isPresent() && item.isPresent()) {
+                String itemPath = securityPath + separator + filterName.get() + separator + URLEncoder.encode(item.get(), ENC);
+                if (client.checkExists().forPath(itemPath) != null) {
+                    client.delete().forPath(itemPath);
+                    LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itemPath, item.get());
                 }
             }
         } catch (Exception e) {
@@ -571,23 +571,23 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void setTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config) {
+    public void setTranslateConfigItem(Optional<String> wafRoute, Optional<String> item, Optional<BasicConfig> config) {
         try {
-            if (wafRoute.isPresent() && iterm.isPresent() && config.isPresent()) {
+            if (wafRoute.isPresent() && item.isPresent() && config.isPresent()) {
                 String wafRoutePath = forwardPath + separator + wafRoute.get();
                 if (client.checkExists().forPath(wafRoutePath) == null) {
                     String data = JsonUtil.toJson(BasicConfig.builder().isStart(false).build(), false);
                     client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath(wafRoutePath, data.getBytes());
                     LOGGER.info("Path[{}]|Data[{}] has been created.", wafRoutePath, data);
                 }
-                String rulePath = wafRoutePath + separator + URLEncoder.encode(iterm.get(), ENC);
+                String rulePath = wafRoutePath + separator + URLEncoder.encode(item.get(), ENC);
                 String data = JsonUtil.toJson(config.get(), false);
                 if (client.checkExists().forPath(rulePath) == null) {
                     client.create().forPath(rulePath, data.getBytes());
-                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, iterm.get(), data);
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been created.", rulePath, item.get(), data);
                 } else {
                     client.setData().forPath(rulePath, data.getBytes());
-                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, iterm.get(), data);
+                    LOGGER.info("Path[{}]|Regex[{}]|Data[{}] has been set.", rulePath, item.get(), data);
                 }
             }
         } catch (Exception e) {
@@ -596,13 +596,13 @@ public class ZkClusterService implements ClusterService {
     }
 
     @Override
-    public void deleteTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm) {
+    public void deleteTranslateConfigItem(Optional<String> wafRoute, Optional<String> item) {
         try {
-            if (wafRoute.isPresent() && iterm.isPresent()) {
-                String itermPath = forwardPath + separator + wafRoute.get() + separator + URLEncoder.encode(iterm.get(), ENC);
-                if (client.checkExists().forPath(itermPath) != null) {
-                    client.delete().forPath(itermPath);
-                    LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itermPath, iterm.get());
+            if (wafRoute.isPresent() && item.isPresent()) {
+                String itemPath = forwardPath + separator + wafRoute.get() + separator + URLEncoder.encode(item.get(), ENC);
+                if (client.checkExists().forPath(itemPath) != null) {
+                    client.delete().forPath(itemPath);
+                    LOGGER.info("Path[{}]|Regex[{}] has been deleted.", itemPath, item.get());
                 }
             }
         } catch (Exception e) {
@@ -659,8 +659,8 @@ public class ZkClusterService implements ClusterService {
                             String filterName = entry.getKey();
                             SecurityConfig requestConfig = entry.getValue();
                             setSecurityConfig(Optional.of(filterName), Optional.of(requestConfig.getConfig()));
-                            requestConfig.getSecurityConfigIterms().stream().forEach(itermConfig -> {
-                                setSecurityConfigIterm(Optional.of(filterName), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
+                            requestConfig.getSecurityConfigItems().stream().forEach(itemConfig -> {
+                                setSecurityConfigItem(Optional.of(filterName), Optional.of(itemConfig.getName()), Optional.of(itemConfig.getConfig()));
                             });
                         });
             }
@@ -750,8 +750,8 @@ public class ZkClusterService implements ClusterService {
                             String wafRoute = entry.getKey();
                             ForwardConfig forwardConfig = entry.getValue();
                             setTranslateConfig(Optional.of(wafRoute), Optional.of(forwardConfig.getConfig()));
-                            forwardConfig.getForwardConfigIterms().stream().forEach(itermConfig -> {
-                                setTranslateConfigIterm(Optional.of(wafRoute), Optional.of(itermConfig.getName()), Optional.of(itermConfig.getConfig()));
+                            forwardConfig.getForwardConfigItems().stream().forEach(itemConfig -> {
+                                setTranslateConfigItem(Optional.of(wafRoute), Optional.of(itemConfig.getName()), Optional.of(itemConfig.getConfig()));
                             });
                         });
             }

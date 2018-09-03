@@ -1,18 +1,18 @@
 package info.yangguo.waf.validator;
 
-import info.yangguo.waf.dto.SecurityConfigItermDto;
+import info.yangguo.waf.dto.SecurityConfigItemDto;
 import info.yangguo.waf.request.security.CCSecurity;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class SecurityConfigItermValidator implements ConstraintValidator<CheckSecurityConfigIterm, SecurityConfigItermDto> {
+public class SecurityConfigItemValidator implements ConstraintValidator<CheckSecurityConfigItem, SecurityConfigItemDto> {
     @Override
-    public void initialize(CheckSecurityConfigIterm constraintAnnotation) {
+    public void initialize(CheckSecurityConfigItem constraintAnnotation) {
     }
 
     @Override
-    public boolean isValid(SecurityConfigItermDto config, ConstraintValidatorContext context) {
+    public boolean isValid(SecurityConfigItemDto config, ConstraintValidatorContext context) {
         if (CCSecurity.class.getName().equals(config.getFilterName())) {
             if (config.getExtension() == null) {
                 context.buildConstraintViolationWithTemplate("CCSecurity extension value can't be null").addPropertyNode("extension").addBeanNode().inIterable().addConstraintViolation();

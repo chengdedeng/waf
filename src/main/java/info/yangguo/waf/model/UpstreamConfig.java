@@ -17,7 +17,7 @@ import java.util.List;
 public class UpstreamConfig implements Serializable {
     private static final long serialVersionUID = 1392103965835939457L;
     /**
-     * Upstream唯一标志
+     * upstream唯一标志
      */
     private String wafRoute;
     /**

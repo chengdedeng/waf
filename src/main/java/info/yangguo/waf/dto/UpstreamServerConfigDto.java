@@ -20,7 +20,7 @@ public class UpstreamServerConfigDto {
     @ApiModelProperty(value = "x-waf-route，路由标志。", required = true)
     private String wafRoute;
     @NotEmpty
-    @ApiModelProperty(value = "IP地址。", required = true)
+    @ApiModelProperty(value = "ip地址。", required = true)
     @Pattern(regexp = "(^((25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)$)|(^((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)::((?:[0-9A-Fa-f]{1,4}(?::[0-9A-Fa-f]{1,4})*)?)$)")
     private String ip;
     @Min(1)

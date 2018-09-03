@@ -9,7 +9,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.config.ContextHolder;
-import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.model.SecurityConfigItem;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -56,7 +56,7 @@ public class CCSecurity extends Security {
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigItem> items) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
@@ -73,19 +73,19 @@ public class CCSecurity extends Security {
                         .getClusterService()
                         .getSecurityConfigs()
                         .get(CCSecurity.class.getName())
-                        .getSecurityConfigIterms()
+                        .getSecurityConfigItems()
                         .parallelStream()
-                        .filter(iterm -> {
-                            if (originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE).equals(iterm.getName()) && iterm.getConfig().getIsStart())
+                        .filter(item -> {
+                            if (originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE).equals(item.getName()) && item.getConfig().getIsStart())
                                 return true;
                             else
                                 return false;
                         })
-                        .flatMap(iterm -> {
-                            return iterm.getConfig().getExtension().entrySet().parallelStream();
+                        .flatMap(item -> {
+                            return item.getConfig().getExtension().entrySet().parallelStream();
                         }).filter(entry -> {
-                            Timer itermTimer = Constant.metrics.timer("CCSecurity[" + entry.getKey() + "]");
-                            Timer.Context itermContext = itermTimer.time();
+                            Timer itemTimer = Constant.metrics.timer("CCSecurity[" + entry.getKey() + "]");
+                            Timer.Context itemContext = itemTimer.time();
                             try {
                                 Pattern pattern = Pattern.compile(entry.getKey());
                                 Matcher matcher = pattern.matcher(url.get());
@@ -95,7 +95,7 @@ public class CCSecurity extends Security {
                                     return false;
                                 }
                             } finally {
-                                itermContext.stop();
+                                itemContext.stop();
                             }
                         }).min((e1, e2) -> ((Integer) e1.getValue()).compareTo(((Integer) e2.getValue())));
 

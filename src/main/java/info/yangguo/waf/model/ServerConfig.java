@@ -16,7 +16,7 @@ import java.io.Serializable;
 public class ServerConfig implements Serializable {
     private static final long serialVersionUID = 7426117635312217242L;
     /**
-     * 服务器IP
+     * 服务器ip
      */
     private String ip;
     /**

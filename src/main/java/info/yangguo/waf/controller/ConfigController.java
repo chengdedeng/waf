@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "api/config")
 @Api(value = "api/config", description = "配置相关的接口")
 public class ConfigController {
-    @ApiOperation(value = "获取SecurityFilter配置")
+    @ApiOperation(value = "获取security filter配置")
     @ResponseBody
     @GetMapping(value = "security")
     @ApiImplicitParams({
@@ -44,7 +44,7 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "获取ResponseFilter配置")
+    @ApiOperation(value = "获取response filter配置")
     @ResponseBody
     @GetMapping(value = "response")
     @ApiImplicitParams({
@@ -65,7 +65,7 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "获取Upstream配置")
+    @ApiOperation(value = "获取upstream配置")
     @ResponseBody
     @GetMapping(value = "forward/http/upstream")
     @ApiImplicitParams({
@@ -108,7 +108,7 @@ public class ConfigController {
     }
 
 
-    @ApiOperation(value = "获取Rewrite配置")
+    @ApiOperation(value = "获取rewrite配置")
     @ResponseBody
     @GetMapping(value = "rewrite")
     @ApiImplicitParams({
@@ -123,21 +123,21 @@ public class ConfigController {
                 .map(entry -> {
                     RewriteConfigDto rewriteConfigDto = RewriteConfigDto.builder().wafRoute(entry.getKey())
                             .isStart(entry.getValue().getIsStart()).build();
-                    List<String> iterms = entry.getValue().getExtension().entrySet().stream()
-                            .map(iterm -> {
+                    List<String> items = entry.getValue().getExtension().entrySet().stream()
+                            .map(item -> {
                                 StringBuilder stringBuilder = new StringBuilder();
-                                stringBuilder.append(iterm.getKey()).append(" ");
-                                stringBuilder.append(iterm.getValue());
+                                stringBuilder.append(item.getKey()).append(" ");
+                                stringBuilder.append(item.getValue());
                                 return stringBuilder.toString();
                             }).collect(Collectors.toList());
-                    rewriteConfigDto.setIterms(iterms);
+                    rewriteConfigDto.setItems(items);
                     return rewriteConfigDto;
                 }).collect(Collectors.toList());
         resultDto.setValue(value);
         return resultDto;
     }
 
-    @ApiOperation(value = "获取Redirect配置")
+    @ApiOperation(value = "获取redirect配置")
     @ResponseBody
     @GetMapping(value = "redirect")
     @ApiImplicitParams({
@@ -152,14 +152,14 @@ public class ConfigController {
                 .map(entry -> {
                     RedirectConfigDto rewriteConfigDto = RedirectConfigDto.builder().wafRoute(entry.getKey())
                             .isStart(entry.getValue().getIsStart()).build();
-                    List<String> iterms = entry.getValue().getExtension().entrySet().stream()
-                            .map(iterm -> {
+                    List<String> items = entry.getValue().getExtension().entrySet().stream()
+                            .map(item -> {
                                 StringBuilder stringBuilder = new StringBuilder();
-                                stringBuilder.append(iterm.getKey()).append(" ");
-                                stringBuilder.append(iterm.getValue());
+                                stringBuilder.append(item.getKey()).append(" ");
+                                stringBuilder.append(item.getValue());
                                 return stringBuilder.toString();
                             }).collect(Collectors.toList());
-                    rewriteConfigDto.setIterms(iterms);
+                    rewriteConfigDto.setItems(items);
                     return rewriteConfigDto;
                 }).collect(Collectors.toList());
         resultDto.setValue(value);
@@ -167,7 +167,7 @@ public class ConfigController {
     }
 
 
-    @ApiOperation(value = "设置SecurityFilter")
+    @ApiOperation(value = "设置security filter")
     @ResponseBody
     @PutMapping(value = "security")
     @ApiImplicitParams({
@@ -181,38 +181,38 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "设置SecurityFilter Iterm")
+    @ApiOperation(value = "设置security filter item")
     @ResponseBody
-    @PutMapping(value = "security/iterm")
+    @PutMapping(value = "security/item")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public ResultDto setRequestConfig(@RequestBody @Validated(ExistSequence.class) SecurityConfigItermDto dto) {
+    public ResultDto setRequestConfig(@RequestBody @Validated(ExistSequence.class) SecurityConfigItemDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
 
-        ContextHolder.getClusterService().setSecurityConfigIterm(Optional.of(dto.getFilterName()),
+        ContextHolder.getClusterService().setSecurityConfigItem(Optional.of(dto.getFilterName()),
                 Optional.of(dto.getName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(dto.getExtension()).build()));
 
         return resultDto;
     }
 
-    @ApiOperation(value = "删除SecurityFilter Iterm")
+    @ApiOperation(value = "删除security filter item")
     @ResponseBody
-    @DeleteMapping(value = "security/iterm")
+    @DeleteMapping(value = "security/item")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public ResultDto deleteRequestIterm(@RequestBody @Validated(NotExistSequence.class) SecurityConfigItermDto dto) {
+    public ResultDto deleteRequestItem(@RequestBody @Validated(NotExistSequence.class) SecurityConfigItemDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteSecurityConfigIterm(Optional.of(dto.getFilterName()), Optional.of(dto.getName()));
+        ContextHolder.getClusterService().deleteSecurityConfigItem(Optional.of(dto.getFilterName()), Optional.of(dto.getName()));
         return resultDto;
     }
 
-    @ApiOperation(value = "设置ResponseFilter")
+    @ApiOperation(value = "设置response filter")
     @ResponseBody
     @PutMapping(value = "response")
     @ApiImplicitParams({
@@ -227,7 +227,7 @@ public class ConfigController {
     }
 
 
-    @ApiOperation(value = "设置Upstream")
+    @ApiOperation(value = "设置upstream")
     @ResponseBody
     @PutMapping(value = "forward/http/upstream")
     @ApiImplicitParams({
@@ -241,7 +241,7 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "设置Upstream Server")
+    @ApiOperation(value = "设置upstream server")
     @ResponseBody
     @PutMapping(value = "forward/http/upstream/server")
     @ApiImplicitParams({
@@ -259,7 +259,7 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "删除Upstream")
+    @ApiOperation(value = "删除upstream")
     @ResponseBody
     @DeleteMapping(value = "forward/http/upstream")
     @ApiImplicitParams({
@@ -273,7 +273,7 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "删除Upstream Server")
+    @ApiOperation(value = "删除upstream server")
     @ResponseBody
     @DeleteMapping(value = "forward/http/upstream/server")
     @ApiImplicitParams({
@@ -298,9 +298,9 @@ public class ConfigController {
     public ResultDto setRewriteConfig(@RequestBody @Validated(ExistSequence.class) RewriteConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        Map<String, Object> extensions = dto.getIterms().stream()
-                .map(iterm -> {
-                    String[] parts = iterm.split(" +");
+        Map<String, Object> extensions = dto.getItems().stream()
+                .map(item -> {
+                    String[] parts = item.split(" +");
                     return parts;
                 })
                 .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1]));
@@ -334,9 +334,9 @@ public class ConfigController {
     public ResultDto setRedirectConfig(@RequestBody @Validated(ExistSequence.class) RedirectConfigDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        Map<String, Object> extensions = dto.getIterms().stream()
-                .map(iterm -> {
-                    String[] parts = iterm.split(" +");
+        Map<String, Object> extensions = dto.getItems().stream()
+                .map(item -> {
+                    String[] parts = item.split(" +");
                     return parts;
                 })
                 .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1] + " " + parts[2]));
@@ -396,36 +396,36 @@ public class ConfigController {
         return resultDto;
     }
 
-    @ApiOperation(value = "设置forward translate iterm")
+    @ApiOperation(value = "设置forward translate item")
     @ResponseBody
-    @PutMapping(value = "forward/translate/iterm")
+    @PutMapping(value = "forward/translate/item")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public ResultDto setForwardConfigIterm(@RequestBody @Validated(ExistSequence.class) ForwardConfigItermDto dto) {
+    public ResultDto setForwardConfigItem(@RequestBody @Validated(ExistSequence.class) ForwardConfigItemDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
 
         Map<String,Object> extension=Maps.newHashMap();
         extension.put("type",dto.getType().name());
-        ContextHolder.getClusterService().setTranslateConfigIterm(Optional.of(dto.getWafRoute()),
+        ContextHolder.getClusterService().setTranslateConfigItem(Optional.of(dto.getWafRoute()),
                 Optional.of(dto.getName()), Optional.of(BasicConfig.builder().isStart(dto.getIsStart()).extension(extension).build()));
 
         return resultDto;
     }
 
-    @ApiOperation(value = "删除forward translate iterm")
+    @ApiOperation(value = "删除forward translate item")
     @ResponseBody
-    @DeleteMapping(value = "forward/translate/iterm")
+    @DeleteMapping(value = "forward/translate/item")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "WAFTOKEN", value = "WAFTOKEN",
                     dataType = "string", paramType = "cookie")
     })
-    public ResultDto deleteForwardConfigIterm(@RequestBody @Validated(NotExistSequence.class) ForwardConfigItermDto dto) {
+    public ResultDto deleteForwardConfigItem(@RequestBody @Validated(NotExistSequence.class) ForwardConfigItemDto dto) {
         ResultDto resultDto = new ResultDto();
         resultDto.setCode(HttpStatus.OK.value());
-        ContextHolder.getClusterService().deleteTranslateConfigIterm(Optional.of(dto.getWafRoute()), Optional.of(dto.getName()));
+        ContextHolder.getClusterService().deleteTranslateConfigItem(Optional.of(dto.getWafRoute()), Optional.of(dto.getName()));
         return resultDto;
     }
     @ApiOperation(value = "删除forward translate")

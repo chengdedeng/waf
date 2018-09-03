@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import info.yangguo.waf.WafHttpHeaderNames;
 import info.yangguo.waf.config.ContextHolder;
 import info.yangguo.waf.model.ForwardConfig;
-import info.yangguo.waf.model.ForwardConfigIterm;
+import info.yangguo.waf.model.ForwardConfigItem;
 import info.yangguo.waf.model.ForwardType;
 import info.yangguo.waf.request.translate.TranslateProcess;
 import info.yangguo.waf.request.translate.http.Swagger2;
@@ -63,13 +63,13 @@ public class TranslateFilter implements RequestFilter {
 
                     if (translateConfig.isPresent() && translateConfig.get().getConfig().getIsStart()) {
                         Optional<ForwardType> forwardType = Optional.ofNullable(null);
-                        for (ForwardConfigIterm iterm : translateConfig.get().getForwardConfigIterms()) {
-                            if (iterm.getConfig().getIsStart()) {
-                                Pattern pattern = Pattern.compile(iterm.getName());
+                        for (ForwardConfigItem item : translateConfig.get().getForwardConfigItems()) {
+                            if (item.getConfig().getIsStart()) {
+                                Pattern pattern = Pattern.compile(item.getName());
                                 Matcher matcher = pattern.matcher(finalUri);
                                 if (matcher.matches()) {
                                     //type这个参数有点魔法，因为我们在配置的扩展信息里面就用type作为key表示forward的类型
-                                    forwardType = Optional.ofNullable(ForwardType.getType(String.valueOf(iterm.getConfig().getExtension().get("type"))));
+                                    forwardType = Optional.ofNullable(ForwardType.getType(String.valueOf(item.getConfig().getExtension().get("type"))));
                                     break;
                                 }
                             }

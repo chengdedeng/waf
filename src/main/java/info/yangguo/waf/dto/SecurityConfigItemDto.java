@@ -1,6 +1,6 @@
 package info.yangguo.waf.dto;
 
-import info.yangguo.waf.validator.CheckSecurityConfigIterm;
+import info.yangguo.waf.validator.CheckSecurityConfigItem;
 import info.yangguo.waf.validator.Exist;
 import info.yangguo.waf.validator.NotExist;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,11 +19,11 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@CheckSecurityConfigIterm(groups = Exist.class)
-public class SecurityConfigItermDto {
+@CheckSecurityConfigItem(groups = Exist.class)
+public class SecurityConfigItemDto {
     @NotEmpty
     @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\.security\\..*Security")
-    @ApiModelProperty(value = "Security拦截器名称。", required = true)
+    @ApiModelProperty(value = "security拦截器名称。", required = true)
     private String filterName;
     @NotEmpty
     @ApiModelProperty(value = "配置项名称。", required = true)
@@ -33,6 +33,6 @@ public class SecurityConfigItermDto {
     @ApiModelProperty(value = "是否开启，true启用，false关闭。")
     private Boolean isStart;
     @Null(groups = NotExist.class)
-    @ApiModelProperty(value = "Iterm扩展信息，目前只在CCSecurityFilter有使用。")
+    @ApiModelProperty(value = "item扩展信息，目前只在CCSecurityFilter有使用。")
     private Map<String, Object> extension;
 }

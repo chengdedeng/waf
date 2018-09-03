@@ -17,7 +17,7 @@ import javax.validation.constraints.Pattern;
 public class SecurityConfigDto {
     @NotEmpty
     @Pattern(regexp = "info\\.yangguo\\.waf\\.request\\.security\\..*Security")
-    @ApiModelProperty(value = "Security拦截器名称。", required = true)
+    @ApiModelProperty(value = "security拦截器名称。", required = true)
     private String filterName;
     @NotNull
     @ApiModelProperty(value = "是否开启，true启用，false关闭。")

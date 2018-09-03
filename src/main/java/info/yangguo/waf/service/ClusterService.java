@@ -22,21 +22,21 @@ public interface ClusterService {
     void setSecurityConfig(Optional<String> filterName, Optional<BasicConfig> config);
 
     /**
-     * 设置security iterm
+     * 设置security item
      *
      * @param filterName
-     * @param iterm
+     * @param item
      * @param config
      */
-    void setSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm, Optional<BasicConfig> config);
+    void setSecurityConfigItem(Optional<String> filterName, Optional<String> item, Optional<BasicConfig> config);
 
     /**
-     * 删除security iterm
+     * 删除security item
      *
      * @param filterName
-     * @param iterm
+     * @param item
      */
-    void deleteSecurityConfigIterm(Optional<String> filterName, Optional<String> iterm);
+    void deleteSecurityConfigItem(Optional<String> filterName, Optional<String> item);
 
     /**
      * 获取response filter配置信息
@@ -154,21 +154,21 @@ public interface ClusterService {
     void setTranslateConfig(Optional<String> wafRoute, Optional<BasicConfig> config);
 
     /**
-     * 设置forward config iterm
+     * 设置forward config item
      *
      * @param wafRoute
-     * @param iterm
+     * @param item
      * @param config
      */
-    void setTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm, Optional<BasicConfig> config);
+    void setTranslateConfigItem(Optional<String> wafRoute, Optional<String> item, Optional<BasicConfig> config);
 
     /**
-     * 删除forward config iterm
+     * 删除forward config item
      *
      * @param wafRoute
-     * @param iterm
+     * @param item
      */
-    void deleteTranslateConfigIterm(Optional<String> wafRoute, Optional<String> iterm);
+    void deleteTranslateConfigItem(Optional<String> wafRoute, Optional<String> item);
 
     /**
      * 删除forward config

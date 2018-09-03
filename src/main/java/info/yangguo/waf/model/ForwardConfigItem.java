@@ -13,8 +13,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SecurityConfigIterm implements Serializable {
-    private static final long serialVersionUID = 3823749021458846717L;
+public class ForwardConfigItem implements Serializable {
+    private static final long serialVersionUID = -8055712788556691003L;
     /**
      * 名称
      */

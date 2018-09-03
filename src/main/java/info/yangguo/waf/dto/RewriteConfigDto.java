@@ -1,6 +1,6 @@
 package info.yangguo.waf.dto;
 
-import info.yangguo.waf.validator.CheckRewriteConfigIterm;
+import info.yangguo.waf.validator.CheckRewriteConfigItem;
 import info.yangguo.waf.validator.Exist;
 import info.yangguo.waf.validator.NotExist;
 import io.swagger.annotations.ApiModelProperty;
@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@CheckRewriteConfigIterm(groups = Exist.class)
+@CheckRewriteConfigItem(groups = Exist.class)
 public class RewriteConfigDto {
     @NotEmpty
     @ApiModelProperty(value = "x-waf-route，路由标志。", required = true)
@@ -29,5 +29,5 @@ public class RewriteConfigDto {
     private Boolean isStart;
     @NotNull(groups = Exist.class)
     @Null(groups = NotExist.class)
-    private List<String> iterms;
+    private List<String> items;
 }

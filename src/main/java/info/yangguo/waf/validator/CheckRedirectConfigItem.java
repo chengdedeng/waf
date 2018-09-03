@@ -7,12 +7,11 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = {RewriteConfigItermValidator.class})
-public @interface CheckRewriteConfigIterm {
-    String message() default "iterm is illegal";
+@Constraint(validatedBy = {RedirectConfigItemValidator.class})
+public @interface CheckRedirectConfigItem {
+    String message() default "item is illegal";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }

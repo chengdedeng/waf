@@ -3,7 +3,7 @@ package info.yangguo.waf.request.security;
 import com.codahale.metrics.Timer;
 import info.yangguo.waf.Constant;
 import info.yangguo.waf.WafHttpHeaderNames;
-import info.yangguo.waf.model.SecurityConfigIterm;
+import info.yangguo.waf.model.SecurityConfigItem;
 import io.netty.handler.codec.http.HttpObject;
 import io.netty.handler.codec.http.HttpRequest;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class WUrlSecurity extends Security {
     }
 
     @Override
-    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigIterm> iterms) {
+    public boolean doFilter(HttpRequest originalRequest, HttpObject httpObject, List<SecurityConfigItem> items) {
         if (httpObject instanceof HttpRequest) {
             logger.debug("filter:{}", this.getClass().getName());
             HttpRequest httpRequest = (HttpRequest) httpObject;
@@ -39,19 +39,19 @@ public class WUrlSecurity extends Security {
             } else {
                 url = httpRequest.uri();
             }
-            for (SecurityConfigIterm iterm : iterms) {
-                if (iterm.getConfig().getIsStart()) {
-                    Timer itermTimer = Constant.metrics.timer("WUrlSecurity[" + iterm.getName() + "]");
-                    Timer.Context itermContext = itermTimer.time();
+            for (SecurityConfigItem item : items) {
+                if (item.getConfig().getIsStart()) {
+                    Timer itemTimer = Constant.metrics.timer("WUrlSecurity[" + item.getName() + "]");
+                    Timer.Context itemContext = itemTimer.time();
                     try {
-                        Pattern pattern = Pattern.compile(iterm.getName());
+                        Pattern pattern = Pattern.compile(item.getName());
                         Matcher matcher = pattern.matcher(url);
                         if (matcher.find()) {
-                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "WUrl", iterm.getName());
+                            hackLog(logger, originalRequest.headers().getAsString(WafHttpHeaderNames.X_REAL_IP), "WUrl", item.getName());
                             return true;
                         }
                     } finally {
-                        itermContext.stop();
+                        itemContext.stop();
                     }
                 }
             }

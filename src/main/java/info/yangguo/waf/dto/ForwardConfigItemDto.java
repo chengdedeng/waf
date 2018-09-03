@@ -17,7 +17,7 @@ import javax.validation.constraints.Null;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ForwardConfigItermDto {
+public class ForwardConfigItemDto {
     @NotEmpty
     @ApiModelProperty(value = "x-waf-route，路由标志。", required = true)
     private String wafRoute;
@@ -29,6 +29,6 @@ public class ForwardConfigItermDto {
     @ApiModelProperty(value = "是否开启，true启用，false关闭。")
     private Boolean isStart;
     @Null(groups = NotExist.class)
-    @ApiModelProperty(value = "Iterm扩展信息，目前只在CCSecurityFilter有使用。")
+    @ApiModelProperty(value = "item扩展信息，目前只在CCSecurityFilter有使用。")
     private ForwardType type;
 }
