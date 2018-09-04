@@ -32,10 +32,9 @@ import java.util.regex.Pattern;
  */
 public class CCSecurity extends Security {
     private static final Logger logger = LoggerFactory.getLogger(CCSecurity.class);
-    private LoadingCache<String, RateLimiter> loadingCache;
+    private static LoadingCache<String, RateLimiter> loadingCache;
 
-
-    public CCSecurity() {
+    static {
         loadingCache = CacheBuilder.newBuilder()
                 .maximumSize(1000)
                 .removalListener(notification -> {
@@ -104,7 +103,7 @@ public class CCSecurity extends Security {
                     //阈值放到key中原因如下：
                     //1.由于阈值可能出现变化，从而保证随时阈值实时生效。
                     //2.rate limiter需要使用。
-                    String key = originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE) + ":" + String.valueOf(Hashing.murmur3_32().hashBytes(matching.get().getKey().getBytes()).padToLong()) + ":" + String.valueOf(matching.get().getValue());
+                    String key = originalRequest.headers().getAsString(WafHttpHeaderNames.X_WAF_ROUTE).replaceAll(":", "_") + ":" + String.valueOf(Hashing.murmur3_32().hashBytes(matching.get().getKey().getBytes()).padToLong()) + ":" + String.valueOf(matching.get().getValue());
                     try {
                         RateLimiter rateLimiter = loadingCache.get(key);
                         if (rateLimiter.tryAcquire()) {

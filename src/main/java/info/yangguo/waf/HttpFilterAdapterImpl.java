@@ -52,6 +52,7 @@ public class HttpFilterAdapterImpl extends HttpFiltersAdapter {
             try {
                 response = filter.doFilter(originalRequest, httpObject);
             } catch (Exception e) {
+                logger.warn("request client to proxy failed", e);
                 response = ResponseUtil.createResponse(HttpResponseStatus.BAD_GATEWAY, originalRequest, null);
             }
             if (response != null) {
