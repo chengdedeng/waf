@@ -24,13 +24,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ScriptSecurity extends Security {
     private static final Logger logger = LoggerFactory.getLogger(ScannerSecurity.class);
-    private ScriptEntry scriptEntry;
-    private Map<String, String> scripts;
+    private static ScriptEntry scriptEntry = new ScriptEntry();
+    private static Map<String, String> scripts = Maps.newHashMap();
 
-    public ScriptSecurity() {
-        this.scriptEntry = new ScriptEntry();
-        this.scripts = Maps.newHashMap();
-
+    static {
         try {
             FileAlterationMonitor monitor = new FileAlterationMonitor(1000L);
             IOFileFilter rule = FileFilterUtils.and(
@@ -76,7 +73,7 @@ public class ScriptSecurity extends Security {
         return result.get();
     }
 
-    class FileListerAdapter extends FileAlterationListenerAdaptor {
+    static class FileListerAdapter extends FileAlterationListenerAdaptor {
         private Map<String, String> scripts;
 
         public FileListerAdapter(Map<String, String> scripts) {
