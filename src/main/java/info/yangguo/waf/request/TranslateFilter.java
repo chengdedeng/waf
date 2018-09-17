@@ -8,7 +8,8 @@ import info.yangguo.waf.model.ForwardConfig;
 import info.yangguo.waf.model.ForwardConfigItem;
 import info.yangguo.waf.model.ForwardType;
 import info.yangguo.waf.request.translate.TranslateProcess;
-import info.yangguo.waf.request.translate.http.Swagger2;
+import info.yangguo.waf.request.translate.dubbo.HelloServiceTranslate;
+import info.yangguo.waf.request.translate.http.Swagger2Translate;
 import info.yangguo.waf.util.JsonUtil;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.*;
@@ -32,7 +33,8 @@ public class TranslateFilter implements RequestFilter {
 
     public TranslateFilter() {
         List<TranslateProcess> httpForward = Lists.newArrayList();
-        httpForward.add(new Swagger2());
+        httpForward.add(Swagger2Translate.INSTANCE);
+        httpForward.add(HelloServiceTranslate.INSTANCE);
         processes.put(ForwardType.HTTP, httpForward);
     }
 
@@ -88,6 +90,11 @@ public class TranslateFilter implements RequestFilter {
                     }
                 }
             }
+        }
+        if (response != null && !response.headers().contains("Transfer-Encoding")) {
+            HttpHeaders httpHeaders = new DefaultHttpHeaders();
+            httpHeaders.add("Transfer-Encoding", "chunked");
+            response.headers().add(httpHeaders);
         }
         return response;
     }

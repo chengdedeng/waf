@@ -23,11 +23,12 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.InputStream;
 import java.util.Map;
 
-public class Swagger2 implements TranslateProcess {
-    private static Logger LOGGER = LoggerFactory.getLogger(Swagger2.class);
-    private static HttpClient httpClient;
+public enum Swagger2Translate implements TranslateProcess {
+    INSTANCE;
+    private Logger logger;
+    private HttpClient httpClient;
 
-    static {
+    Swagger2Translate() {
         Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.getSocketFactory())
                 .build();
@@ -38,6 +39,7 @@ public class Swagger2 implements TranslateProcess {
         RequestConfig requestConfig = RequestConfig.custom()
                 .build();
 
+        logger = LoggerFactory.getLogger(Swagger2Translate.class);
         httpClient = HttpClientBuilder.create()
                 .setDefaultRequestConfig(requestConfig)
                 .setConnectionManager(connectionManager)
@@ -68,10 +70,10 @@ public class Swagger2 implements TranslateProcess {
                     ClassPathResource apiResource = new ClassPathResource("api-docs/" + wafRoute + ".json");
                     content = FileUtils.readFileToString(apiResource.getFile());
                 } catch (Exception e) {
-                    LOGGER.warn("[{}]'s api docs isn't exist!", wafRoute);
+                    logger.warn("[{}]'s api docs isn't exist!", wafRoute);
                 }
                 result = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(content.getBytes()));
-            } else {
+            } else if(uri.endsWith("swagger-ui.html")||uri.contains("webjars")){
                 HttpUriRequest httpUriRequest = new HttpGet("http://127.0.0.1:" + Constant.wafWebConfs.get("server.port") + uri);
                 org.apache.http.HttpResponse response = httpClient.execute(httpUriRequest);
                 if (200 == response.getStatusLine().getStatusCode()) {
@@ -84,11 +86,6 @@ public class Swagger2 implements TranslateProcess {
             }
         } catch (Exception e) {
             result = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.BAD_GATEWAY);
-        }
-        if (result != null) {
-            HttpHeaders httpHeaders = new DefaultHttpHeaders();
-            httpHeaders.add("Transfer-Encoding", "chunked");
-            result.headers().add(httpHeaders);
         }
         return result;
     }
