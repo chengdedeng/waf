@@ -16,4 +16,11 @@ public class Provider {
         serviceConfig.export();
         System.in.read();
     }
+
+    static class HelloServiceImpl implements HelloService {
+        @Override
+        public String sayHello(String name) {
+            return "hello " + name;
+        }
+    }
 }

@@ -13,7 +13,7 @@ import java.util.Map;
 
 public enum HelloServiceTranslate implements TranslateProcess {
     INSTANCE;
-    private Logger logger;
+    private static Logger logger = LoggerFactory.getLogger(info.yangguo.waf.request.translate.dubbo.HelloServiceTranslate.class);
     private HelloService helloService;
 
     HelloServiceTranslate() {
@@ -21,7 +21,7 @@ public enum HelloServiceTranslate implements TranslateProcess {
         referenceConfig.setApplication(new ApplicationConfig("waf-consumer"));
         referenceConfig.setRegistry(new RegistryConfig("zookeeper://127.0.0.1:2181"));
         referenceConfig.setInterface(HelloService.class);
-        logger = LoggerFactory.getLogger(HelloServiceTranslate.class);
+        referenceConfig.setCheck(false);
         helloService = referenceConfig.get();
     }
 
@@ -35,6 +35,7 @@ public enum HelloServiceTranslate implements TranslateProcess {
         HttpResponse result = null;
         if ("dubbo".equals(wafRoute) && uri.endsWith("hello")) {
             String word = helloService.sayHello((String) args.get("name"));
+            logger.info("dubbbo hello service result is {}", word);
             result = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(word.getBytes()));
         }
         return result;

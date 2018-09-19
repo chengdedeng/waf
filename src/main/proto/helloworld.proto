@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "info.yangguo.waf.request.translate.grpc";
+option java_outer_classname = "Service";
+
+service HelloService {
+  rpc SayHello (HelloRequest) returns (HelloReply) {
+  }
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloReply {
+  string message = 1;
+}

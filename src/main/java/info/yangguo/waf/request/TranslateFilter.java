@@ -34,7 +34,8 @@ public class TranslateFilter implements RequestFilter {
     public TranslateFilter() {
         List<TranslateProcess> httpForward = Lists.newArrayList();
         httpForward.add(Swagger2Translate.INSTANCE);
-        httpForward.add(HelloServiceTranslate.INSTANCE);
+        httpForward.add(info.yangguo.waf.request.translate.dubbo.HelloServiceTranslate.INSTANCE);
+        httpForward.add(info.yangguo.waf.request.translate.grpc.HelloServiceTranslate.INSTANCE);
         processes.put(ForwardType.HTTP, httpForward);
     }
 
