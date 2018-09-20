@@ -25,7 +25,7 @@ import java.util.Map;
 
 public enum Swagger2Translate implements TranslateProcess {
     INSTANCE;
-    private Logger logger;
+    private static Logger logger = LoggerFactory.getLogger(Swagger2Translate.class);
     private HttpClient httpClient;
 
     Swagger2Translate() {
@@ -39,7 +39,6 @@ public enum Swagger2Translate implements TranslateProcess {
         RequestConfig requestConfig = RequestConfig.custom()
                 .build();
 
-        logger = LoggerFactory.getLogger(Swagger2Translate.class);
         httpClient = HttpClientBuilder.create()
                 .setDefaultRequestConfig(requestConfig)
                 .setConnectionManager(connectionManager)
@@ -73,7 +72,7 @@ public enum Swagger2Translate implements TranslateProcess {
                     logger.warn("[{}]'s api docs isn't exist!", wafRoute);
                 }
                 result = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(content.getBytes()));
-            } else if(uri.endsWith("swagger-ui.html")||uri.contains("webjars")){
+            } else if (uri.endsWith("swagger-ui.html") || uri.contains("webjars")) {
                 HttpUriRequest httpUriRequest = new HttpGet("http://127.0.0.1:" + Constant.wafWebConfs.get("server.port") + uri);
                 org.apache.http.HttpResponse response = httpClient.execute(httpUriRequest);
                 if (200 == response.getStatusLine().getStatusCode()) {
