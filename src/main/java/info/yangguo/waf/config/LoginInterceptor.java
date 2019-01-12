@@ -18,6 +18,7 @@ package info.yangguo.waf.config;
 import info.yangguo.waf.exception.UnauthorizedException;
 import info.yangguo.waf.service.JwtTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -44,6 +45,8 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
                     }
                 }
             }
+        } else if (HttpMethod.OPTIONS.name().equals(request.getMethod())) {
+            return true;
         }
         throw new UnauthorizedException();
     }
