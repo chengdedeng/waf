@@ -1,5 +1,5 @@
 [![Join the chat at https://gitter.im/chengdedeng/waf](https://badges.gitter.im/chengdedeng/waf.svg)](https://gitter.im/chengdedeng/waf?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg)](https://opensource.org/licenses/mit-license.php)
 [![LICENSE](https://img.shields.io/badge/license-Anti%20996-blue.svg)](https://github.com/996icu/996.ICU/blob/master/LICENSE)
 
 > WAF是使用Java开发的API Gateway，由于WAF构建在开源代理[LittleProxy](https://github.com/adamfisk/LittleProxy)之上，所以说WAF底层使用的是[Netty](https://github.com/netty/netty)。
